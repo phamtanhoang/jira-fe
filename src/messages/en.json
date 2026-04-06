@@ -1,0 +1,56 @@
+{
+  "auth": {
+    "signIn": "Sign In",
+    "signInDesc": "Sign in to continue to {appName}",
+    "signUp": "Sign Up",
+    "signUpDesc": "Create your {appName} account",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "Password (e.g. Pass@123)",
+    "confirmPassword": "Confirm password",
+    "name": "Full name",
+    "processing": "Processing...",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "verifyEmail": "Verify your email",
+    "verifyEmailDesc": "We sent a 6-digit code to",
+    "enterCode": "Enter verification code",
+    "verifying": "Verifying...",
+    "verify": "Verify"
+  },
+  "footer": {
+    "copyright": "© {year} {appName}. All rights reserved.",
+    "builtBy": "Built by"
+  },
+  "errors": {
+    "INVALID_CREDENTIALS": "Invalid email or password, or email not verified",
+    "EMAIL_IN_USE": "Email is already in use",
+    "INVALID_INPUT": "Invalid input",
+    "INVALID_TOKEN": "Invalid code",
+    "TOKEN_EXPIRED": "Code has expired",
+    "UNKNOWN_ERROR": "Something went wrong",
+    "EMAIL_INVALID": "Invalid email",
+    "PASSWORD_REQUIRED": "Password is required",
+    "PASSWORD_MIN": "Password must be at least 6 characters",
+    "PASSWORD_FORMAT": "Password must include uppercase, lowercase, number and special character",
+    "NAME_REQUIRED": "Name is required",
+    "PASSWORD_MISMATCH": "Passwords do not match",
+    "TOKEN_LENGTH": "Verification code must be 6 characters"
+  },
+  "success": {
+    "CHECK_EMAIL": "Check your email for verification!",
+    "EMAIL_VERIFIED": "Email verified!"
+  },
+  "meta": {
+    "signInTitle": "Sign In",
+    "signUpTitle": "Sign Up",
+    "verifyEmailTitle": "Verify Email"
+  },
+  "email": {
+    "subject": "Verification Code - {appName}",
+    "heading": "Verify your email",
+    "body": "Your verification code is:",
+    "expiry": "This code expires in {expiryMinutes} minutes."
+  }
+}

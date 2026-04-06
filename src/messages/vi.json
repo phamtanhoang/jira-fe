@@ -1,0 +1,56 @@
+{
+  "auth": {
+    "signIn": "Đăng nhập",
+    "signInDesc": "Đăng nhập để tiếp tục đến {appName}",
+    "signUp": "Đăng ký",
+    "signUpDesc": "Tạo tài khoản {appName}",
+    "signOut": "Đăng xuất",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "passwordHint": "Mật khẩu (vd: Pass@123)",
+    "confirmPassword": "Nhập lại mật khẩu",
+    "name": "Họ và tên",
+    "processing": "Đang xử lý...",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "verifyEmail": "Xác thực email",
+    "verifyEmailDesc": "Chúng tôi đã gửi mã 6 số đến",
+    "enterCode": "Nhập mã xác thực",
+    "verifying": "Đang xác thực...",
+    "verify": "Xác thực"
+  },
+  "footer": {
+    "copyright": "© {year} {appName}. Bảo lưu mọi quyền.",
+    "builtBy": "Phát triển bởi"
+  },
+  "errors": {
+    "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng, hoặc email chưa xác thực",
+    "EMAIL_IN_USE": "Email đã được sử dụng",
+    "INVALID_INPUT": "Dữ liệu không hợp lệ",
+    "INVALID_TOKEN": "Mã không đúng",
+    "TOKEN_EXPIRED": "Mã đã hết hạn",
+    "UNKNOWN_ERROR": "Có lỗi xảy ra",
+    "EMAIL_INVALID": "Email không hợp lệ",
+    "PASSWORD_REQUIRED": "Mật khẩu không được trống",
+    "PASSWORD_MIN": "Mật khẩu ít nhất 6 ký tự",
+    "PASSWORD_FORMAT": "Mật khẩu phải có chữ hoa, chữ thường, số và ký tự đặc biệt",
+    "NAME_REQUIRED": "Tên không được trống",
+    "PASSWORD_MISMATCH": "Mật khẩu không khớp",
+    "TOKEN_LENGTH": "Mã xác thực phải có 6 ký tự"
+  },
+  "success": {
+    "CHECK_EMAIL": "Kiểm tra email để xác thực!",
+    "EMAIL_VERIFIED": "Email đã xác thực!"
+  },
+  "meta": {
+    "signInTitle": "Đăng nhập",
+    "signUpTitle": "Đăng ký",
+    "verifyEmailTitle": "Xác thực email"
+  },
+  "email": {
+    "subject": "Mã xác thực - {appName}",
+    "heading": "Xác thực email của bạn",
+    "body": "Mã xác thực của bạn là:",
+    "expiry": "Mã này hết hạn sau {expiryMinutes} phút."
+  }
+}
