@@ -1,9 +1,9 @@
 {
   "auth": {
     "signIn": "Đăng nhập",
-    "signInDesc": "Đăng nhập để tiếp tục đến {appName}",
+    "signInDesc": "Đăng nhập để tiếp tục đến {name}",
     "signUp": "Đăng ký",
-    "signUpDesc": "Tạo tài khoản {appName}",
+    "signUpDesc": "Tạo tài khoản {name}",
     "signOut": "Đăng xuất",
     "email": "Email",
     "password": "Mật khẩu",
@@ -20,16 +20,28 @@
     "verify": "Xác thực"
   },
   "footer": {
-    "copyright": "© {year} {appName}. Bảo lưu mọi quyền.",
+    "copyright": "© {year} {name}. Bảo lưu mọi quyền.",
     "builtBy": "Phát triển bởi"
   },
-  "errors": {
-    "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng, hoặc email chưa xác thực",
-    "EMAIL_IN_USE": "Email đã được sử dụng",
-    "INVALID_INPUT": "Dữ liệu không hợp lệ",
-    "INVALID_TOKEN": "Mã không đúng",
-    "TOKEN_EXPIRED": "Mã đã hết hạn",
-    "UNKNOWN_ERROR": "Có lỗi xảy ra",
+  "messages": {
+    "REGISTER_SUCCESS": "Đăng ký thành công! Vui lòng kiểm tra email.",
+    "EMAIL_VERIFIED": "Xác thực email thành công!",
+    "LOGOUT_SUCCESS": "Đăng xuất thành công.",
+    "EMAIL_ALREADY_REGISTERED": "Email này đã được đăng ký.",
+    "EMAIL_PENDING_VERIFICATION": "Email đang chờ xác thực. Vui lòng kiểm tra hộp thư.",
+    "EMAIL_NOT_VERIFIED": "Email chưa được xác thực.",
+    "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
+    "INVALID_VERIFICATION_CODE": "Mã xác thực không đúng.",
+    "VERIFICATION_CODE_EXPIRED": "Mã xác thực đã hết hạn.",
+    "REFRESH_TOKEN_INVALID": "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
+    "REFRESH_TOKEN_NOT_FOUND": "Không tìm thấy phiên đăng nhập. Vui lòng đăng nhập lại.",
+    "USER_NOT_FOUND": "Không tìm thấy người dùng.",
+    "SETTING_NOT_FOUND": "Không tìm thấy cài đặt.",
+    "APP_INFO_NOT_FOUND": "Không tìm thấy thông tin ứng dụng.",
+    "INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau.",
+    "UNKNOWN_ERROR": "Đã xảy ra lỗi không mong muốn."
+  },
+  "validation": {
     "EMAIL_INVALID": "Email không hợp lệ",
     "PASSWORD_REQUIRED": "Mật khẩu không được trống",
     "PASSWORD_MIN": "Mật khẩu ít nhất 6 ký tự",
@@ -38,17 +50,13 @@
     "PASSWORD_MISMATCH": "Mật khẩu không khớp",
     "TOKEN_LENGTH": "Mã xác thực phải có 6 ký tự"
   },
-  "success": {
-    "CHECK_EMAIL": "Kiểm tra email để xác thực!",
-    "EMAIL_VERIFIED": "Email đã xác thực!"
-  },
   "meta": {
     "signInTitle": "Đăng nhập",
     "signUpTitle": "Đăng ký",
     "verifyEmailTitle": "Xác thực email"
   },
   "email": {
-    "subject": "Mã xác thực - {appName}",
+    "subject": "Mã xác thực - {name}",
     "heading": "Xác thực email của bạn",
     "body": "Mã xác thực của bạn là:",
     "expiry": "Mã này hết hạn sau {expiryMinutes} phút."

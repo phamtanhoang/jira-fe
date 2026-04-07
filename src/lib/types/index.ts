@@ -1,5 +1,5 @@
 export type AppSettings = {
-  appName: string;
+  name: string;
   logoUrl: string;
   description: string;
   authorName: string;

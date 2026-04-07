@@ -1,9 +1,9 @@
 {
   "auth": {
     "signIn": "Sign In",
-    "signInDesc": "Sign in to continue to {appName}",
+    "signInDesc": "Sign in to continue to {name}",
     "signUp": "Sign Up",
-    "signUpDesc": "Create your {appName} account",
+    "signUpDesc": "Create your {name} account",
     "signOut": "Sign Out",
     "email": "Email",
     "password": "Password",
@@ -20,16 +20,28 @@
     "verify": "Verify"
   },
   "footer": {
-    "copyright": "© {year} {appName}. All rights reserved.",
+    "copyright": "© {year} {name}. All rights reserved.",
     "builtBy": "Built by"
   },
-  "errors": {
-    "INVALID_CREDENTIALS": "Invalid email or password, or email not verified",
-    "EMAIL_IN_USE": "Email is already in use",
-    "INVALID_INPUT": "Invalid input",
-    "INVALID_TOKEN": "Invalid code",
-    "TOKEN_EXPIRED": "Code has expired",
-    "UNKNOWN_ERROR": "Something went wrong",
+  "messages": {
+    "REGISTER_SUCCESS": "Registration successful! Please check your email.",
+    "EMAIL_VERIFIED": "Email verified successfully!",
+    "LOGOUT_SUCCESS": "Logged out successfully.",
+    "EMAIL_ALREADY_REGISTERED": "This email is already registered.",
+    "EMAIL_PENDING_VERIFICATION": "This email is pending verification. Please check your inbox.",
+    "EMAIL_NOT_VERIFIED": "Your email has not been verified yet.",
+    "INVALID_CREDENTIALS": "Invalid email or password.",
+    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
+    "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "REFRESH_TOKEN_INVALID": "Session expired. Please sign in again.",
+    "REFRESH_TOKEN_NOT_FOUND": "Session not found. Please sign in again.",
+    "USER_NOT_FOUND": "User not found.",
+    "SETTING_NOT_FOUND": "Setting not found.",
+    "APP_INFO_NOT_FOUND": "Application info not found.",
+    "INTERNAL_SERVER_ERROR": "Something went wrong. Please try again later.",
+    "UNKNOWN_ERROR": "An unexpected error occurred."
+  },
+  "validation": {
     "EMAIL_INVALID": "Invalid email",
     "PASSWORD_REQUIRED": "Password is required",
     "PASSWORD_MIN": "Password must be at least 6 characters",
@@ -38,17 +50,13 @@
     "PASSWORD_MISMATCH": "Passwords do not match",
     "TOKEN_LENGTH": "Verification code must be 6 characters"
   },
-  "success": {
-    "CHECK_EMAIL": "Check your email for verification!",
-    "EMAIL_VERIFIED": "Email verified!"
-  },
   "meta": {
     "signInTitle": "Sign In",
     "signUpTitle": "Sign Up",
     "verifyEmailTitle": "Verify Email"
   },
   "email": {
-    "subject": "Verification Code - {appName}",
+    "subject": "Verification Code - {name}",
     "heading": "Verify your email",
     "body": "Your verification code is:",
     "expiry": "This code expires in {expiryMinutes} minutes."

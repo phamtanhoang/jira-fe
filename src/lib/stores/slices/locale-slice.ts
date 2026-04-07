@@ -29,7 +29,7 @@ export const createLocaleSlice: StateCreator<
   },
 
   t: (key: MessageKey, vars?: Record<string, string>) => {
-    const { locale, appName } = get();
-    return translate(locale, key, { appName, ...vars });
+    const { locale, name } = get();
+    return translate(locale, key, { name, ...vars });
   },
 });

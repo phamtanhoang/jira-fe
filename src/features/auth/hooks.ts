@@ -2,9 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
 import { ROUTES, COOKIE_MAX_AGE_1Y } from "@/lib/constants";
-import { useAppStore } from "@/lib/stores/use-app-store";
+import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
 import type { LoginPayload, RegisterPayload, VerifyEmailPayload } from "./types";
 
@@ -24,16 +23,9 @@ export function useCurrentUser() {
 }
 
 // ─── Login ───────────────────────────────────────────────
-export function useLogin({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: () => void;
-  onError?: (message: string) => void;
-} = {}) {
+export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { t } = useAppStore();
 
   return useMutation({
     mutationFn: (data: LoginPayload) => authApi.login(data),
@@ -46,64 +38,43 @@ export function useLogin({
         router.push(ROUTES.DASHBOARD);
       }
     },
-    onError: (error: AxiosError<{ error: string }>) => {
-      const key = error.response?.data?.error ?? "UNKNOWN_ERROR";
-      onError?.(t(`errors.${key}` as "errors.UNKNOWN_ERROR"));
-    },
+    onError: handleApiError,
   });
 }
 
 // ─── Register ────────────────────────────────────────────
-export function useRegister({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: (email: string) => void;
-  onError?: (message: string) => void;
-} = {}) {
+export function useRegister({ onSuccess }: { onSuccess?: (email: string) => void } = {}) {
   const router = useRouter();
-  const { t } = useAppStore();
 
   return useMutation({
     mutationFn: (data: RegisterPayload) => authApi.register(data),
     onSuccess: (_, variables) => {
+      showMessage("REGISTER_SUCCESS");
       if (onSuccess) {
         onSuccess(variables.email);
       } else {
         router.push(`${ROUTES.VERIFY_EMAIL}?email=${encodeURIComponent(variables.email)}`);
       }
     },
-    onError: (error: AxiosError<{ error: string }>) => {
-      const key = error.response?.data?.error ?? "UNKNOWN_ERROR";
-      onError?.(t(`errors.${key}` as "errors.UNKNOWN_ERROR"));
-    },
+    onError: handleApiError,
   });
 }
 
 // ─── Verify Email ────────────────────────────────────────
-export function useVerifyEmail({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: () => void;
-  onError?: (message: string) => void;
-} = {}) {
+export function useVerifyEmail({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter();
-  const { t } = useAppStore();
 
   return useMutation({
     mutationFn: (data: VerifyEmailPayload) => authApi.verifyEmail(data),
     onSuccess: () => {
+      showMessage("EMAIL_VERIFIED");
       if (onSuccess) {
         onSuccess();
       } else {
         router.push(ROUTES.SIGN_IN);
       }
     },
-    onError: (error: AxiosError<{ error: string }>) => {
-      const key = error.response?.data?.error ?? "UNKNOWN_ERROR";
-      onError?.(t(`errors.${key}` as "errors.UNKNOWN_ERROR"));
-    },
+    onError: handleApiError,
   });
 }
 
@@ -114,6 +85,9 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: () => authApi.logout(),
+    onSuccess: () => {
+      showMessage("LOGOUT_SUCCESS");
+    },
     onSettled: () => {
       document.cookie = "is_authenticated=;path=/;max-age=0";
       queryClient.clear();

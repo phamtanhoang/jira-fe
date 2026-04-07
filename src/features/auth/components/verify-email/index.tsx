@@ -15,16 +15,13 @@ export function VerifyEmailForm() {
   const email = searchParams.get("email") ?? "";
 
   const [digits, setDigits] = useState<string[]>(Array(VERIFICATION_CODE_LENGTH).fill(""));
-  const [error, setError] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const code = digits.join("");
 
   const { mutate: verify, isPending } = useVerifyEmail({
-    onError: (msg) => {
-      setError(msg);
+    onSuccess: () => {
       setDigits(Array(VERIFICATION_CODE_LENGTH).fill(""));
-      inputRefs.current[0]?.focus();
     },
   });
 
@@ -58,7 +55,6 @@ export function VerifyEmailForm() {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
     verify({ email, token: code });
   }
 
@@ -91,8 +87,6 @@ export function VerifyEmailForm() {
             />
           ))}
         </div>
-
-        {error && <p className="mt-4 text-center text-sm text-destructive">{error}</p>}
 
         <Button type="submit" className="mt-6 w-full" disabled={isPending || code.length !== VERIFICATION_CODE_LENGTH}>
           {isPending ? t("auth.verifying") : t("auth.verify")}

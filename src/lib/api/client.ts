@@ -1,5 +1,6 @@
 import axios from "axios";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, ENDPOINTS } from "@/lib/constants";
+import { handleApiError } from "@/lib/utils";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -28,6 +29,12 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Check if user is authenticated before attempting refresh
+    const isAuthenticated = document.cookie.includes("is_authenticated=true");
+    if (!isAuthenticated) {
+      return Promise.reject(error);
+    }
+
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -38,11 +45,12 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await api.post("/auth/refresh");
+      await api.post(ENDPOINTS.auth.refresh);
       processQueue(null);
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
+      handleApiError(refreshError);
       document.cookie = "is_authenticated=;path=/;max-age=0";
       window.location.href = ROUTES.SIGN_IN;
       return Promise.reject(refreshError);

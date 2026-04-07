@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
@@ -16,11 +15,8 @@ type RegisterForm = z.infer<typeof registerFormSchema>;
 
 export function SignUpForm() {
   const { t } = useAppStore();
-  const [apiError, setApiError] = useState("");
 
-  const { mutate: registerUser, isPending } = useRegister({
-    onError: (msg) => setApiError(msg),
-  });
+  const { mutate: registerUser, isPending } = useRegister();
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerFormSchema),
@@ -28,12 +24,11 @@ export function SignUpForm() {
   });
 
   function onSubmit(data: RegisterForm) {
-    setApiError("");
     const { confirmPassword: _, ...payload } = data;
     registerUser(payload);
   }
 
-  const te = (key: string) => t(`errors.${key}` as "errors.UNKNOWN_ERROR");
+  const te = (key: string) => t(`validation.${key}` as "validation.EMAIL_INVALID");
 
   return (
     <div>
@@ -99,8 +94,6 @@ export function SignUpForm() {
               </FormItem>
             )}
           />
-
-          {apiError && <p className="text-sm text-destructive">{apiError}</p>}
 
           <Button type="button" className="w-full" disabled={isPending} onClick={form.handleSubmit(onSubmit)}>
             {isPending ? t("auth.processing") : t("auth.signUp")}

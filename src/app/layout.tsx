@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 import { cookies } from "next/headers";
+import { Toaster } from "sonner";
 import { AppProvider } from "@/components/providers/app-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
@@ -25,6 +26,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <AppProvider initialLocale={locale}>
           <QueryProvider>{children}</QueryProvider>
+          <Toaster position="top-right" richColors closeButton />
         </AppProvider>
       </body>
     </html>

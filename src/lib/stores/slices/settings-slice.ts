@@ -1,6 +1,8 @@
 import type { StateCreator } from "zustand";
 import type { AppStore } from "../use-app-store";
 import type { AppSettings } from "@/lib/types";
+import { EMPTY } from "@/lib/constants";
+import { getAppSettings } from "@/lib/utils/app-settings";
 
 export type SettingsSlice = AppSettings & {
   loaded: boolean;
@@ -13,18 +15,21 @@ export const createSettingsSlice: StateCreator<
   [],
   SettingsSlice
 > = (set) => ({
-  appName: "",
-  logoUrl: "",
-  description: "",
-  authorName: "",
-  authorUrl: "",
+  name: EMPTY.str,
+  logoUrl: EMPTY.str,
+  description: EMPTY.str,
+  authorName: EMPTY.str,
+  authorUrl: EMPTY.str,
   loaded: false,
 
   fetchSettings: async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
-      const data: AppSettings = await res.json();
-      set({ ...data, loaded: true }, false, "settings/fetch");
+      const data = await getAppSettings();
+      if (data) {
+        set({ ...data, loaded: true }, false, "settings/fetch");
+      } else {
+        set({ loaded: true }, false, "settings/fetchError");
+      }
     } catch {
       set({ loaded: true }, false, "settings/fetchError");
     }

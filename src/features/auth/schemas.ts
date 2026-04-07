@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { PASSWORD_MIN_LENGTH, VERIFICATION_CODE_LENGTH } from "@/lib/constants";
+import { VERIFICATION_CODE_LENGTH, PASSWORD_REGEX } from "@/lib/constants";
 
 const passwordSchema = z
   .string()
-  .min(PASSWORD_MIN_LENGTH, { message: "PASSWORD_MIN" })
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/, {
+  .regex(PASSWORD_REGEX, {
     message: "PASSWORD_FORMAT",
   });
 

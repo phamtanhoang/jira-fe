@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { ENDPOINTS } from "@/lib/constants";
 import type {
   AuthUser,
   LoginPayload,
@@ -6,24 +7,24 @@ import type {
   VerifyEmailPayload,
 } from "./types";
 
-type ApiResponse = { success?: string; error?: string };
+type ApiResponse = { message?: string };
 
 export const authApi = {
   register: (data: RegisterPayload) =>
-    api.post<ApiResponse>("/auth/register", data).then((r) => r.data),
+    api.post<ApiResponse>(ENDPOINTS.auth.signUp, data).then((r) => r.data),
 
   verifyEmail: (data: VerifyEmailPayload) =>
-    api.post<ApiResponse>("/auth/verify-email", data).then((r) => r.data),
+    api.post<ApiResponse>(ENDPOINTS.auth.verifyEmail, data).then((r) => r.data),
 
   login: (data: LoginPayload) =>
-    api.post<{ user: AuthUser }>("/auth/login", data).then((r) => r.data),
+    api.post<{ user: AuthUser }>(ENDPOINTS.auth.signIn, data).then((r) => r.data),
 
   refresh: () =>
-    api.post<{ user: AuthUser }>("/auth/refresh").then((r) => r.data),
+    api.post<{ user: AuthUser }>(ENDPOINTS.auth.refresh).then((r) => r.data),
 
   logout: () =>
-    api.post("/auth/logout").then((r) => r.data),
+    api.post(ENDPOINTS.auth.logOut).then((r) => r.data),
 
   me: () =>
-    api.get<AuthUser>("/auth/me").then((r) => r.data),
+    api.get<AuthUser>(ENDPOINTS.auth.me).then((r) => r.data),
 };

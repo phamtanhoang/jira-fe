@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAppStore } from "@/lib/stores/use-app-store";
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
-  const { appName, logoUrl, authorName, authorUrl, t } = useAppStore();
+  const { name, logoUrl, authorName, authorUrl, t } = useAppStore();
   const year = new Date().getFullYear().toString();
 
   return (
@@ -17,7 +17,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
       {logoUrl && (
         <div className="mb-8">
-          <Image src={logoUrl} alt={appName} width={40} height={40} style={{ height: "auto" }} priority />
+          <Image src={logoUrl} alt={name} width={40} height={40} style={{ height: "auto" }} priority />
         </div>
       )}
 

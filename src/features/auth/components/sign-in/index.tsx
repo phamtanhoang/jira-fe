@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
@@ -16,18 +15,15 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export function SignInForm() {
   const { t } = useAppStore();
-  const [apiError, setApiError] = useState("");
 
-  const { mutate: login, isPending } = useLogin({
-    onError: (msg) => setApiError(msg),
-  });
+  const { mutate: login, isPending } = useLogin();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  const te = (key: string) => t(`errors.${key}` as "errors.UNKNOWN_ERROR");
+  const te = (key: string) => t(`validation.${key}` as "validation.EMAIL_INVALID");
 
   return (
     <div>
@@ -65,8 +61,6 @@ export function SignInForm() {
               </FormItem>
             )}
           />
-
-          {apiError && <p className="text-sm text-destructive">{apiError}</p>}
 
           <Button type="button" className="w-full" disabled={isPending} onClick={form.handleSubmit((data) => login(data))}>
             {isPending ? t("auth.processing") : t("auth.signIn")}
