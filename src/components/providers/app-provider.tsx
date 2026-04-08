@@ -1,10 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import type { Locale } from "@/lib/config/i18n";
 import type { AppSettings } from "@/lib/types";
 import { useAppStore } from "@/lib/stores/use-app-store";
-
-let hydrated = false;
 
 export function AppProvider({
   initialLocale,
@@ -15,7 +14,8 @@ export function AppProvider({
   initialSettings: AppSettings | null;
   children: React.ReactNode;
 }) {
-  if (!hydrated) {
+  const initialized = useRef(false);
+  if (!initialized.current) {
     useAppStore.setState(
       {
         locale: initialLocale,
@@ -25,7 +25,7 @@ export function AppProvider({
       false,
       "hydrate/initial",
     );
-    hydrated = true;
+    initialized.current = true;
   }
 
   return <>{children}</>;

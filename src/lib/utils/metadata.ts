@@ -1,9 +1,6 @@
-import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { t, type Locale, defaultLocale, locales } from "@/lib/config/i18n";
+import { t, type Locale } from "@/lib/config/i18n";
 import type { AppSettings } from "@/lib/types";
-import { COOKIE_LOCALE } from "@/lib/constants";
-import { getAppSettingsServer } from "@/lib/utils/app-settings-server";
 
 export interface MetadataParams {
   locale: Locale;
@@ -41,19 +38,5 @@ export function generatePageMetadata({
         ],
       }),
     },
-  };
-}
-
-export function createGenerateMetadata(titleKey: string) {
-  return async function generateMetadata(): Promise<Metadata> {
-    const cookieStore = await cookies();
-    const cookieLocale = cookieStore.get(COOKIE_LOCALE)?.value;
-    const locale: Locale = locales.includes(cookieLocale as Locale)
-      ? (cookieLocale as Locale)
-      : defaultLocale;
-
-    const appSettings = await getAppSettingsServer();
-
-    return generatePageMetadata({ locale, titleKey, appSettings });
   };
 }

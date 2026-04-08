@@ -7,7 +7,7 @@ import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
 import { COOKIE_LOCALE } from "@/lib/constants";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { getAppSettingsServer } from "@/lib/utils/app-settings-server";
+import { getAppSettingsServer } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 

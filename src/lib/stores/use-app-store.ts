@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { type SettingsSlice, createSettingsSlice } from "./slices/settings-slice";
-import { type LocaleSlice, createLocaleSlice } from "./slices/locale-slice";
+import { type SettingsSlice, createSettingsSlice, type LocaleSlice, createLocaleSlice } from "./slices";
 
 export type AppStore = SettingsSlice & LocaleSlice;
 
