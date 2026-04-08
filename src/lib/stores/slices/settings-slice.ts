@@ -9,12 +9,7 @@ export type SettingsSlice = AppSettings & {
   fetchSettings: () => Promise<void>;
 };
 
-export const createSettingsSlice: StateCreator<
-  AppStore,
-  [["zustand/devtools", never]],
-  [],
-  SettingsSlice
-> = (set) => ({
+export const createSettingsSlice: StateCreator<AppStore, [["zustand/devtools", never]], [], SettingsSlice> = (set) => ({
   name: EMPTY.str,
   logoUrl: EMPTY.str,
   description: EMPTY.str,

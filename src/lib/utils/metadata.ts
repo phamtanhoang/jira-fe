@@ -14,7 +14,7 @@ export function generatePageMetadata({
   appSettings,
 }: MetadataParams): Metadata {
   const title = t(locale, titleKey as any);
-  const appName = appSettings?.name || "Jira";
+  const appName = appSettings?.name || "";
   const fullTitle = `${title} | ${appName}`;
 
   return {

@@ -14,12 +14,7 @@ type LocaleActions = {
 
 export type LocaleSlice = LocaleState & LocaleActions;
 
-export const createLocaleSlice: StateCreator<
-  AppStore,
-  [["zustand/devtools", never]],
-  [],
-  LocaleSlice
-> = (set, get) => ({
+export const createLocaleSlice: StateCreator<AppStore, [["zustand/devtools", never]], [], LocaleSlice> = (set, get) => ({
   locale: defaultLocale,
 
   setLocale: (locale: Locale) => {
