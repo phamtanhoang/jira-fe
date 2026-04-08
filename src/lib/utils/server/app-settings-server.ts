@@ -1,6 +1,6 @@
 import { cache } from "react";
 import type { AppSettings } from "@/lib/types";
-import { ENDPOINTS } from "../constants";
+import { ENDPOINTS } from "../../constants";
 
 export const getAppSettingsServer = cache(
   async (): Promise<AppSettings | null> => {

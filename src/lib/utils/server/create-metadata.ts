@@ -2,7 +2,8 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
 import { COOKIE_LOCALE } from "@/lib/constants";
-import { getAppSettingsServer, generatePageMetadata } from "@/lib/utils";
+import { getAppSettingsServer } from "./app-settings-server";
+import { generatePageMetadata } from "../metadata";
 
 export function createGenerateMetadata(titleKey: string) {
   return async function generateMetadata(): Promise<Metadata> {

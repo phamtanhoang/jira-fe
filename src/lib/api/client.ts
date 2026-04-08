@@ -8,6 +8,13 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// ─── Send timezone header ──────────────────────────────
+api.interceptors.request.use((config) => {
+  config.headers["x-timezone"] =
+    Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return config;
+});
+
 // ─── Auto Refresh on 401 ────────────────────────────────
 let isRefreshing = false;
 let failedQueue: Array<{
