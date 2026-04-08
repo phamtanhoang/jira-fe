@@ -6,6 +6,8 @@ const AUTH_ENDPOINTS = {
   signIn: `${AUTH_BASE}/login`,
   signUp: `${AUTH_BASE}/register`,
   verifyEmail: `${AUTH_BASE}/verify-email`,
+  forgotPassword: `${AUTH_BASE}/forgot-password`,
+  resetPassword: `${AUTH_BASE}/reset-password`,
   logOut: `${AUTH_BASE}/logout`,
   refresh: `${AUTH_BASE}/refresh`,
   me: `${AUTH_BASE}/me`,

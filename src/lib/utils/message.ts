@@ -8,6 +8,8 @@ const SUCCESS_KEYS: Set<string> = new Set([
   "REGISTER_SUCCESS",
   "EMAIL_VERIFIED",
   "LOGOUT_SUCCESS",
+  "FORGOT_PASSWORD_SUCCESS",
+  "RESET_PASSWORD_SUCCESS",
 ]);
 
 function translate(key: string): string {

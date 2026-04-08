@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { ROUTES, COOKIE_MAX_AGE_1Y } from "@/lib/constants";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
-import type { LoginPayload, RegisterPayload, VerifyEmailPayload } from "./types";
+import type {
+  LoginPayload,
+  RegisterPayload,
+  VerifyEmailPayload,
+  ForgotPasswordPayload,
+  ResetPasswordPayload,
+} from "./types";
 
 // ─── Current User ────────────────────────────────────────
 export function useCurrentUser() {
@@ -68,6 +74,36 @@ export function useVerifyEmail({ onSuccess }: { onSuccess?: () => void } = {}) {
     mutationFn: (data: VerifyEmailPayload) => authApi.verifyEmail(data),
     onSuccess: () => {
       showMessage("EMAIL_VERIFIED");
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(ROUTES.SIGN_IN);
+      }
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Forgot Password ────────────────────────────────────
+export function useForgotPassword({ onSuccess }: { onSuccess?: () => void } = {}) {
+  return useMutation({
+    mutationFn: (data: ForgotPasswordPayload) => authApi.forgotPassword(data),
+    onSuccess: () => {
+      showMessage("FORGOT_PASSWORD_SUCCESS");
+      onSuccess?.();
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Reset Password ─────────────────────────────────────
+export function useResetPassword({ onSuccess }: { onSuccess?: () => void } = {}) {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: ResetPasswordPayload) => authApi.resetPassword(data),
+    onSuccess: () => {
+      showMessage("RESET_PASSWORD_SUCCESS");
       if (onSuccess) {
         onSuccess();
       } else {

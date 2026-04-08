@@ -1,36 +1,8 @@
-import { cookies } from "next/headers";
-import type { Metadata } from "next";
 import { SignInForm } from "@/features/auth/components";
-import { PageHead } from "@/components/page-head";
-import { COOKIE_LOCALE } from "@/lib/constants";
-import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
-import { generatePageMetadata } from "@/lib/utils/metadata";
-import { getAppSettingsServer } from "@/lib/utils/app-settings-server";
+import { createGenerateMetadata } from "@/lib/utils/metadata";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get(COOKIE_LOCALE)?.value;
-  const locale: Locale = locales.includes(cookieLocale as Locale)
-    ? (cookieLocale as Locale)
-    : defaultLocale;
-
-  const appSettings = await getAppSettingsServer();
-
-  return generatePageMetadata({
-    locale,
-    titleKey: "meta.signInTitle",
-    appSettings,
-  });
-}
+export const generateMetadata = createGenerateMetadata("meta.signInTitle");
 
 export default function SignInPage() {
-  return (
-    <>
-      <PageHead
-        title="Sign In"
-        description="Sign in to continue to your account"
-      />
-      <SignInForm />
-    </>
-  );
+  return <SignInForm />;
 }

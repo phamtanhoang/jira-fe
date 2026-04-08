@@ -17,7 +17,17 @@
     "verifyEmailDesc": "We sent a 6-digit code to",
     "enterCode": "Enter verification code",
     "verifying": "Verifying...",
-    "verify": "Verify"
+    "verify": "Verify",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDesc": "Enter your email and we'll send you a reset code",
+    "sendResetCode": "Send Reset Code",
+    "sending": "Sending...",
+    "resetPassword": "Reset Password",
+    "resetPasswordDesc": "Enter the code sent to your email and your new password",
+    "newPassword": "New password",
+    "resetting": "Resetting...",
+    "backToSignIn": "Back to Sign In"
   },
   "footer": {
     "copyright": "© {year} {name}. All rights reserved.",
@@ -27,6 +37,8 @@
     "REGISTER_SUCCESS": "Registration successful! Please check your email.",
     "EMAIL_VERIFIED": "Email verified successfully!",
     "LOGOUT_SUCCESS": "Logged out successfully.",
+    "FORGOT_PASSWORD_SUCCESS": "Reset code sent! Please check your email.",
+    "RESET_PASSWORD_SUCCESS": "Password reset successfully! Please sign in.",
     "EMAIL_ALREADY_REGISTERED": "This email is already registered.",
     "EMAIL_PENDING_VERIFICATION": "This email is pending verification. Please check your inbox.",
     "EMAIL_NOT_VERIFIED": "Your email has not been verified yet.",
@@ -42,6 +54,7 @@
     "UNKNOWN_ERROR": "An unexpected error occurred."
   },
   "validation": {
+    "EMAIL_REQUIRED": "Email is required",
     "EMAIL_INVALID": "Invalid email",
     "PASSWORD_REQUIRED": "Password is required",
     "PASSWORD_MIN": "Password must be at least 6 characters",
@@ -52,8 +65,15 @@
   },
   "meta": {
     "signInTitle": "Sign In",
+    "signInDesc": "Sign in to continue to your account",
     "signUpTitle": "Sign Up",
-    "verifyEmailTitle": "Verify Email"
+    "signUpDesc": "Create your account",
+    "verifyEmailTitle": "Verify Email",
+    "verifyEmailDesc": "Verify your email address",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDesc": "Reset your password",
+    "resetPasswordTitle": "Reset Password",
+    "resetPasswordDesc": "Set your new password"
   },
   "email": {
     "subject": "Verification Code - {name}",

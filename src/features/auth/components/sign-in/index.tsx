@@ -62,6 +62,12 @@ export function SignInForm() {
             )}
           />
 
+          <div className="flex justify-end">
+            <a href={ROUTES.FORGOT_PASSWORD} className="text-sm text-primary hover:underline">
+              {t("auth.forgotPassword")}
+            </a>
+          </div>
+
           <Button type="button" className="w-full" disabled={isPending} onClick={form.handleSubmit((data) => login(data))}>
             {isPending ? t("auth.processing") : t("auth.signIn")}
           </Button>

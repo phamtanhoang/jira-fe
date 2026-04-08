@@ -1,30 +1,32 @@
 "use client";
 
-import { useEffect } from "react";
 import type { Locale } from "@/lib/config/i18n";
+import type { AppSettings } from "@/lib/types";
 import { useAppStore } from "@/lib/stores/use-app-store";
 
-let localeHydrated = false;
+let hydrated = false;
 
 export function AppProvider({
   initialLocale,
+  initialSettings,
   children,
 }: {
   initialLocale: Locale;
+  initialSettings: AppSettings | null;
   children: React.ReactNode;
 }) {
-  if (!localeHydrated) {
-    useAppStore.setState({ locale: initialLocale }, false, "hydrate/locale");
-    localeHydrated = true;
+  if (!hydrated) {
+    useAppStore.setState(
+      {
+        locale: initialLocale,
+        ...(initialSettings ?? {}),
+        loaded: true,
+      },
+      false,
+      "hydrate/initial",
+    );
+    hydrated = true;
   }
-
-  const { loaded, fetchSettings } = useAppStore();
-
-  useEffect(() => {
-    if (!loaded) fetchSettings();
-  }, [loaded, fetchSettings]);
-
-  if (!loaded) return null;
 
   return <>{children}</>;
 }

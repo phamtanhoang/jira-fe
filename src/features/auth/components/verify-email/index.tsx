@@ -19,11 +19,7 @@ export function VerifyEmailForm() {
 
   const code = digits.join("");
 
-  const { mutate: verify, isPending } = useVerifyEmail({
-    onSuccess: () => {
-      setDigits(Array(VERIFICATION_CODE_LENGTH).fill(""));
-    },
-  });
+  const { mutate: verify, isPending } = useVerifyEmail();
 
   function handleChange(index: number, value: string) {
     if (!/^\d*$/.test(value)) return;

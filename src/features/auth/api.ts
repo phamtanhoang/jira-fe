@@ -5,6 +5,8 @@ import type {
   LoginPayload,
   RegisterPayload,
   VerifyEmailPayload,
+  ForgotPasswordPayload,
+  ResetPasswordPayload,
 } from "./types";
 
 type ApiResponse = { message?: string };
@@ -27,4 +29,10 @@ export const authApi = {
 
   me: () =>
     api.get<AuthUser>(ENDPOINTS.auth.me).then((r) => r.data),
+
+  forgotPassword: (data: ForgotPasswordPayload) =>
+    api.post<ApiResponse>(ENDPOINTS.auth.forgotPassword, data).then((r) => r.data),
+
+  resetPassword: (data: ResetPasswordPayload) =>
+    api.post<ApiResponse>(ENDPOINTS.auth.resetPassword, data).then((r) => r.data),
 };

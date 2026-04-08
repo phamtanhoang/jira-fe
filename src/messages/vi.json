@@ -17,7 +17,17 @@
     "verifyEmailDesc": "Chúng tôi đã gửi mã 6 số đến",
     "enterCode": "Nhập mã xác thực",
     "verifying": "Đang xác thực...",
-    "verify": "Xác thực"
+    "verify": "Xác thực",
+    "forgotPassword": "Quên mật khẩu?",
+    "forgotPasswordTitle": "Quên mật khẩu",
+    "forgotPasswordDesc": "Nhập email của bạn, chúng tôi sẽ gửi mã đặt lại",
+    "sendResetCode": "Gửi mã đặt lại",
+    "sending": "Đang gửi...",
+    "resetPassword": "Đặt lại mật khẩu",
+    "resetPasswordDesc": "Nhập mã đã gửi đến email và mật khẩu mới của bạn",
+    "newPassword": "Mật khẩu mới",
+    "resetting": "Đang đặt lại...",
+    "backToSignIn": "Quay lại đăng nhập"
   },
   "footer": {
     "copyright": "© {year} {name}. Bảo lưu mọi quyền.",
@@ -27,6 +37,8 @@
     "REGISTER_SUCCESS": "Đăng ký thành công! Vui lòng kiểm tra email.",
     "EMAIL_VERIFIED": "Xác thực email thành công!",
     "LOGOUT_SUCCESS": "Đăng xuất thành công.",
+    "FORGOT_PASSWORD_SUCCESS": "Đã gửi mã đặt lại! Vui lòng kiểm tra email.",
+    "RESET_PASSWORD_SUCCESS": "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.",
     "EMAIL_ALREADY_REGISTERED": "Email này đã được đăng ký.",
     "EMAIL_PENDING_VERIFICATION": "Email đang chờ xác thực. Vui lòng kiểm tra hộp thư.",
     "EMAIL_NOT_VERIFIED": "Email chưa được xác thực.",
@@ -42,6 +54,7 @@
     "UNKNOWN_ERROR": "Đã xảy ra lỗi không mong muốn."
   },
   "validation": {
+    "EMAIL_REQUIRED": "Email không được trống",
     "EMAIL_INVALID": "Email không hợp lệ",
     "PASSWORD_REQUIRED": "Mật khẩu không được trống",
     "PASSWORD_MIN": "Mật khẩu ít nhất 6 ký tự",
@@ -52,8 +65,15 @@
   },
   "meta": {
     "signInTitle": "Đăng nhập",
+    "signInDesc": "Đăng nhập để tiếp tục tài khoản của bạn",
     "signUpTitle": "Đăng ký",
-    "verifyEmailTitle": "Xác thực email"
+    "signUpDesc": "Tạo tài khoản của bạn",
+    "verifyEmailTitle": "Xác thực email",
+    "verifyEmailDesc": "Xác thực địa chỉ email của bạn",
+    "forgotPasswordTitle": "Quên mật khẩu",
+    "forgotPasswordDesc": "Đặt lại mật khẩu của bạn",
+    "resetPasswordTitle": "Đặt lại mật khẩu",
+    "resetPasswordDesc": "Thiết lập mật khẩu mới"
   },
   "email": {
     "subject": "Mã xác thực - {name}",

@@ -19,3 +19,13 @@ export type VerifyEmailPayload = {
   email: string;
   token: string;
 };
+
+export type ForgotPasswordPayload = {
+  email: string;
+};
+
+export type ResetPasswordPayload = {
+  email: string;
+  token: string;
+  newPassword: string;
+};

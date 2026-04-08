@@ -7,6 +7,7 @@ import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
 import { COOKIE_LOCALE } from "@/lib/constants";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { getAppSettingsServer } from "@/lib/utils/app-settings-server";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -21,10 +22,12 @@ export default async function RootLayout({
     ? (cookieLocale as Locale)
     : defaultLocale;
 
+  const appSettings = await getAppSettingsServer();
+
   return (
     <html lang={locale} suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body suppressHydrationWarning>
-        <AppProvider initialLocale={locale}>
+        <AppProvider initialLocale={locale} initialSettings={appSettings}>
           <QueryProvider>{children}</QueryProvider>
           <Toaster position="top-right" richColors closeButton />
         </AppProvider>
