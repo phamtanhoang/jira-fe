@@ -57,6 +57,7 @@ export function useUpdateIssue() {
       issuesApi.update(id, data),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", result.issue.projectId] });
       queryClient.invalidateQueries({ queryKey: ["issue", result.issue.key] });
     },
     onError: handleApiError,

@@ -43,6 +43,7 @@ export function SprintPanel({
   onClickIssue,
   isStarting,
   isCompleting,
+  renderIssueList,
 }: {
   sprint: Sprint;
   issues: Issue[];
@@ -53,6 +54,7 @@ export function SprintPanel({
   onClickIssue: (key: string) => void;
   isStarting: boolean;
   isCompleting: boolean;
+  renderIssueList?: (issues: Issue[]) => React.ReactNode;
 }) {
   const { t } = useAppStore();
   const [expanded, setExpanded] = useState(true);
@@ -274,23 +276,27 @@ export function SprintPanel({
 
       {/* Issues */}
       {expanded && (
-        <div className="border-t">
-          {issues.length === 0 ? (
-            <div className="px-4 py-6 text-center text-[12px] text-muted-foreground">
-              {t("sprint.emptyHint")}
-            </div>
-          ) : (
-            <div>
-              {issues.map((issue) => (
-                <IssueRow
-                  key={issue.id}
-                  issue={issue}
-                  onClick={() => onClickIssue(issue.key)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        renderIssueList ? (
+          renderIssueList(issues)
+        ) : (
+          <div className="border-t">
+            {issues.length === 0 ? (
+              <div className="px-4 py-6 text-center text-[12px] text-muted-foreground">
+                {t("sprint.emptyHint")}
+              </div>
+            ) : (
+              <div>
+                {issues.map((issue) => (
+                  <IssueRow
+                    key={issue.id}
+                    issue={issue}
+                    onClick={() => onClickIssue(issue.key)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )
       )}
     </div>
   );

@@ -17,6 +17,7 @@ import {
   useDeleteSprint,
   useStartSprint,
   useCompleteSprint,
+  useUpdateIssue,
   useAddColumn,
   useUpdateColumn,
   useDeleteColumn,
@@ -52,6 +53,7 @@ export default function BoardPage() {
   const { mutate: completeSprint, isPending: isCompletingSprint } = useCompleteSprint(projectId);
   const { mutate: updateSprint } = useUpdateSprint(projectId);
   const { mutate: deleteSprint } = useDeleteSprint(projectId);
+  const { mutate: updateIssue } = useUpdateIssue();
   const { mutate: addColumn } = useAddColumn(projectId);
   const { mutate: updateColumn } = useUpdateColumn(projectId);
   const { mutate: deleteColumn } = useDeleteColumn(projectId);
@@ -218,6 +220,7 @@ export default function BoardPage() {
               onCompleteSprint={completeSprint}
               onUpdateSprint={(id, data) => updateSprint({ id, ...data })}
               onDeleteSprint={deleteSprint}
+              onUpdateIssue={(id, data) => updateIssue({ id, ...data })}
               onClickIssue={handleClickIssue}
               isCreatingSprint={isCreatingSprint}
               isStartingSprint={isStartingSprint}
