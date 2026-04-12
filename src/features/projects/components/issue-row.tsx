@@ -1,42 +1,10 @@
 "use client";
 
-import {
-  Bug,
-  BookOpen,
-  CheckSquare,
-  Layers,
-  Zap,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  ChevronsUp,
-  ChevronsDown,
-} from "lucide-react";
+import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_BADGE_COLORS, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { Issue } from "../types";
-
-const TYPE_CONFIG: Record<string, { icon: React.ElementType; bg: string }> = {
-  EPIC: { icon: Zap, bg: "bg-purple-600" },
-  STORY: { icon: BookOpen, bg: "bg-emerald-500" },
-  BUG: { icon: Bug, bg: "bg-red-500" },
-  TASK: { icon: CheckSquare, bg: "bg-blue-500" },
-  SUBTASK: { icon: Layers, bg: "bg-sky-400" },
-};
-
-const PRIORITY_CONFIG: Record<string, { icon: React.ElementType; color: string }> = {
-  HIGHEST: { icon: ChevronsUp, color: "text-red-600" },
-  HIGH: { icon: ArrowUp, color: "text-red-500" },
-  MEDIUM: { icon: Minus, color: "text-orange-400" },
-  LOW: { icon: ArrowDown, color: "text-blue-500" },
-  LOWEST: { icon: ChevronsDown, color: "text-blue-400" },
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  TODO: "bg-gray-100 text-gray-600",
-  IN_PROGRESS: "bg-blue-100 text-blue-700",
-  DONE: "bg-green-100 text-green-700",
-};
 
 export function IssueRow({
   issue,
@@ -92,7 +60,7 @@ export function IssueRow({
       {issue.boardColumn && (
         <Badge
           variant="secondary"
-          className={`shrink-0 px-1.5 text-[10px] ${STATUS_COLORS[issue.boardColumn.category] ?? ""}`}
+          className={`shrink-0 px-1.5 text-[10px] ${STATUS_BADGE_COLORS[issue.boardColumn.category] ?? ""}`}
         >
           {issue.boardColumn.name}
         </Badge>
@@ -111,8 +79,8 @@ export function IssueRow({
       {/* Assignee */}
       {issue.assignee ? (
         <Avatar className="h-5 w-5 shrink-0">
-          <AvatarFallback className="bg-linear-to-br from-teal-400 to-cyan-500 text-[9px] font-bold text-white">
-            {(issue.assignee.name ?? "?").charAt(0).toUpperCase()}
+          <AvatarFallback className={`${AVATAR_GRADIENT} text-[9px]`}>
+            {getInitials(issue.assignee.name)}
           </AvatarFallback>
         </Avatar>
       ) : (

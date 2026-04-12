@@ -47,6 +47,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getInitials } from "@/lib/utils";
 import type { ProjectMember } from "@/features/projects/types";
 
 const ROLE_COLORS: Record<string, string> = {
@@ -299,7 +300,7 @@ export default function ProjectSettingsPage() {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-linear-to-br from-teal-400 to-cyan-500 text-[11px] font-bold text-white">
-                      {(member.user.name ?? "?").charAt(0).toUpperCase()}
+                      {getInitials(member.user.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">

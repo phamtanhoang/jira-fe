@@ -88,7 +88,9 @@
     "namePlaceholder": "e.g. Engineering Team",
     "descPlaceholder": "What is this workspace for?",
     "manageMembers": "Manage who has access to this workspace",
-    "manageDesc": "Manage projects and team members"
+    "manageDesc": "Manage projects and team members",
+    "projects": "Projects",
+    "members": "Members"
   },
   "project": {
     "newProject": "New Project",
@@ -165,6 +167,7 @@
     "updated": "Updated {date}",
     "comments": "Comments",
     "activity": "Activity",
+    "notFound": "Issue not found",
     "addComment": "Add a comment...",
     "types": {
       "EPIC": "Epic",

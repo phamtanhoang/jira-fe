@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Clock, Plus, Trash2 } from "lucide-react";
+import { getInitials, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,13 +102,13 @@ export function WorklogSection({
             <div key={w.id} className="flex items-center gap-2 text-[12px]">
               <Avatar className="h-5 w-5 shrink-0">
                 <AvatarFallback className="text-[8px]">
-                  {(w.user.name ?? "?").charAt(0).toUpperCase()}
+                  {getInitials(w.user.name)}
                 </AvatarFallback>
               </Avatar>
               <span className="font-medium">{formatDuration(w.timeSpent)}</span>
               {w.description && <span className="truncate text-muted-foreground">— {w.description}</span>}
               <span className="ml-auto text-[10px] text-muted-foreground">
-                {new Date(w.startedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                {formatDateShort(w.startedAt)}
               </span>
               {w.userId === currentUserId && (
                 <button onClick={() => deleteWorklog(w.id)} className="text-muted-foreground/50 hover:text-destructive">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, MoreHorizontal, Trash2, Gauge } from "lucide-react";
+import { STATUS_DOT_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IssueCard } from "./issue-card";
 import type { BoardColumn as BoardColumnType } from "../types";
-
-const CATEGORY_DOT: Record<string, string> = {
-  TODO: "bg-gray-400",
-  IN_PROGRESS: "bg-blue-500",
-  DONE: "bg-green-500",
-};
 
 export function BoardColumn({
   column,
@@ -79,7 +74,7 @@ export function BoardColumn({
       {/* Header */}
       <div className="flex items-center gap-2 px-2 py-2.5">
         <div
-          className={`h-2 w-2 rounded-full ${CATEGORY_DOT[column.category] ?? "bg-gray-400"}`}
+          className={`h-2 w-2 rounded-full ${STATUS_DOT_COLORS[column.category] ?? "bg-gray-400"}`}
         />
         <span className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
           {column.name}

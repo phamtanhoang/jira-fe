@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ROUTES, ENDPOINTS } from "@/lib/constants";
+import { ROUTES, ENDPOINTS, COOKIE_AUTH } from "@/lib/constants";
 import { handleApiError } from "@/lib/utils";
 
 export const api = axios.create({
@@ -37,7 +37,7 @@ api.interceptors.response.use(
     }
 
     // Check if user is authenticated before attempting refresh
-    const isAuthenticated = document.cookie.includes("is_authenticated=1");
+    const isAuthenticated = document.cookie.includes(`${COOKIE_AUTH}=1`);
     if (!isAuthenticated) {
       return Promise.reject(error);
     }
@@ -58,7 +58,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError);
       handleApiError(refreshError);
-      document.cookie = "is_authenticated=;path=/;max-age=0";
+      document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
       window.location.href = ROUTES.SIGN_IN;
       return Promise.reject(refreshError);
     } finally {

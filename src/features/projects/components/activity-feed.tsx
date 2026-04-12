@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials, formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useActivity } from "../hooks";
@@ -28,7 +29,7 @@ export function ActivityFeed({ issueId }: { issueId: string }) {
         <div key={a.id} className="flex gap-2.5">
           <Avatar className="mt-0.5 h-6 w-6 shrink-0">
             <AvatarFallback className="text-[9px]">
-              {(a.user.name ?? "?").charAt(0).toUpperCase()}
+              {getInitials(a.user.name)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
@@ -53,9 +54,7 @@ export function ActivityFeed({ issueId }: { issueId: string }) {
               )}
             </p>
             <span className="text-[10px] text-muted-foreground">
-              {new Date(a.createdAt).toLocaleDateString(undefined, {
-                month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
-              })}
+              {formatDateTime(a.createdAt)}
             </span>
           </div>
         </div>

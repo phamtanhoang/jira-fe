@@ -2,48 +2,19 @@
 
 import { useMemo } from "react";
 import {
-  Bug,
-  BookOpen,
-  CheckSquare,
-  Layers,
-  Zap,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  ChevronsUp,
-  ChevronsDown,
   Users,
   BarChart3,
   Target,
   Clock,
+  CheckSquare,
 } from "lucide-react";
+import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { Board, Issue, ProjectMember } from "../types";
-
-const TYPE_CONFIG: Record<string, { icon: React.ElementType; bg: string; label: string }> = {
-  EPIC: { icon: Zap, bg: "bg-purple-600", label: "Epic" },
-  STORY: { icon: BookOpen, bg: "bg-emerald-500", label: "Story" },
-  BUG: { icon: Bug, bg: "bg-red-500", label: "Bug" },
-  TASK: { icon: CheckSquare, bg: "bg-blue-500", label: "Task" },
-  SUBTASK: { icon: Layers, bg: "bg-sky-400", label: "Subtask" },
-};
-
-const PRIORITY_CONFIG: Record<string, { icon: React.ElementType; color: string }> = {
-  HIGHEST: { icon: ChevronsUp, color: "text-red-600" },
-  HIGH: { icon: ArrowUp, color: "text-red-500" },
-  MEDIUM: { icon: Minus, color: "text-orange-400" },
-  LOW: { icon: ArrowDown, color: "text-blue-500" },
-  LOWEST: { icon: ChevronsDown, color: "text-blue-400" },
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  TODO: "bg-gray-400",
-  IN_PROGRESS: "bg-blue-500",
-  DONE: "bg-green-500",
-};
 
 type Props = {
   board: Board;
@@ -257,8 +228,8 @@ export function SummaryView({ board, allIssues, members }: Props) {
                 return (
                   <div key={m.id} className="flex items-center gap-2.5">
                     <Avatar className="h-6 w-6 shrink-0">
-                      <AvatarFallback className="bg-linear-to-br from-teal-400 to-cyan-500 text-[9px] font-bold text-white">
-                        {(m.user.name ?? "?").charAt(0).toUpperCase()}
+                      <AvatarFallback className={`${AVATAR_GRADIENT} text-[9px]`}>
+                        {getInitials(m.user.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">

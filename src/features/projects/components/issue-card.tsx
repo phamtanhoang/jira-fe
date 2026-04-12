@@ -1,41 +1,9 @@
 "use client";
 
-import {
-  Bug,
-  BookOpen,
-  CheckSquare,
-  Layers,
-  Zap,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  ChevronsUp,
-  ChevronsDown,
-} from "lucide-react";
+import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { Issue } from "../types";
-
-const TYPE_CONFIG: Record<
-  string,
-  { icon: React.ElementType; bg: string; color: string }
-> = {
-  EPIC: { icon: Zap, bg: "bg-purple-600", color: "text-white" },
-  STORY: { icon: BookOpen, bg: "bg-emerald-500", color: "text-white" },
-  BUG: { icon: Bug, bg: "bg-red-500", color: "text-white" },
-  TASK: { icon: CheckSquare, bg: "bg-blue-500", color: "text-white" },
-  SUBTASK: { icon: Layers, bg: "bg-sky-400", color: "text-white" },
-};
-
-const PRIORITY_CONFIG: Record<
-  string,
-  { icon: React.ElementType; color: string }
-> = {
-  HIGHEST: { icon: ChevronsUp, color: "text-red-600" },
-  HIGH: { icon: ArrowUp, color: "text-red-500" },
-  MEDIUM: { icon: Minus, color: "text-orange-400" },
-  LOW: { icon: ArrowDown, color: "text-blue-500" },
-  LOWEST: { icon: ChevronsDown, color: "text-blue-400" },
-};
 
 export function IssueCard({
   issue,
@@ -89,7 +57,7 @@ export function IssueCard({
           <div
             className={`flex h-4 w-4 items-center justify-center rounded-sm ${typeConf.bg}`}
           >
-            <TypeIcon className={`h-2.5 w-2.5 ${typeConf.color}`} />
+            <TypeIcon className="h-2.5 w-2.5 text-white" />
           </div>
           <span className="text-[11px] font-medium text-muted-foreground">
             {issue.key}
@@ -105,8 +73,8 @@ export function IssueCard({
           <PrioIcon className={`h-3.5 w-3.5 ${prioConf.color}`} />
           {issue.assignee ? (
             <Avatar className="h-5 w-5">
-              <AvatarFallback className="bg-linear-to-br from-teal-400 to-cyan-500 text-[9px] font-bold text-white">
-                {(issue.assignee.name ?? "?").charAt(0).toUpperCase()}
+              <AvatarFallback className={`${AVATAR_GRADIENT} text-[9px]`}>
+                {getInitials(issue.assignee.name)}
               </AvatarFallback>
             </Avatar>
           ) : (

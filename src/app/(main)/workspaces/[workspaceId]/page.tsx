@@ -132,7 +132,7 @@ export default function WorkspaceDetailPage() {
           <TabsList variant="line">
             <TabsTrigger value="projects">
               <LayoutGrid className="mr-1.5 h-4 w-4" />
-              Projects
+              {t("workspace.projects")}
               {projects?.length ? (
                 <Badge variant="secondary" className="ml-1.5 px-1.5 text-[10px]">
                   {projects.length}
@@ -141,7 +141,7 @@ export default function WorkspaceDetailPage() {
             </TabsTrigger>
             <TabsTrigger value="members">
               <Users className="mr-1.5 h-4 w-4" />
-              Members
+              {t("workspace.members")}
               {workspace?.members?.length ? (
                 <Badge variant="secondary" className="ml-1.5 px-1.5 text-[10px]">
                   {workspace.members.length}

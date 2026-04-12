@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { ROUTES, COOKIE_MAX_AGE_1Y } from "@/lib/constants";
+import { ROUTES, COOKIE_AUTH, COOKIE_MAX_AGE_1Y } from "@/lib/constants";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
 import type {
@@ -36,7 +36,7 @@ export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
   return useMutation({
     mutationFn: (data: LoginPayload) => authApi.login(data),
     onSuccess: (result) => {
-      document.cookie = `is_authenticated=1;path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+      document.cookie = `${COOKIE_AUTH}=1;path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
       queryClient.setQueryData(["auth", "me"], result.user);
       if (onSuccess) {
         onSuccess();
@@ -154,7 +154,7 @@ export function useLogout() {
       showMessage("LOGOUT_SUCCESS");
     },
     onSettled: () => {
-      document.cookie = "is_authenticated=;path=/;max-age=0";
+      document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
     },

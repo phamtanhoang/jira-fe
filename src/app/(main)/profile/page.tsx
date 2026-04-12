@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { User, Lock, Mail } from "lucide-react";
+import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useUpdateProfile, useChangePassword } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
@@ -45,7 +47,7 @@ export default function ProfilePage() {
     );
   }
 
-  const initials = (user?.name ?? user?.email ?? "U").charAt(0).toUpperCase();
+  const initials = getInitials(user?.name, user?.email);
 
   return (
     <div className="mx-auto max-w-2xl px-8 py-8">
@@ -56,7 +58,7 @@ export default function ProfilePage() {
       <Card className="mb-6">
         <CardContent className="flex items-center gap-5 p-6">
           <Avatar className="h-16 w-16">
-            <AvatarFallback className="bg-linear-to-br from-teal-400 to-cyan-500 text-xl font-bold text-white">
+            <AvatarFallback className={`${AVATAR_GRADIENT} text-xl`}>
               {initials}
             </AvatarFallback>
           </Avatar>

@@ -11,6 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useLogout } from "@/features/auth/hooks";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
@@ -36,7 +37,7 @@ export function Header({
   const { user } = useCurrentUser();
   const { mutate: logout } = useLogout();
 
-  const initials = (user?.name ?? user?.email ?? "U").charAt(0).toUpperCase();
+  const initials = getInitials(user?.name, user?.email);
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b bg-background px-4">

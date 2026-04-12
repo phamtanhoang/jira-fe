@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ROUTES, PUBLIC_ROUTES } from "@/lib/constants";
+import { ROUTES, PUBLIC_ROUTES, COOKIE_AUTH } from "@/lib/constants";
 
 export function middleware(request: NextRequest) {
   const isAuthenticated =
-    request.cookies.get("is_authenticated")?.value === "1";
+    request.cookies.get(COOKIE_AUTH)?.value === "1";
   const pathname = request.nextUrl.pathname;
 
   // Public pages — redirect to dashboard if already logged in

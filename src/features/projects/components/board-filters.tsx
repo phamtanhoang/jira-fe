@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 import { Search, X, Filter } from "lucide-react";
+import { ISSUE_TYPES, PRIORITIES } from "@/lib/constants/issue-config";
+import { getInitials, toggleArrayItem } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { UserPreview } from "../types";
-
-const ISSUE_TYPES = ["EPIC", "STORY", "BUG", "TASK", "SUBTASK"] as const;
-const PRIORITIES = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "LOWEST"] as const;
 
 export type BoardFilters = {
   search: string;
@@ -42,10 +41,6 @@ export function BoardFilterBar({
     filters.types.length > 0 ||
     filters.priorities.length > 0 ||
     filters.assigneeIds.length > 0;
-
-  function toggleArrayItem(arr: string[], item: string) {
-    return arr.includes(item) ? arr.filter((v) => v !== item) : [...arr, item];
-  }
 
   return (
     <div className="space-y-2">
@@ -96,7 +91,7 @@ export function BoardFilterBar({
             >
               <Avatar className="h-full w-full">
                 <AvatarFallback className="text-[8px]">
-                  {(m.name ?? "?").charAt(0).toUpperCase()}
+                  {getInitials(m.name)}
                 </AvatarFallback>
               </Avatar>
             </button>

@@ -3,4 +3,4 @@ export * from "./messages";
 export * from "./validation";
 export * from "./settings";
 export * from "./endpoints";
-export * from "./common";
+export * from "./issue-config";
