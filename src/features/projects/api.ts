@@ -179,6 +179,14 @@ export const issuesApi = {
       )
       .then((r) => r.data),
 
+  updateWorklog: (worklogId: string, data: { timeSpent?: number; startedAt?: string; description?: string }) =>
+    api
+      .patch<{ message: string; worklog: Worklog }>(
+        ENDPOINTS.worklogs.byId(worklogId),
+        data,
+      )
+      .then((r) => r.data),
+
   deleteWorklog: (worklogId: string) =>
     api.delete(ENDPOINTS.worklogs.byId(worklogId)).then((r) => r.data),
 

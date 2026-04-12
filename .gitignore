@@ -74,3 +74,8 @@ storybook-static/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code (private)
+.claude/CLAUDE.local.md
+.claude/settings.local.json
+.claude/memory.md

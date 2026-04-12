@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Sidebar } from "./sidebar";
-import { Header } from "./header";
+import { useState } from "react";
+import { Sidebar, Header } from "./components";
 
 const STORAGE_KEY = "sidebar-collapsed";
 
-export function MainLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+function getInitialCollapsed() {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(STORAGE_KEY) === "1";
+}
 
-  useEffect(() => {
-    setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
-  }, []);
+export function MainLayout({ children }: { children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(getInitialCollapsed);
 
   function toggle() {
     const next = !collapsed;

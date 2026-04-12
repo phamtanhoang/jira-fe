@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,22 +13,28 @@ export function IssueCard({
   issue: Issue;
   onClick: () => void;
 }) {
+  const [dragging, setDragging] = useState(false);
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
   const prioConf = PRIORITY_CONFIG[issue.priority] ?? PRIORITY_CONFIG.MEDIUM;
   const PrioIcon = prioConf.icon;
 
-  function handleDragStart(e: React.DragEvent) {
-    e.dataTransfer.setData("issueId", issue.id);
-    e.dataTransfer.effectAllowed = "move";
-  }
-
   return (
     <div
       draggable
-      onDragStart={handleDragStart}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("issueId", issue.id);
+        e.dataTransfer.effectAllowed = "move";
+        setDragging(true);
+      }}
+      onDragEnd={() => setDragging(false)}
       onClick={onClick}
-      className="group cursor-pointer rounded-sm border border-transparent bg-card p-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all hover:border-primary/30 hover:bg-blue-50/40 hover:shadow-md active:shadow-sm"
+      className={`group cursor-grab rounded-md border bg-card p-2.5 shadow-sm transition-all duration-150
+        ${dragging
+          ? "rotate-2 scale-105 border-primary/40 opacity-60 shadow-lg"
+          : "border-transparent hover:border-primary/30 hover:bg-accent/50 hover:shadow-md dark:hover:bg-accent/20"
+        }
+        active:cursor-grabbing active:shadow-sm`}
     >
       <p className="mb-2.5 text-[13px] leading-[1.4] font-normal text-foreground">
         {issue.summary}
@@ -54,9 +61,7 @@ export function IssueCard({
       {/* Footer */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <div
-            className={`flex h-4 w-4 items-center justify-center rounded-sm ${typeConf.bg}`}
-          >
+          <div className={`flex h-4 w-4 items-center justify-center rounded-sm ${typeConf.bg}`}>
             <TypeIcon className="h-2.5 w-2.5 text-white" />
           </div>
           <span className="text-[11px] font-medium text-muted-foreground">

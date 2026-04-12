@@ -187,6 +187,16 @@ export function IssueDetailSidebar({
           </DetailRow>
         )}
 
+        {/* Start Date */}
+        <DetailRow label={t("issue.startDate")}>
+          <Input
+            type="date"
+            value={issue.startDate ? issue.startDate.split("T")[0] : ""}
+            onChange={(e) => onUpdate("startDate", e.target.value ? new Date(e.target.value).toISOString() : null)}
+            className="h-7 text-[12px]"
+          />
+        </DetailRow>
+
         {/* Due Date */}
         <DetailRow label={t("issue.dueDate")}>
           <Input

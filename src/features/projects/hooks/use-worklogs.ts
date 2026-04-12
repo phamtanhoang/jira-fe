@@ -33,6 +33,19 @@ export function useAddWorklog(issueId: string) {
   });
 }
 
+export function useUpdateWorklog(issueId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ worklogId, ...data }: { worklogId: string; timeSpent?: number; startedAt?: string; description?: string }) =>
+      issuesApi.updateWorklog(worklogId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["worklogs", issueId] });
+    },
+    onError: handleApiError,
+  });
+}
+
 export function useDeleteWorklog(issueId: string) {
   const queryClient = useQueryClient();
 

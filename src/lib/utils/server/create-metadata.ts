@@ -5,7 +5,7 @@ import { COOKIE_LOCALE } from "@/lib/constants";
 import { getAppSettingsServer } from "./app-settings-server";
 import { generatePageMetadata } from "../metadata";
 
-export function createGenerateMetadata(titleKey: string) {
+export function createGenerateMetadata(titleKey: string, descKey?: string) {
   return async function generateMetadata(): Promise<Metadata> {
     const cookieStore = await cookies();
     const cookieLocale = cookieStore.get(COOKIE_LOCALE)?.value;
@@ -15,6 +15,6 @@ export function createGenerateMetadata(titleKey: string) {
 
     const appSettings = await getAppSettingsServer();
 
-    return generatePageMetadata({ locale, titleKey, appSettings });
+    return generatePageMetadata({ locale, titleKey, descKey, appSettings });
   };
 }

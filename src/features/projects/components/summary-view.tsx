@@ -68,7 +68,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950">
               <BarChart3 className="h-5 w-5 text-blue-600" />
             </div>
             <div>
@@ -79,7 +79,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-950">
               <CheckSquare className="h-5 w-5 text-green-600" />
             </div>
             <div>
@@ -90,7 +90,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950">
               <Clock className="h-5 w-5 text-orange-500" />
             </div>
             <div>
@@ -101,7 +101,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-900">
               <Target className="h-5 w-5 text-gray-500" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
             {activeSprint ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-700 text-[11px]">
+                  <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 text-[11px]">
                     <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
                     {activeSprint.name}
                   </Badge>
@@ -137,7 +137,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
                 )}
                 {/* Sprint progress bar */}
                 <div className="space-y-1.5">
-                  <div className="flex h-2 overflow-hidden rounded-full bg-gray-100">
+                  <div className="flex h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                     {stats.total > 0 && (
                       <>
                         <div className="bg-green-500 transition-all" style={{ width: `${(stats.byStatus.DONE / stats.total) * 100}%` }} />
@@ -174,7 +174,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
                       <Icon className="h-3 w-3 text-white" />
                     </div>
                     <span className="w-16 text-[12px] text-muted-foreground">{t(`issue.types.${type}` as any)}</span>
-                    <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                    <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                       <div className={`${conf.bg} transition-all`} style={{ width: `${pct}%` }} />
                     </div>
                     <span className="w-8 text-right text-[12px] font-medium">{count}</span>
@@ -203,7 +203,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
                   <div key={prio} className="flex items-center gap-2.5">
                     <Icon className={`h-4 w-4 shrink-0 ${conf.color}`} />
                     <span className="w-20 text-[12px] text-muted-foreground">{t(`issue.priorities.${prio}` as any)}</span>
-                    <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                    <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                       <div className="bg-current transition-all" style={{ width: `${pct}%` }} />
                     </div>
                     <span className="w-8 text-right text-[12px] font-medium">{count}</span>

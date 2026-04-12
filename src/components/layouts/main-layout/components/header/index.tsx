@@ -1,14 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   PanelLeft,
   LogOut,
-  Settings,
   Bell,
   Search,
   HelpCircle,
   User,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { getInitials } from "@/lib/utils";
@@ -33,6 +35,7 @@ export function Header({
   onToggleSidebar: () => void;
 }) {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const { t } = useAppStore();
   const { user } = useCurrentUser();
   const { mutate: logout } = useLogout();
@@ -57,20 +60,16 @@ export function Header({
 
       {/* Right */}
       <div className="flex items-center gap-1">
-        {/* Search placeholder */}
-        <Button variant="ghost" size="icon-xs" className="text-muted-foreground">
-          <Search className="h-4 w-4" />
-        </Button>
 
-        {/* Notifications placeholder */}
-        <Button variant="ghost" size="icon-xs" className="relative text-muted-foreground">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-primary" />
-        </Button>
-
-        {/* Help */}
-        <Button variant="ghost" size="icon-xs" className="text-muted-foreground">
-          <HelpCircle className="h-4 w-4" />
+        {/* Theme toggle */}
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
         </Button>
 
         <Separator orientation="vertical" className="mx-1 h-5" />
@@ -94,13 +93,13 @@ export function Header({
               </AvatarFallback>
             </Avatar>
             <span className="max-w-24 truncate text-[12px] font-medium">
-              {user?.name || user?.email || "User"}
+              {user?.name}
             </span>
           </Button>
           <DropdownMenuContent align="end" className="w-56">
             {/* User info */}
             <div className="px-3 py-2">
-              <p className="text-[13px] font-semibold">{user?.name || "User"}</p>
+              <p className="text-[13px] font-semibold">{user?.name}</p>
               <p className="text-[11px] text-muted-foreground">{user?.email}</p>
             </div>
             <div className="my-1 h-px bg-border" />

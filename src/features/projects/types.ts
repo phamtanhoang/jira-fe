@@ -86,6 +86,7 @@ export type Issue = {
   position: number;
   storyPoints: number | null;
   dueDate: string | null;
+  startDate: string | null;
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -96,6 +97,7 @@ export type Issue = {
   parent?: { id: string; key: string; summary: string } | null;
   epic?: { id: string; key: string; summary: string } | null;
   labels?: { label: Label }[];
+  children?: { id: string; key: string; summary: string; boardColumn?: { id: string; name: string; category: string } | null; assignee?: { id: string; name: string | null } | null }[];
   _count?: { children: number; comments: number; attachments: number };
 };
 
@@ -113,6 +115,7 @@ export type CreateIssuePayload = {
   type?: Issue["type"];
   priority?: Issue["priority"];
   assigneeId?: string;
+  parentId?: string;
   sprintId?: string;
   epicId?: string;
   storyPoints?: number;

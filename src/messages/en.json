@@ -32,7 +32,7 @@
     "backToSignIn": "Back to Sign In"
   },
   "footer": {
-    "copyright": "© {year} {name}. All rights reserved.",
+    "copyright": "© {year} {name}",
     "builtBy": "Built by"
   },
   "nav": {
@@ -158,6 +158,7 @@
     "reporter": "Reporter",
     "storyPoints": "Story Points",
     "sprint": "Sprint",
+    "startDate": "Start Date",
     "dueDate": "Due Date",
     "summary": "Summary",
     "summaryPlaceholder": "What needs to be done?",
@@ -169,6 +170,9 @@
     "activity": "Activity",
     "notFound": "Issue not found",
     "addComment": "Add a comment...",
+    "subtasks": "Subtasks",
+    "addSubtask": "Add subtask",
+    "subtaskPlaceholder": "What needs to be done?",
     "types": {
       "EPIC": "Epic",
       "STORY": "Story",
@@ -308,7 +312,21 @@
     "forgotPasswordTitle": "Forgot Password",
     "forgotPasswordDesc": "Reset your password",
     "resetPasswordTitle": "Reset Password",
-    "resetPasswordDesc": "Set your new password"
+    "resetPasswordDesc": "Set your new password",
+    "dashboardTitle": "Dashboard",
+    "dashboardDesc": "Overview of your workspaces and activity",
+    "workspacesTitle": "Workspaces",
+    "workspacesDesc": "Manage your workspaces",
+    "workspaceDetailTitle": "Workspace",
+    "workspaceDetailDesc": "Projects and members in this workspace",
+    "boardTitle": "Board",
+    "boardDesc": "Kanban board and sprint management",
+    "projectSettingsTitle": "Project Settings",
+    "projectSettingsDesc": "Manage project configuration and members",
+    "issueDetailTitle": "Issue",
+    "issueDetailDesc": "View and manage issue details",
+    "profileTitle": "Profile",
+    "profileDesc": "Manage your profile and account settings"
   },
   "email": {
     "subject": "Verification Code - {name}",

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Pencil, Trash2 } from "lucide-react";
+import { Send, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { getInitials, formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useComments, useAddComment, useUpdateComment, useDeleteComment } from "../hooks";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -52,7 +53,8 @@ export function IssueComments({
             />
             {text.trim() && (
               <Button type="submit" size="sm" disabled={commenting}>
-                <Send className="mr-1.5 h-3 w-3" />{t("common.save")}
+                {commenting ? <Spinner className="mr-1.5 h-3 w-3" /> : <Send className="mr-1.5 h-3 w-3" />}
+                {t("common.save")}
               </Button>
             )}
           </div>
@@ -60,6 +62,12 @@ export function IssueComments({
       </form>
 
       {/* Comment list */}
+      {comments && comments.length === 0 && (
+        <div className="rounded-lg border border-dashed border-muted-foreground/20 py-8 text-center">
+          <MessageSquare className="mx-auto mb-2 h-8 w-8 text-muted-foreground/20" />
+          <p className="text-[12px] text-muted-foreground/60">No comments yet</p>
+        </div>
+      )}
       <div className="space-y-4">
         {comments?.map((comment) => (
           <div key={comment.id} className="group flex gap-3">

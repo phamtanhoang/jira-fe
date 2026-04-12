@@ -1,6 +1,8 @@
 import "@/app/globals.css";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "next-themes";
 import { AppProvider } from "@/components/providers/app-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
@@ -8,6 +10,16 @@ import { COOKIE_LOCALE } from "@/lib/constants";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { getAppSettingsServer } from "@/lib/utils/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appSettings = await getAppSettingsServer();
+  const name = appSettings?.name || "";
+  return {
+    title: { default: name, template: `%s | ${name}` },
+    description: appSettings?.description || "Project management tool",
+    ...(appSettings?.logoUrl && { icons: { icon: appSettings.logoUrl } }),
+  };
+}
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -27,10 +39,12 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body suppressHydrationWarning>
-        <AppProvider initialLocale={locale} initialSettings={appSettings}>
-          <QueryProvider>{children}</QueryProvider>
-          <Toaster position="top-right" richColors closeButton />
-        </AppProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <AppProvider initialLocale={locale} initialSettings={appSettings}>
+            <QueryProvider>{children}</QueryProvider>
+            <Toaster position="top-right" richColors closeButton />
+          </AppProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

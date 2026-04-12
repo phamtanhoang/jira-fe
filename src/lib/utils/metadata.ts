@@ -5,37 +5,29 @@ import type { AppSettings } from "@/lib/types";
 export interface MetadataParams {
   locale: Locale;
   titleKey: string;
+  descKey?: string;
   appSettings?: Partial<AppSettings> | null;
 }
 
 export function generatePageMetadata({
   locale,
   titleKey,
+  descKey,
   appSettings,
 }: MetadataParams): Metadata {
   const title = t(locale, titleKey as any);
-  const appName = appSettings?.name || "";
-  const fullTitle = `${title} | ${appName}`;
+  const description = descKey
+    ? t(locale, descKey as any)
+    : appSettings?.description || title;
 
   return {
-    title: fullTitle,
-    description: appSettings?.description || `${title} to your account`,
-    ...(appSettings?.logoUrl && {
-      icons: {
-        icon: appSettings.logoUrl,
-      },
-    }),
+    title,
+    description,
     openGraph: {
-      title: fullTitle,
-      description: appSettings?.description || `${title} to your account`,
+      title,
+      description,
       ...(appSettings?.logoUrl && {
-        images: [
-          {
-            url: appSettings.logoUrl,
-            width: 1200,
-            height: 630,
-          },
-        ],
+        images: [{ url: appSettings.logoUrl, width: 1200, height: 630 }],
       }),
     },
   };

@@ -23,7 +23,7 @@ export function Sidebar({
   onToggle: () => void;
 }) {
   const pathname = usePathname();
-  const { name: appName, logoUrl, description: appDesc, authorName, authorUrl, t } = useAppStore();
+  const { name: appName, logoUrl, authorName, authorUrl, t } = useAppStore();
   const { data: workspaces } = useWorkspaces();
 
   const navItems = [
@@ -46,7 +46,7 @@ export function Sidebar({
             </div>
           )}
           <span className="text-[13px] font-semibold">
-            {appName || "Jira Clone"}
+            {appName}
           </span>
         </Link>
         <button
@@ -135,17 +135,13 @@ export function Sidebar({
       </ScrollArea>
 
       {/* App info footer */}
-      <div className="border-t px-4 py-3">
-        {appDesc && (
-          <p className="mb-1 line-clamp-2 text-[10px] leading-relaxed text-muted-foreground/70">
-            {appDesc}
-          </p>
-        )}
+      <div className="border-t px-4 py-3 text-center">
         <p className="text-[10px] text-muted-foreground/50">
-          © {new Date().getFullYear()} {appName || "Jira Clone"}
+          {t("footer.copyright", { year: new Date().getFullYear().toString(), name: appName })}
           {authorName && (
             <>
               {" · "}
+              {t("footer.builtBy")}{" "}
               {authorUrl ? (
                 <a
                   href={authorUrl}

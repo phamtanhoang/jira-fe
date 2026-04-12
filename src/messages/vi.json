@@ -32,7 +32,7 @@
     "backToSignIn": "Quay lại đăng nhập"
   },
   "footer": {
-    "copyright": "© {year} {name}. Bảo lưu mọi quyền.",
+    "copyright": "© {year} {name}",
     "builtBy": "Phát triển bởi"
   },
   "nav": {
@@ -158,6 +158,7 @@
     "reporter": "Người báo cáo",
     "storyPoints": "Story Points",
     "sprint": "Sprint",
+    "startDate": "Ngày bắt đầu",
     "dueDate": "Hạn hoàn thành",
     "summary": "Tóm tắt",
     "summaryPlaceholder": "Cần làm gì?",
@@ -169,6 +170,9 @@
     "activity": "Hoạt động",
     "notFound": "Không tìm thấy công việc",
     "addComment": "Thêm bình luận...",
+    "subtasks": "Công việc con",
+    "addSubtask": "Thêm công việc con",
+    "subtaskPlaceholder": "Cần làm gì?",
     "types": {
       "EPIC": "Epic",
       "STORY": "Story",
@@ -308,7 +312,21 @@
     "forgotPasswordTitle": "Quên mật khẩu",
     "forgotPasswordDesc": "Đặt lại mật khẩu của bạn",
     "resetPasswordTitle": "Đặt lại mật khẩu",
-    "resetPasswordDesc": "Thiết lập mật khẩu mới"
+    "resetPasswordDesc": "Thiết lập mật khẩu mới",
+    "dashboardTitle": "Bảng điều khiển",
+    "dashboardDesc": "Tổng quan không gian làm việc và hoạt động",
+    "workspacesTitle": "Không gian làm việc",
+    "workspacesDesc": "Quản lý không gian làm việc của bạn",
+    "workspaceDetailTitle": "Không gian",
+    "workspaceDetailDesc": "Dự án và thành viên trong không gian này",
+    "boardTitle": "Bảng công việc",
+    "boardDesc": "Bảng Kanban và quản lý sprint",
+    "projectSettingsTitle": "Cài đặt dự án",
+    "projectSettingsDesc": "Cấu hình dự án và quản lý thành viên",
+    "issueDetailTitle": "Công việc",
+    "issueDetailDesc": "Xem và quản lý chi tiết công việc",
+    "profileTitle": "Hồ sơ",
+    "profileDesc": "Quản lý hồ sơ và tài khoản của bạn"
   },
   "email": {
     "subject": "Mã xác thực - {name}",

@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const LOCALE_CONFIG: Record<Locale, { flag: string; label: string }> = {
-  vi: { flag: "🇻🇳", label: "Tiếng Việt" },
-  en: { flag: "🇺🇸", label: "English" },
+  vi: { flag: "\u{1F1FB}\u{1F1F3}", label: "Ti\u1EBFng Vi\u1EC7t" },
+  en: { flag: "\u{1F1FA}\u{1F1F8}", label: "English" },
 };
 
 export function LocaleSwitcher() {
