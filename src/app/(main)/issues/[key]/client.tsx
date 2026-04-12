@@ -10,16 +10,16 @@ import {
   MoreHorizontal,
   MessageSquare,
   History,
-  Plus,
-  Layers,
   Pencil,
+  ChevronRight,
 } from "lucide-react";
-import { TYPE_CONFIG, STATUS_BADGE_COLORS } from "@/lib/constants/issue-config";
-import { useIssue, useUpdateIssue, useDeleteIssue, useCreateIssue, useProject, useComments } from "@/features/projects/hooks";
+import { TYPE_CONFIG } from "@/lib/constants/issue-config";
+import { useIssue, useUpdateIssue, useDeleteIssue, useProject, useComments } from "@/features/projects/hooks";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { IssueDetailSidebar } from "@/features/projects/components/issue-detail-sidebar";
 import { IssueComments } from "@/features/projects/components/issue-comments";
+import { SubtaskList } from "@/features/projects/components/subtask-list";
 import { ActivityFeed } from "@/features/projects/components/activity-feed";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Badge } from "@/components/ui/badge";
@@ -45,14 +45,11 @@ export default function IssueDetailPage() {
   const { data: comments } = useComments(issue?.id ?? "");
   const { mutate: updateIssue } = useUpdateIssue();
   const { mutate: deleteIssue } = useDeleteIssue(issue?.projectId ?? "");
-  const { mutate: createIssue } = useCreateIssue();
 
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState("");
   const [editingDesc, setEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState("");
-  const [showSubtaskForm, setShowSubtaskForm] = useState(false);
-  const [subtaskSummary, setSubtaskSummary] = useState("");
 
   function saveSummary() {
     if (issue && summaryDraft.trim() && summaryDraft.trim() !== issue.summary) {
@@ -101,7 +98,19 @@ export default function IssueDetailPage() {
             <Button variant="ghost" size="xs" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              {/* Parent breadcrumb for subtasks */}
+              {issue.parent && (
+                <>
+                  <button
+                    onClick={() => router.push(`/issues/${issue.parent!.key}`)}
+                    className="text-[12px] text-muted-foreground hover:text-foreground hover:underline"
+                  >
+                    {issue.parent.key}
+                  </button>
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
+                </>
+              )}
               <div className={`flex h-5 w-5 items-center justify-center rounded-sm ${typeConf.bg}`}>
                 <TypeIcon className="h-3 w-3 text-white" />
               </div>
@@ -186,71 +195,7 @@ export default function IssueDetailPage() {
           </div>
 
           {/* Subtasks */}
-          {issue.type !== "SUBTASK" && (
-            <div className="mb-8">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <Layers className="h-3.5 w-3.5" />
-                  {t("issue.subtasks")}
-                  {issue._count?.children ? ` (${issue._count.children})` : ""}
-                </h3>
-                <Button size="xs" variant="ghost" onClick={() => setShowSubtaskForm(!showSubtaskForm)}>
-                  <Plus className="mr-1 h-3 w-3" />{t("issue.addSubtask")}
-                </Button>
-              </div>
-
-              {showSubtaskForm && (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!subtaskSummary.trim()) return;
-                    createIssue(
-                      { projectId: issue.projectId, summary: subtaskSummary.trim(), type: "SUBTASK", parentId: issue.id },
-                      { onSuccess: () => { setSubtaskSummary(""); setShowSubtaskForm(false); } },
-                    );
-                  }}
-                  className="mb-3 flex gap-2"
-                >
-                  <Input
-                    value={subtaskSummary}
-                    onChange={(e) => setSubtaskSummary(e.target.value)}
-                    placeholder={t("issue.subtaskPlaceholder")}
-                    className="h-8 text-[12px]"
-                    autoFocus
-                  />
-                  <Button size="xs" type="submit" disabled={!subtaskSummary.trim()}>{t("common.create")}</Button>
-                </form>
-              )}
-
-              {issue.children && issue.children.length > 0 && (
-                <div className="rounded-lg border">
-                  {issue.children.map((child) => {
-                    const isDone = child.boardColumn?.category === "DONE";
-                    return (
-                      <div
-                        key={child.id}
-                        onClick={() => router.push(`/issues/${child.key}`)}
-                        className="flex cursor-pointer items-center gap-3 border-b px-3 py-2 text-[12px] last:border-b-0 hover:bg-muted/50"
-                      >
-                        <div className="flex h-4 w-4 items-center justify-center rounded-sm bg-sky-400">
-                          <Layers className="h-2.5 w-2.5 text-white" />
-                        </div>
-                        <span className="font-medium text-muted-foreground">{child.key}</span>
-                        <span className={`flex-1 truncate ${isDone ? "line-through text-muted-foreground" : ""}`}>
-                          {child.summary}
-                        </span>
-                        {child.boardColumn && (
-                          <Badge variant="secondary" className={`text-[10px] ${STATUS_BADGE_COLORS[child.boardColumn.category] ?? ""}`}>
-                            {child.boardColumn.name}
-                          </Badge>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
+          <SubtaskList issue={issue} />
 
           <Separator className="mb-6" />
 

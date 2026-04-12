@@ -43,6 +43,7 @@ export function useMoveIssue() {
       issuesApi.move(id, data),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issue"] });
     },
     onError: handleApiError,
   });
