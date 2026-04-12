@@ -11,6 +11,7 @@ import {
 import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { BurndownChart } from "./burndown-chart";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -111,6 +112,16 @@ export function SummaryView({ board, allIssues, members }: Props) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Burndown Chart */}
+      {activeSprint && (
+        <Card>
+          <CardContent className="p-5">
+            <h3 className="mb-4 text-[13px] font-semibold">Burndown Chart</h3>
+            <BurndownChart sprintId={activeSprint.id} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Active sprint + status breakdown */}
       <div className="grid grid-cols-2 gap-4">

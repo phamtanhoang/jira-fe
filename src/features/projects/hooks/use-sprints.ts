@@ -1,9 +1,17 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError } from "@/lib/utils";
 import { sprintsApi } from "../api";
 import type { UpdateSprintPayload } from "../types";
+
+export function useSprintBurndown(sprintId: string | undefined) {
+  return useQuery({
+    queryKey: ["sprint-burndown", sprintId],
+    queryFn: () => sprintsApi.burndown(sprintId!),
+    enabled: !!sprintId,
+  });
+}
 
 export function useCreateSprint(projectId: string) {
   const queryClient = useQueryClient();

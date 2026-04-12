@@ -236,4 +236,11 @@ export const sprintsApi = {
 
   complete: (id: string) =>
     api.post(ENDPOINTS.sprints.complete(id)).then((r) => r.data),
+
+  burndown: (id: string) =>
+    api
+      .get<{ totalPoints: number; days: { date: string; ideal: number; actual: number }[] }>(
+        ENDPOINTS.sprints.burndown(id),
+      )
+      .then((r) => r.data),
 };

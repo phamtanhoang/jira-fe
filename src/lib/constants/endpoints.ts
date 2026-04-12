@@ -57,6 +57,7 @@ const SPRINTS_ENDPOINTS = {
   byId: (id: string) => `${SPRINTS_BASE}/${id}`,
   start: (id: string) => `${SPRINTS_BASE}/${id}/start`,
   complete: (id: string) => `${SPRINTS_BASE}/${id}/complete`,
+  burndown: (id: string) => `${SPRINTS_BASE}/${id}/burndown`,
 } as const;
 
 const ISSUES_ENDPOINTS = {
