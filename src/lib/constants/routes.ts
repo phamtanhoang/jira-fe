@@ -5,6 +5,14 @@ export const ROUTES = {
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
   DASHBOARD: "/dashboard",
+  WORKSPACES: "/workspaces",
+  WORKSPACE: (id: string) => `/workspaces/${id}`,
+  BOARD: (workspaceId: string, projectId: string) =>
+    `/workspaces/${workspaceId}/projects/${projectId}/board`,
+  PROJECT_SETTINGS: (workspaceId: string, projectId: string) =>
+    `/workspaces/${workspaceId}/projects/${projectId}/settings`,
+  ISSUE: (key: string) => `/issues/${key}`,
+  PROFILE: "/profile",
 } as const;
 
 export const PUBLIC_ROUTES = [

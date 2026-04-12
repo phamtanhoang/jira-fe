@@ -1,18 +1,42 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Mail } from "lucide-react";
+import { Mail, Clock } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { VERIFICATION_CODE_LENGTH } from "@/lib/constants";
 import { useVerifyEmail } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+function useCountdown(expiresAt: number) {
+  const [remaining, setRemaining] = useState(() =>
+    Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)),
+  );
+
+  useEffect(() => {
+    if (!expiresAt) return;
+    const timer = setInterval(() => {
+      const left = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+      setRemaining(left);
+      if (left <= 0) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [expiresAt]);
+
+  const minutes = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  const display = `${minutes}:${secs.toString().padStart(2, "0")}`;
+
+  return { remaining, display, isExpired: remaining <= 0 };
+}
+
 export function VerifyEmailForm() {
   const { t } = useAppStore();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
+  const expiresAt = Number(searchParams.get("expiresAt")) || 0;
+  const countdown = useCountdown(expiresAt);
 
   const [digits, setDigits] = useState<string[]>(Array(VERIFICATION_CODE_LENGTH).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -65,6 +89,14 @@ export function VerifyEmailForm() {
           {t("auth.verifyEmailDesc")}{" "}
           <span className="font-medium text-foreground">{email}</span>
         </p>
+        {expiresAt > 0 && (
+          <div className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${countdown.isExpired ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+            <Clock className="h-3 w-3" />
+            {countdown.isExpired
+              ? t("auth.codeExpired")
+              : `${t("auth.codeExpiresIn")} ${countdown.display}`}
+          </div>
+        )}
       </div>
 
       <form onSubmit={onSubmit}>

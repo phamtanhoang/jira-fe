@@ -1,7 +1,9 @@
-export default function MainLayout({
+import { MainLayout } from "@/components/layouts/main-layout";
+
+export default function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="min-h-screen">{children}</div>;
+  return <MainLayout>{children}</MainLayout>;
 }

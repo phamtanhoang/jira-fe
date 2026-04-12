@@ -1,5 +1,13 @@
 const AUTH_BASE = "/auth";
 const SETTINGS_BASE = "/settings";
+const WORKSPACES_BASE = "/workspaces";
+const PROJECTS_BASE = "/projects";
+const BOARDS_BASE = "/boards";
+const SPRINTS_BASE = "/sprints";
+const ISSUES_BASE = "/issues";
+const LABELS_BASE = "/labels";
+const COMMENTS_BASE = "/comments";
+const WORKLOGS_BASE = "/worklogs";
 
 const AUTH_ENDPOINTS = {
   auth: AUTH_BASE,
@@ -18,7 +26,73 @@ const SETTINGS_ENDPOINTS = {
   appInfo: `${SETTINGS_BASE}/app-info`,
 } as const;
 
+const WORKSPACES_ENDPOINTS = {
+  base: WORKSPACES_BASE,
+  byId: (id: string) => `${WORKSPACES_BASE}/${id}`,
+  members: (id: string) => `${WORKSPACES_BASE}/${id}/members`,
+  member: (id: string, memberId: string) =>
+    `${WORKSPACES_BASE}/${id}/members/${memberId}`,
+} as const;
+
+const PROJECTS_ENDPOINTS = {
+  base: PROJECTS_BASE,
+  byId: (id: string) => `${PROJECTS_BASE}/${id}`,
+  members: (id: string) => `${PROJECTS_BASE}/${id}/members`,
+  member: (id: string, memberId: string) =>
+    `${PROJECTS_BASE}/${id}/members/${memberId}`,
+} as const;
+
+const BOARDS_ENDPOINTS = {
+  base: BOARDS_BASE,
+  byProject: (projectId: string) => `${BOARDS_BASE}/project/${projectId}`,
+  columns: (boardId: string) => `${BOARDS_BASE}/${boardId}/columns`,
+  column: (boardId: string, columnId: string) =>
+    `${BOARDS_BASE}/${boardId}/columns/${columnId}`,
+  reorderColumns: (boardId: string) =>
+    `${BOARDS_BASE}/${boardId}/columns/reorder`,
+} as const;
+
+const SPRINTS_ENDPOINTS = {
+  base: SPRINTS_BASE,
+  byId: (id: string) => `${SPRINTS_BASE}/${id}`,
+  start: (id: string) => `${SPRINTS_BASE}/${id}/start`,
+  complete: (id: string) => `${SPRINTS_BASE}/${id}/complete`,
+} as const;
+
+const ISSUES_ENDPOINTS = {
+  base: ISSUES_BASE,
+  byId: (id: string) => `${ISSUES_BASE}/${id}`,
+  byKey: (key: string) => `${ISSUES_BASE}/key/${key}`,
+  move: (id: string) => `${ISSUES_BASE}/${id}/move`,
+  labels: (id: string, labelId: string) =>
+    `${ISSUES_BASE}/${id}/labels/${labelId}`,
+  comments: (id: string) => `${ISSUES_BASE}/${id}/comments`,
+  worklogs: (id: string) => `${ISSUES_BASE}/${id}/worklogs`,
+  activity: (id: string) => `${ISSUES_BASE}/${id}/activity`,
+} as const;
+
+const LABELS_ENDPOINTS = {
+  base: LABELS_BASE,
+  byId: (id: string) => `${LABELS_BASE}/${id}`,
+} as const;
+
+const COMMENTS_ENDPOINTS = {
+  byId: (id: string) => `${COMMENTS_BASE}/${id}`,
+} as const;
+
+const WORKLOGS_ENDPOINTS = {
+  byId: (id: string) => `${WORKLOGS_BASE}/${id}`,
+} as const;
+
 export const ENDPOINTS = {
   auth: AUTH_ENDPOINTS,
   settings: SETTINGS_ENDPOINTS,
+  workspaces: WORKSPACES_ENDPOINTS,
+  projects: PROJECTS_ENDPOINTS,
+  boards: BOARDS_ENDPOINTS,
+  sprints: SPRINTS_ENDPOINTS,
+  issues: ISSUES_ENDPOINTS,
+  labels: LABELS_ENDPOINTS,
+  comments: COMMENTS_ENDPOINTS,
+  worklogs: WORKLOGS_ENDPOINTS,
 } as const;

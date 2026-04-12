@@ -54,12 +54,15 @@ export function useRegister({ onSuccess }: { onSuccess?: (email: string) => void
 
   return useMutation({
     mutationFn: (data: RegisterPayload) => authApi.register(data),
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
       showMessage("REGISTER_SUCCESS");
+      const expiresAt = result.otpExpiresIn
+        ? Date.now() + result.otpExpiresIn * 1000
+        : "";
       if (onSuccess) {
         onSuccess(variables.email);
       } else {
-        router.push(`${ROUTES.VERIFY_EMAIL}?email=${encodeURIComponent(variables.email)}`);
+        router.push(`${ROUTES.VERIFY_EMAIL}?email=${encodeURIComponent(variables.email)}&expiresAt=${expiresAt}`);
       }
     },
     onError: handleApiError,
@@ -109,6 +112,32 @@ export function useResetPassword({ onSuccess }: { onSuccess?: () => void } = {})
       } else {
         router.push(ROUTES.SIGN_IN);
       }
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Update Profile ─────────────────────────────────────
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { name?: string }) => authApi.updateProfile(data),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.setQueryData(["auth", "me"], result.user);
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Change Password ────────────────────────────────────
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (data: { currentPassword: string; newPassword: string }) =>
+      authApi.changePassword(data),
+    onSuccess: (result) => {
+      showMessage(result.message);
     },
     onError: handleApiError,
   });

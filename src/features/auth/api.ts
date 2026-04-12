@@ -9,7 +9,7 @@ import type {
   ResetPasswordPayload,
 } from "./types";
 
-type ApiResponse = { message?: string };
+type ApiResponse = { message?: string; otpExpiresIn?: number };
 
 export const authApi = {
   register: (data: RegisterPayload) =>
@@ -29,6 +29,12 @@ export const authApi = {
 
   me: () =>
     api.get<AuthUser>(ENDPOINTS.auth.me).then((r) => r.data),
+
+  updateProfile: (data: { name?: string }) =>
+    api.patch<{ message: string; user: AuthUser }>(ENDPOINTS.auth.me, data).then((r) => r.data),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    api.post<{ message: string }>(`${ENDPOINTS.auth.auth}/change-password`, data).then((r) => r.data),
 
   forgotPassword: (data: ForgotPasswordPayload) =>
     api.post<ApiResponse>(ENDPOINTS.auth.forgotPassword, data).then((r) => r.data),

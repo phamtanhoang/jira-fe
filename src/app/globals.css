@@ -46,33 +46,44 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Jira nav */
+  --color-nav: var(--nav);
+  --color-nav-foreground: var(--nav-foreground);
+  --color-nav-accent: var(--nav-accent);
+  --color-nav-muted: var(--nav-muted);
 }
 
 :root {
-  --background: oklch(0.985 0.002 247);
-  --foreground: oklch(0.145 0.005 247);
+  --background: oklch(0.975 0.002 250);
+  --foreground: oklch(0.16 0.01 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.005 247);
+  --card-foreground: oklch(0.16 0.01 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.005 247);
-  --primary: oklch(0.546 0.245 262);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.96 0.01 247);
-  --secondary-foreground: oklch(0.205 0.01 247);
-  --muted: oklch(0.96 0.01 247);
-  --muted-foreground: oklch(0.556 0.01 247);
-  --accent: oklch(0.96 0.01 247);
-  --accent-foreground: oklch(0.205 0.01 247);
+  --popover-foreground: oklch(0.16 0.01 250);
+  /* Atlassian Blue */
+  --primary: oklch(0.45 0.2 260);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.955 0.008 250);
+  --secondary-foreground: oklch(0.25 0.01 250);
+  --muted: oklch(0.955 0.008 250);
+  --muted-foreground: oklch(0.5 0.01 250);
+  --accent: oklch(0.945 0.015 260);
+  --accent-foreground: oklch(0.25 0.01 250);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.902 0.01 247);
-  --input: oklch(0.902 0.01 247);
-  --ring: oklch(0.546 0.245 262);
-  --chart-1: oklch(0.546 0.245 262);
-  --chart-2: oklch(0.6 0.2 200);
-  --chart-3: oklch(0.5 0.15 150);
-  --chart-4: oklch(0.7 0.1 100);
-  --chart-5: oklch(0.65 0.18 300);
-  --radius: 0.625rem;
+  --border: oklch(0.91 0.005 250);
+  --input: oklch(0.91 0.005 250);
+  --ring: oklch(0.45 0.2 260);
+  --chart-1: oklch(0.45 0.2 260);
+  --chart-2: oklch(0.6 0.18 200);
+  --chart-3: oklch(0.55 0.15 150);
+  --chart-4: oklch(0.65 0.12 100);
+  --chart-5: oklch(0.6 0.18 300);
+  --radius: 0.375rem;
+  /* Jira navy sidebar */
+  --nav: oklch(0.22 0.04 260);
+  --nav-foreground: oklch(0.88 0.01 250);
+  --nav-accent: oklch(0.30 0.05 260);
+  --nav-muted: oklch(0.58 0.02 250);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -107,6 +118,10 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+  --nav: oklch(0.16 0.03 260);
+  --nav-foreground: oklch(0.88 0.01 250);
+  --nav-accent: oklch(0.24 0.04 260);
+  --nav-muted: oklch(0.55 0.02 250);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -122,7 +137,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
   html {
     @apply font-sans;

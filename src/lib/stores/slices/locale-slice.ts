@@ -20,7 +20,6 @@ export const createLocaleSlice: StateCreator<AppStore, [["zustand/devtools", nev
   setLocale: (locale: Locale) => {
     set({ locale }, false, "locale/set");
     document.cookie = `${COOKIE_LOCALE}=${locale};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
-    window.location.reload();
   },
 
   t: (key: MessageKey, vars?: Record<string, string>) => {

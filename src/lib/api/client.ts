@@ -3,7 +3,7 @@ import { ROUTES, ENDPOINTS } from "@/lib/constants";
 import { handleApiError } from "@/lib/utils";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
@@ -37,7 +37,7 @@ api.interceptors.response.use(
     }
 
     // Check if user is authenticated before attempting refresh
-    const isAuthenticated = document.cookie.includes("is_authenticated=true");
+    const isAuthenticated = document.cookie.includes("is_authenticated=1");
     if (!isAuthenticated) {
       return Promise.reject(error);
     }

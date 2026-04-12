@@ -1,29 +1,55 @@
 "use client";
 
+import { Globe } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { type Locale, locales } from "@/lib/config/i18n";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const localeLabels: Record<Locale, string> = {
-  vi: "VI",
-  en: "EN",
+const LOCALE_CONFIG: Record<Locale, { flag: string; label: string }> = {
+  vi: { flag: "🇻🇳", label: "Tiếng Việt" },
+  en: { flag: "🇺🇸", label: "English" },
 };
 
 export function LocaleSwitcher() {
   const { locale, setLocale } = useAppStore();
+  const current = LOCALE_CONFIG[locale];
 
   return (
-    <div className="flex gap-0.5 rounded-lg border bg-card p-0.5">
-      {locales.map((l) => (
-        <Button
-          key={l}
-          variant={locale === l ? "default" : "ghost"}
-          size="xs"
-          onClick={() => setLocale(l)}
-        >
-          {localeLabels[l]}
-        </Button>
-      ))}
-    </div>
+    <DropdownMenu>
+      <Button
+        render={<DropdownMenuTrigger />}
+        variant="ghost"
+        size="xs"
+        className="gap-1.5 px-2 text-muted-foreground"
+      >
+        <Globe className="h-3.5 w-3.5" />
+        <span className="text-[11px] font-medium">{current.flag} {locale.toUpperCase()}</span>
+      </Button>
+      <DropdownMenuContent align="end" className="min-w-36">
+        {locales.map((l) => {
+          const conf = LOCALE_CONFIG[l];
+          const isActive = l === locale;
+          return (
+            <DropdownMenuItem
+              key={l}
+              onClick={() => setLocale(l)}
+              className={isActive ? "bg-primary/8 text-primary font-medium" : ""}
+            >
+              <span className="mr-2 text-base">{conf.flag}</span>
+              <span className="text-[12px]">{conf.label}</span>
+              {isActive && (
+                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+              )}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
