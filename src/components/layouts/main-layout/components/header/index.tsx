@@ -5,9 +5,6 @@ import { useTheme } from "next-themes";
 import {
   PanelLeft,
   LogOut,
-  Bell,
-  Search,
-  HelpCircle,
   User,
   Moon,
   Sun,
@@ -17,6 +14,7 @@ import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useLogout } from "@/features/auth/hooks";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
+import { CommandPalette } from "@/components/shared/command-palette";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -58,9 +56,11 @@ export function Header({
         )}
       </div>
 
+      {/* Center — Search */}
+      <CommandPalette />
+
       {/* Right */}
       <div className="flex items-center gap-1">
-
         {/* Theme toggle */}
         <Button
           variant="ghost"
