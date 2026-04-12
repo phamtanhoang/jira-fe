@@ -25,3 +25,11 @@ paths:
 ## Drag & Drop
 - Issue cards: cursor-grab, dragging state → rotate-2 scale-105 opacity-60, onDragEnd resets
 - Column drop zone: scale-[1.02] shadow-lg on dragOver
+
+## Rich Text
+- ALWAYS use `RichEditor` from `@/components/shared/rich-editor` for editable text (description, comments)
+- ALWAYS use `RichContent` from same module for read-only HTML rendering
+- PREFER `minimal` prop on RichEditor for comments (hides headings and image button)
+- NEVER use plain `<Textarea>` for description or comment fields — use RichEditor
+- Content stored as HTML string in DB — no schema change needed
+- Loading spinner: use `<Spinner>` from `@/components/ui/spinner` on async submit buttons

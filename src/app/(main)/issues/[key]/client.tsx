@@ -21,10 +21,10 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { IssueDetailSidebar } from "@/features/projects/components/issue-detail-sidebar";
 import { IssueComments } from "@/features/projects/components/issue-comments";
 import { ActivityFeed } from "@/features/projects/components/activity-feed";
+import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -157,11 +157,10 @@ export default function IssueDetailPage() {
             </h3>
             {editingDesc ? (
               <div className="space-y-2">
-                <Textarea
-                  value={descDraft}
-                  onChange={(e) => setDescDraft(e.target.value)}
-                  rows={5}
-                  className="text-sm"
+                <RichEditor
+                  content={descDraft}
+                  onChange={setDescDraft}
+                  placeholder={t("issue.descPlaceholder")}
                   autoFocus
                 />
                 <div className="flex gap-2">
@@ -175,7 +174,7 @@ export default function IssueDetailPage() {
                 onClick={() => { setEditingDesc(true); setDescDraft(issue.description ?? ""); }}
               >
                 {issue.description ? (
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{issue.description}</p>
+                  <RichContent html={issue.description} />
                 ) : (
                   <p className="text-sm italic text-muted-foreground/50">{t("issue.clickToAddDesc")}</p>
                 )}

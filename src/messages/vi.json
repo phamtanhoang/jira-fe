@@ -173,6 +173,7 @@
     "subtasks": "Công việc con",
     "addSubtask": "Thêm công việc con",
     "subtaskPlaceholder": "Cần làm gì?",
+    "noComments": "Chưa có bình luận",
     "types": {
       "EPIC": "Epic",
       "STORY": "Story",

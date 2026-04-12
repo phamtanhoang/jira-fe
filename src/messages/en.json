@@ -173,6 +173,7 @@
     "subtasks": "Subtasks",
     "addSubtask": "Add subtask",
     "subtaskPlaceholder": "What needs to be done?",
+    "noComments": "No comments yet",
     "types": {
       "EPIC": "Epic",
       "STORY": "Story",

@@ -11,6 +11,7 @@ Next.js project management UI with Kanban boards, sprint planning, and issue tra
 - HTTP: axios ^1.14.0
 - Theme: next-themes ^0.4.6
 - Notifications: sonner ^2.0.7
+- Rich Text: @tiptap/react, @tiptap/starter-kit, @tiptap/extension-placeholder, @tiptap/extension-character-count, @tiptap/extension-image
 
 ## Commands
 ```bash
@@ -33,7 +34,7 @@ src/
 │   ├── layouts/
 │   │   ├── auth-layout/        # AuthLayout → components/ (header, footer)
 │   │   └── main-layout/        # MainLayout → components/ (header, sidebar)
-│   ├── shared/                 # locale-switcher
+│   ├── shared/                 # locale-switcher, rich-editor (Tiptap — RichEditor + RichContent)
 │   ├── providers/              # AppProvider (zustand init), QueryProvider (staleTime 60s, retry 1)
 │   └── ui/                     # 18 shadcn components: avatar, badge, button, card, dialog, dropdown-menu, form, input, label, scroll-area, select, separator, sheet, skeleton, spinner, tabs, textarea, tooltip
 ├── features/
@@ -74,3 +75,4 @@ src/
 - Dark mode: ALWAYS add `dark:` variant when using hardcoded bg colors (bg-blue-50 → dark:bg-blue-950)
 - Hooks: ALWAYS use `queryClient` (not `qc`) for useQueryClient() variable name
 - UNASSIGNED_VALUE ("__none__") for unassigned select — NEVER hardcode the string
+- Rich text: description + comments use Tiptap (RichEditor/RichContent from @/components/shared/rich-editor). HTML stored in DB. Use `minimal` prop for comments (no headings/image)

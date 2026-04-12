@@ -5,9 +5,9 @@ import { Send, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { getInitials, formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useComments, useAddComment, useUpdateComment, useDeleteComment } from "../hooks";
+import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function IssueComments({
@@ -29,8 +29,8 @@ export function IssueComments({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
-    addComment({ content: text.trim() }, { onSuccess: () => setText("") });
+    if (!text.trim() || text === "<p></p>") return;
+    addComment({ content: text }, { onSuccess: () => setText("") });
   }
 
   return (
@@ -44,14 +44,14 @@ export function IssueComments({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <Textarea
+            <RichEditor
+              content={text}
+              onChange={setText}
               placeholder={t("issue.addComment")}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={2}
-              className="mb-2 resize-none text-sm"
+              minimal
+              className="mb-2"
             />
-            {text.trim() && (
+            {text && text !== "<p></p>" && (
               <Button type="submit" size="sm" disabled={commenting}>
                 {commenting ? <Spinner className="mr-1.5 h-3 w-3" /> : <Send className="mr-1.5 h-3 w-3" />}
                 {t("common.save")}
@@ -61,13 +61,15 @@ export function IssueComments({
         </div>
       </form>
 
-      {/* Comment list */}
+      {/* Empty state */}
       {comments && comments.length === 0 && (
         <div className="rounded-lg border border-dashed border-muted-foreground/20 py-8 text-center">
           <MessageSquare className="mx-auto mb-2 h-8 w-8 text-muted-foreground/20" />
-          <p className="text-[12px] text-muted-foreground/60">No comments yet</p>
+          <p className="text-[12px] text-muted-foreground/60">{t("issue.noComments")}</p>
         </div>
       )}
+
+      {/* Comment list */}
       <div className="space-y-4">
         {comments?.map((comment) => (
           <div key={comment.id} className="group flex gap-3">
@@ -101,24 +103,21 @@ export function IssueComments({
               </div>
               {editingId === comment.id ? (
                 <div className="space-y-2">
-                  <Textarea
-                    value={editDraft}
-                    onChange={(e) => setEditDraft(e.target.value)}
-                    rows={2}
-                    className="text-sm"
+                  <RichEditor
+                    content={editDraft}
+                    onChange={setEditDraft}
+                    minimal
                     autoFocus
                   />
                   <div className="flex gap-2">
-                    <Button size="xs" onClick={() => { updateComment({ commentId: comment.id, content: editDraft.trim() }); setEditingId(null); }}>
+                    <Button size="xs" onClick={() => { updateComment({ commentId: comment.id, content: editDraft }); setEditingId(null); }}>
                       {t("common.save")}
                     </Button>
                     <Button size="xs" variant="ghost" onClick={() => setEditingId(null)}>{t("common.cancel")}</Button>
                   </div>
                 </div>
               ) : (
-                <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-foreground/80">
-                  {comment.content}
-                </p>
+                <RichContent html={comment.content} className="text-[13px] text-foreground/80" />
               )}
             </div>
           </div>
