@@ -64,7 +64,10 @@ export default function IssueDetailPage() {
   }
 
   function handleUpdate(field: string, value: string | null) {
-    if (issue) updateIssue({ id: issue.id, [field]: value });
+    if (!issue) return;
+    let parsed: unknown = value;
+    if (field === "storyPoints") parsed = value ? parseInt(value) : null;
+    updateIssue({ id: issue.id, [field]: parsed });
   }
 
   if (isLoading) {

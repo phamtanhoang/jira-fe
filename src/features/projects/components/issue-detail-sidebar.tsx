@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Pencil } from "lucide-react";
-import { TYPE_CONFIG, PRIORITY_CONFIG, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
+import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
 import { getInitials, formatDate, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { useBoard, useMoveIssue } from "../hooks";
 import { WorklogSection } from "./worklog-section";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import type { Issue, ProjectMember } from "../types";
+import type { Issue, ProjectMember, BoardColumn } from "../types";
 
 // ─── Click-to-edit wrapper ────────────────────────────
 
@@ -87,25 +88,60 @@ export function IssueDetailSidebar({
   onUpdate: (field: string, value: string | null) => void;
 }) {
   const { t } = useAppStore();
+  const { data: board } = useBoard(issue.projectId);
+  const { mutate: moveIssue } = useMoveIssue();
 
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
   const prioConf = PRIORITY_CONFIG[issue.priority] ?? PRIORITY_CONFIG.MEDIUM;
   const PrioIcon = prioConf.icon;
+  const columns = board?.columns ?? [];
 
   return (
     <div className="w-70 shrink-0 overflow-auto border-l bg-muted/20 p-5">
       <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">{t("issue.details")}</h3>
 
       <div className="space-y-4">
-        {/* Status — read only */}
-        <DetailRow label={t("issue.status")}>
-          <div className="px-2 py-1.5">
-            <Badge className="bg-primary/10 text-primary text-[11px] font-semibold">
-              {issue.boardColumn?.name ?? t("issue.backlogStatus")}
-            </Badge>
-          </div>
-        </DetailRow>
+        {/* Status — click to change column */}
+        <EditableField
+          label={t("issue.status")}
+          displayValue={
+            <span className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${STATUS_DOT_COLORS[issue.boardColumn?.category ?? "TODO"]}`} />
+              <Badge className="bg-primary/10 text-primary text-[11px] font-semibold">
+                {issue.boardColumn?.name ?? t("issue.backlogStatus")}
+              </Badge>
+            </span>
+          }
+        >
+          {({ close }) => (
+            <Select
+              value={issue.boardColumnId ?? ""}
+              onValueChange={(v) => {
+                if (v) moveIssue({ id: issue.id, columnId: v, position: 0 });
+                close();
+              }}
+              defaultOpen
+            >
+              <SelectTrigger className="h-8 w-full text-[12px]">
+                <span className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${STATUS_DOT_COLORS[issue.boardColumn?.category ?? "TODO"]}`} />
+                  {issue.boardColumn?.name ?? t("issue.backlogStatus")}
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                {columns.map((col) => (
+                  <SelectItem key={col.id} value={col.id}>
+                    <span className="flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${STATUS_DOT_COLORS[col.category]}`} />
+                      {col.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </EditableField>
 
         {/* Type — click to edit */}
         <EditableField
