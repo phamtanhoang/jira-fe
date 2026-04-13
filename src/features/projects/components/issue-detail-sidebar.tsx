@@ -147,7 +147,7 @@ export function IssueDetailSidebar({
             <Select
               value={issue.boardColumnId ?? ""}
               onValueChange={(v) => {
-                if (v) moveIssue({ id: issue.id, columnId: v, position: 0 });
+                if (v && v !== issue.boardColumnId) moveIssue({ id: issue.id, columnId: v, position: 0 });
                 close();
               }}
               defaultOpen

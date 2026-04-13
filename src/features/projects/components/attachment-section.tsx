@@ -104,28 +104,25 @@ export function AttachmentSection({
 
       {expanded && (
         <>
-          {/* Drop zone */}
+          {/* Drop zone wrapping everything */}
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
-            className={`mb-3 flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors duration-150 ${
+            className={`rounded-lg border-2 border-dashed p-3 transition-colors duration-150 ${
               dragOver
                 ? "border-primary bg-primary/5 dark:bg-primary/10"
                 : "border-muted-foreground/20 hover:border-muted-foreground/30"
             }`}
           >
-            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground">
+            {/* Upload hint */}
+            <label className="mb-3 flex cursor-pointer items-center justify-center gap-2 rounded-md py-2 text-[12px] text-muted-foreground transition-colors hover:bg-muted/40">
               {uploading ? (
                 <Spinner className="h-4 w-4" />
               ) : (
                 <Paperclip className="h-4 w-4" />
               )}
-              <span>
-                {uploading
-                  ? t("common.loading")
-                  : `${t("issue.dropOrClick")}`}
-              </span>
+              <span>{uploading ? t("common.loading") : t("issue.dropOrClick")}</span>
               <input
                 type="file"
                 multiple
@@ -133,10 +130,9 @@ export function AttachmentSection({
                 onChange={(e) => e.target.files && handleFiles(e.target.files)}
               />
             </label>
-          </div>
 
-          {/* Attachment grid */}
-          {count > 0 && (
+            {/* Attachment grid inside drop zone */}
+            {count > 0 && (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {attachments!.map((att) => (
                 <div
@@ -203,6 +199,7 @@ export function AttachmentSection({
               ))}
             </div>
           )}
+          </div>
         </>
       )}
 

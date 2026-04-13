@@ -28,6 +28,7 @@ import { BacklogView } from "@/features/projects/components/backlog-view";
 import { SummaryView } from "@/features/projects/components/summary-view";
 import { BoardFilterBar, EMPTY_FILTERS, type BoardFilters } from "@/features/projects/components/board-filters";
 import { CreateIssueDialog } from "@/features/projects/components/create-issue-dialog";
+import { IssuePreviewModal } from "@/features/projects/components/issue-preview-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,8 +90,10 @@ export default function BoardPage() {
     moveIssue({ id: issueId, columnId, position: 0 });
   }
 
+  const [previewKey, setPreviewKey] = useState<string | null>(null);
+
   function handleClickIssue(key: string) {
-    router.push(ROUTES.ISSUE(key));
+    setPreviewKey(key);
   }
 
   function handleQuickCreate(summary: string) {
@@ -251,6 +254,13 @@ export default function BoardPage() {
           </div>
           <div className="flex flex-1 gap-3 overflow-auto p-5">{columnsView}</div>
         </div>
+      )}
+      {/* Issue preview modal */}
+      {previewKey && (
+        <IssuePreviewModal
+          issueKey={previewKey}
+          onClose={() => setPreviewKey(null)}
+        />
       )}
     </div>
   );
