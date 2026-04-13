@@ -103,11 +103,24 @@ export const boardsApi = {
       .then((r) => r.data),
 };
 
+type PaginatedResponse = {
+  data: Issue[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
 export const issuesApi = {
   list: (projectId: string, filters?: Record<string, string>) =>
     api
       .get<Issue[]>(ENDPOINTS.issues.base, {
         params: { projectId, ...filters },
+      })
+      .then((r) => r.data),
+
+  listPaginated: (projectId: string, params: { take: number; cursor?: string; sprintId?: string }) =>
+    api
+      .get<PaginatedResponse>(ENDPOINTS.issues.base, {
+        params: { projectId, ...params },
       })
       .then((r) => r.data),
 

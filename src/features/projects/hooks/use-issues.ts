@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { issuesApi } from "../api";
 import type { CreateIssuePayload, MoveIssuePayload } from "../types";
@@ -9,6 +9,17 @@ export function useIssues(projectId: string, filters?: Record<string, string>) {
   return useQuery({
     queryKey: ["issues", projectId, filters],
     queryFn: () => issuesApi.list(projectId, filters),
+    enabled: !!projectId,
+  });
+}
+
+export function useInfiniteIssues(projectId: string, params: { take: number; sprintId?: string }) {
+  return useInfiniteQuery({
+    queryKey: ["issues-infinite", projectId, params.sprintId],
+    queryFn: ({ pageParam }) =>
+      issuesApi.listPaginated(projectId, { ...params, cursor: pageParam as string | undefined }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: !!projectId,
   });
 }
