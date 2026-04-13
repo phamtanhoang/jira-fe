@@ -168,7 +168,7 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             </Button>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => { deleteIssue(issue.id); modal ? onClose?.() : router.back(); }}
+                onClick={() => { deleteIssue(issue.id); if (modal) { onClose?.(); } else { router.back(); } }}
                 className="text-destructive"
               >
                 <Trash2 className="mr-2 h-3.5 w-3.5" />

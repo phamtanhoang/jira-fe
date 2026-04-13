@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { Zap, Plus, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock } from "lucide-react";
-import { ROUTES } from "@/lib/constants";
 import { STATUS_BADGE_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useIssues, useCreateIssue } from "../hooks";

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { X, Trash2, UserPlus, Zap, ArrowUp } from "lucide-react";
 import { PRIORITIES } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -12,7 +11,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import type { Sprint, UserPreview } from "../types";
 

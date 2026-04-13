@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   ChevronRight,
   Columns3,
@@ -57,7 +57,6 @@ export default function BoardPage() {
     workspaceId: string;
     projectId: string;
   }>();
-  const router = useRouter();
   const { t } = useAppStore();
   const { data: workspace } = useWorkspace(workspaceId);
   const { data: project } = useProject(projectId);

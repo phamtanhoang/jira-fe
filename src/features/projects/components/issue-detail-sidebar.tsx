@@ -17,7 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import type { Issue, ProjectMember, BoardColumn } from "../types";
+import type { Issue, ProjectMember } from "../types";
 
 // ─── Click-to-edit wrapper ────────────────────────────
 

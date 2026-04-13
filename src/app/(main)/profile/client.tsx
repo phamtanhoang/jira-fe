@@ -8,7 +8,6 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useUpdateProfile, useChangePassword } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 

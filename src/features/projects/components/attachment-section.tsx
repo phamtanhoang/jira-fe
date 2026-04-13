@@ -11,7 +11,7 @@ import {
   ChevronRight,
   MoreHorizontal,
 } from "lucide-react";
-import { getInitials, formatDateShort } from "@/lib/utils";
+import { formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useAttachments, useUploadAttachments, useDeleteAttachment } from "../hooks";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,7 +22,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Attachment } from "../types";
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
