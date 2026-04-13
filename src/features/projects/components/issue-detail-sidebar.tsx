@@ -5,7 +5,7 @@ import { Pencil, ChevronDown, ChevronRight, Settings } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
 import { getInitials, formatDate, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useBoard, useMoveIssue } from "../hooks";
+import { useBoard, useMoveIssue, useIssues } from "../hooks";
 import { WorklogSection } from "./worklog-section";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +120,7 @@ export function IssueDetailSidebar({
   const { t } = useAppStore();
   const { data: board } = useBoard(issue.projectId);
   const { mutate: moveIssue } = useMoveIssue();
+  const { data: epics } = useIssues(issue.projectId, { type: "EPIC" });
 
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
@@ -347,6 +348,54 @@ export function IssueDetailSidebar({
             />
           )}
         </EditableField>
+
+        {/* Epic — click to edit (not for EPIC type) */}
+        {issue.type !== "EPIC" && (
+          <EditableField
+            label={t("issue.epic")}
+            displayValue={
+              issue.epic ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-sm bg-purple-600">
+                    <span className="text-[8px] text-white">⚡</span>
+                  </span>
+                  {issue.epic.summary}
+                </span>
+              ) : (
+                <span className="text-muted-foreground/60">{t("issue.noEpic")}</span>
+              )
+            }
+          >
+            {({ close }) => (
+              <Select
+                value={issue.epicId ?? UNASSIGNED_VALUE}
+                onValueChange={(v) => {
+                  const newVal = v === UNASSIGNED_VALUE ? null : v;
+                  if (newVal !== issue.epicId) onUpdate("epicId", newVal);
+                  close();
+                }}
+                defaultOpen
+              >
+                <SelectTrigger className="h-8 w-full text-[12px]">
+                  {issue.epic ? issue.epic.summary : t("issue.noEpic")}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={UNASSIGNED_VALUE}>{t("issue.noEpic")}</SelectItem>
+                  {epics?.filter((e) => e.id !== issue.id).map((epic) => (
+                    <SelectItem key={epic.id} value={epic.id}>
+                      <span className="flex items-center gap-1.5">
+                        <span className="flex h-4 w-4 items-center justify-center rounded-sm bg-purple-600">
+                          <span className="text-[8px] text-white">⚡</span>
+                        </span>
+                        {epic.summary}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </EditableField>
+        )}
 
         {/* Sprint — read only */}
         {issue.sprint && (
