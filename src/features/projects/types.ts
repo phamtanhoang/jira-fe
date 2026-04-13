@@ -161,6 +161,18 @@ export type Worklog = {
   user: UserPreview;
 };
 
+export type Attachment = {
+  id: string;
+  issueId: string;
+  uploadedById: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+  createdAt: string;
+  uploadedBy: UserPreview;
+};
+
 export type CreateColumnPayload = {
   name: string;
   category?: "TODO" | "IN_PROGRESS" | "DONE";

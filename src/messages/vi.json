@@ -174,6 +174,8 @@
     "addSubtask": "Thêm công việc con",
     "subtaskPlaceholder": "Cần làm gì?",
     "noComments": "Chưa có bình luận",
+    "attachments": "Tệp đính kèm",
+    "dropOrClick": "Kéo thả tệp hoặc nhấn để chọn",
     "types": {
       "EPIC": "Epic",
       "STORY": "Story",

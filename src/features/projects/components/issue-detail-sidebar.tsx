@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronDown, ChevronRight, Settings } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
 import { getInitials, formatDate, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -48,28 +48,58 @@ function EditableField({
   }, [editing]);
 
   return (
-    <div ref={ref}>
-      <span className="mb-1 block text-[11px] font-medium text-muted-foreground">{label}</span>
-      {editing ? (
-        children({ close: () => setEditing(false) })
-      ) : (
-        <button
-          onClick={() => setEditing(true)}
-          className="group/field flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-[12px] transition-colors duration-150 hover:bg-muted/60 dark:hover:bg-muted/30"
-        >
-          <span className="flex-1">{displayValue}</span>
-          <Pencil className="h-3 w-3 shrink-0 text-muted-foreground/0 transition-colors group-hover/field:text-muted-foreground/50" />
-        </button>
-      )}
+    <div ref={ref} className="flex items-center gap-2">
+      <span className="w-24 shrink-0 text-[11px] font-medium text-muted-foreground">{label}</span>
+      <div className="min-w-0 flex-1">
+        {editing ? (
+          children({ close: () => setEditing(false) })
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
+            className="group/field flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-[12px] transition-colors duration-150 hover:bg-muted/60 dark:hover:bg-muted/30"
+          >
+            <span className="flex-1">{displayValue}</span>
+            <Pencil className="h-3 w-3 shrink-0 text-muted-foreground/0 transition-colors group-hover/field:text-muted-foreground/50" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
+    <div className="flex items-center gap-2">
+      <span className="w-24 shrink-0 text-[11px] font-medium text-muted-foreground">{label}</span>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+function CollapsibleSection({
+  title,
+  icon,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
     <div>
-      <span className="mb-1 block text-[11px] font-medium text-muted-foreground">{label}</span>
-      {children}
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-1.5 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+        {icon}
+        <span className="uppercase tracking-wide">{title}</span>
+      </button>
+      {open && <div className="mt-1 space-y-3 pl-1">{children}</div>}
     </div>
   );
 }
@@ -98,10 +128,9 @@ export function IssueDetailSidebar({
   const columns = board?.columns ?? [];
 
   return (
-    <div className="w-70 shrink-0 overflow-auto border-l bg-muted/20 p-5">
-      <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">{t("issue.details")}</h3>
-
-      <div className="space-y-4">
+    <div className="h-full w-full overflow-auto border-l bg-muted/20 p-5">
+      <div className="space-y-5">
+        <CollapsibleSection title={t("issue.details")} icon={<Settings className="h-3.5 w-3.5" />}>
         {/* Status — click to change column */}
         <EditableField
           label={t("issue.status")}
@@ -287,7 +316,7 @@ export function IssueDetailSidebar({
         {/* Reporter — read only */}
         <DetailRow label={t("issue.reporter")}>
           {issue.reporter && (
-            <div className="flex items-center gap-2 px-2 py-1.5">
+            <div className="flex items-center gap-2 px-2 py-1">
               <Avatar className="h-5 w-5">
                 <AvatarFallback className="text-[9px]">
                   {getInitials(issue.reporter.name)}
@@ -322,7 +351,7 @@ export function IssueDetailSidebar({
         {/* Sprint — read only */}
         {issue.sprint && (
           <DetailRow label={t("issue.sprint")}>
-            <div className="px-2 py-1.5 text-[12px]">{issue.sprint.name}</div>
+            <div className="px-2 py-1 text-[12px]">{issue.sprint.name}</div>
           </DetailRow>
         )}
 
@@ -362,9 +391,13 @@ export function IssueDetailSidebar({
           )}
         </EditableField>
 
+        </CollapsibleSection>
+
         <Separator />
 
-        <WorklogSection issueId={issue.id} currentUserId={currentUserId} />
+        <CollapsibleSection title={t("worklog.title")}>
+          <WorklogSection issueId={issue.id} currentUserId={currentUserId} />
+        </CollapsibleSection>
 
         <Separator />
 

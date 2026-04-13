@@ -18,6 +18,7 @@ import type {
   Label,
   Activity,
   Worklog,
+  Attachment,
 } from "./types";
 
 export const projectsApi = {
@@ -194,6 +195,26 @@ export const issuesApi = {
     api
       .post(ENDPOINTS.issues.labels(issueId, labelId))
       .then((r) => r.data),
+
+  getAttachments: (issueId: string) =>
+    api
+      .get<Attachment[]>(ENDPOINTS.issues.attachments(issueId))
+      .then((r) => r.data),
+
+  uploadAttachments: (issueId: string, files: File[]) => {
+    const formData = new FormData();
+    for (const file of files) formData.append("files", file);
+    return api
+      .post<{ message: string; attachments: Attachment[] }>(
+        ENDPOINTS.issues.attachments(issueId),
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } },
+      )
+      .then((r) => r.data);
+  },
+
+  deleteAttachment: (attachmentId: string) =>
+    api.delete(ENDPOINTS.attachments.byId(attachmentId)).then((r) => r.data),
 
   removeLabel: (issueId: string, labelId: string) =>
     api

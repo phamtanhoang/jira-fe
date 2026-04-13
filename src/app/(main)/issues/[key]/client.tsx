@@ -20,6 +20,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { IssueDetailSidebar } from "@/features/projects/components/issue-detail-sidebar";
 import { IssueComments } from "@/features/projects/components/issue-comments";
 import { SubtaskList } from "@/features/projects/components/subtask-list";
+import { AttachmentSection } from "@/features/projects/components/attachment-section";
 import { ActivityFeed } from "@/features/projects/components/activity-feed";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,7 @@ export default function IssueDetailPage() {
   const [summaryDraft, setSummaryDraft] = useState("");
   const [editingDesc, setEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState("");
+  const [sidebarWidth, setSidebarWidth] = useState(320);
 
   function saveSummary() {
     if (issue && summaryDraft.trim() && summaryDraft.trim() !== issue.summary) {
@@ -197,6 +199,9 @@ export default function IssueDetailPage() {
             )}
           </div>
 
+          {/* Attachments */}
+          <AttachmentSection issueId={issue.id} currentUserId={user?.id ?? ""} />
+
           {/* Subtasks */}
           <SubtaskList issue={issue} />
 
@@ -226,13 +231,35 @@ export default function IssueDetailPage() {
         </div>
       </div>
 
-      {/* Sidebar */}
-      <IssueDetailSidebar
-        issue={issue}
-        members={project?.members ?? []}
-        currentUserId={user?.id ?? ""}
-        onUpdate={handleUpdate}
+      {/* Resize handle */}
+      <div
+        className="w-1 shrink-0 cursor-col-resize bg-transparent transition-colors hover:bg-primary/20 active:bg-primary/30"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const startX = e.clientX;
+          const startWidth = sidebarWidth;
+          function onMove(ev: MouseEvent) {
+            const delta = startX - ev.clientX;
+            setSidebarWidth(Math.max(260, Math.min(500, startWidth + delta)));
+          }
+          function onUp() {
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("mouseup", onUp);
+          }
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", onUp);
+        }}
       />
+
+      {/* Sidebar */}
+      <div style={{ width: sidebarWidth }} className="shrink-0">
+        <IssueDetailSidebar
+          issue={issue}
+          members={project?.members ?? []}
+          currentUserId={user?.id ?? ""}
+          onUpdate={handleUpdate}
+        />
+      </div>
     </div>
   );
 }

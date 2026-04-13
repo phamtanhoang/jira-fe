@@ -70,6 +70,12 @@ const ISSUES_ENDPOINTS = {
   comments: (id: string) => `${ISSUES_BASE}/${id}/comments`,
   worklogs: (id: string) => `${ISSUES_BASE}/${id}/worklogs`,
   activity: (id: string) => `${ISSUES_BASE}/${id}/activity`,
+  attachments: (id: string) => `${ISSUES_BASE}/${id}/attachments`,
+} as const;
+
+const ATTACHMENTS_BASE = "/attachments";
+const ATTACHMENTS_ENDPOINTS = {
+  byId: (id: string) => `${ATTACHMENTS_BASE}/${id}`,
 } as const;
 
 const LABELS_ENDPOINTS = {
@@ -94,6 +100,7 @@ export const ENDPOINTS = {
   sprints: SPRINTS_ENDPOINTS,
   issues: ISSUES_ENDPOINTS,
   labels: LABELS_ENDPOINTS,
+  attachments: ATTACHMENTS_ENDPOINTS,
   comments: COMMENTS_ENDPOINTS,
   worklogs: WORKLOGS_ENDPOINTS,
 } as const;
