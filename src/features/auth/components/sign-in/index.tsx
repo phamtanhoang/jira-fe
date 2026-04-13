@@ -68,7 +68,7 @@ export function SignInForm() {
             </a>
           </div>
 
-          <Button type="button" className="w-full" disabled={isPending} onClick={form.handleSubmit((data) => login(data))}>
+          <Button type="button" className="w-full p-5" disabled={isPending} onClick={form.handleSubmit((data) => login(data))}>
             {isPending ? t("auth.processing") : t("auth.signIn")}
           </Button>
         </div>

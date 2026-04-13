@@ -54,7 +54,7 @@ export function ForgotPasswordForm() {
             )}
           />
 
-          <Button type="button" className="w-full" disabled={isPending} onClick={form.handleSubmit((data) => forgotPassword(data))}>
+          <Button type="button" className="w-full p-5" disabled={isPending} onClick={form.handleSubmit((data) => forgotPassword(data))}>
             {isPending ? t("auth.sending") : t("auth.sendResetCode")}
           </Button>
         </div>

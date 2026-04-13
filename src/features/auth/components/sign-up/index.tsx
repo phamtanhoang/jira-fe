@@ -95,7 +95,7 @@ export function SignUpForm() {
             )}
           />
 
-          <Button type="button" className="w-full" disabled={isPending} onClick={form.handleSubmit(onSubmit)}>
+          <Button type="button" className="w-full p-5" disabled={isPending} onClick={form.handleSubmit(onSubmit)}>
             {isPending ? t("auth.processing") : t("auth.signUp")}
           </Button>
         </div>

@@ -135,7 +135,7 @@ export function ResetPasswordForm() {
 
           <Button
             type="button"
-            className="w-full"
+            className="w-full p-5"
             disabled={isPending || code.length !== VERIFICATION_CODE_LENGTH}
             onClick={form.handleSubmit(onSubmit)}
           >

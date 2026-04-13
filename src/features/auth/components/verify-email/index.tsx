@@ -116,7 +116,7 @@ export function VerifyEmailForm() {
           ))}
         </div>
 
-        <Button type="submit" className="mt-6 w-full" disabled={isPending || code.length !== VERIFICATION_CODE_LENGTH}>
+        <Button type="submit" className="mt-6 w-full p-5" disabled={isPending || code.length !== VERIFICATION_CODE_LENGTH}>
           {isPending ? t("auth.verifying") : t("auth.verify")}
         </Button>
       </form>
