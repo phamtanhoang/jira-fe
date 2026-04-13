@@ -12,20 +12,31 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Plus, ChevronDown, ChevronRight, Inbox, GripVertical } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, Inbox, GripVertical, Square, CheckSquare2 } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { SprintPanel } from "./sprint-panel";
+import { BulkActionBar } from "./bulk-action-bar";
 import { IssueRow } from "./issue-row";
-import type { Board, Issue } from "../types";
+import type { Board, Issue, UserPreview } from "../types";
 
 const BACKLOG_ID = "__backlog__";
 
 // ─── Draggable Issue Row ──────────────────────────────
 
-function DraggableIssueRow({ issue, onClick }: { issue: Issue; onClick: () => void }) {
+function DraggableIssueRow({
+  issue,
+  onClick,
+  selected,
+  onToggleSelect,
+}: {
+  issue: Issue;
+  onClick: () => void;
+  selected?: boolean;
+  onToggleSelect?: (id: string, shiftKey: boolean) => void;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: issue.id,
     data: { issue },
@@ -34,8 +45,20 @@ function DraggableIssueRow({ issue, onClick }: { issue: Issue; onClick: () => vo
   return (
     <div
       ref={setNodeRef}
-      className={`flex items-center ${isDragging ? "opacity-30" : ""}`}
+      className={`group/row flex items-center ${isDragging ? "opacity-30" : ""} ${selected ? "bg-primary/5" : ""}`}
     >
+      {onToggleSelect && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleSelect(issue.id, e.shiftKey); }}
+          className={`shrink-0 px-1 py-2 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover/row:opacity-100"}`}
+        >
+          {selected ? (
+            <CheckSquare2 className="h-3.5 w-3.5 text-primary" />
+          ) : (
+            <Square className="h-3.5 w-3.5 text-muted-foreground/40" />
+          )}
+        </button>
+      )}
       <button
         {...listeners}
         {...attributes}
@@ -110,6 +133,7 @@ export function BacklogView({
   onDeleteSprint,
   onUpdateIssue,
   onClickIssue,
+  members,
   isCreatingSprint,
   isStartingSprint,
   isCompletingSprint,
@@ -124,6 +148,7 @@ export function BacklogView({
   onDeleteSprint?: (id: string) => void;
   onUpdateIssue?: (id: string, data: Record<string, unknown>) => void;
   onClickIssue: (key: string) => void;
+  members?: UserPreview[];
   isCreatingSprint: boolean;
   isStartingSprint: boolean;
   isCompletingSprint: boolean;
@@ -133,6 +158,28 @@ export function BacklogView({
   const [newSprintName, setNewSprintName] = useState("");
   const [backlogExpanded, setBacklogExpanded] = useState(true);
   const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+
+  function toggleSelect(id: string, shiftKey: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (shiftKey && lastSelectedId) {
+        // Shift+click: select range
+        const allIds = allIssues.map((i) => i.id);
+        const startIdx = allIds.indexOf(lastSelectedId);
+        const endIdx = allIds.indexOf(id);
+        if (startIdx >= 0 && endIdx >= 0) {
+          const [from, to] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
+          for (let i = from; i <= to; i++) next.add(allIds[i]);
+        }
+      } else {
+        if (next.has(id)) next.delete(id); else next.add(id);
+      }
+      return next;
+    });
+    setLastSelectedId(id);
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -218,6 +265,8 @@ export function BacklogView({
                       key={issue.id}
                       issue={issue}
                       onClick={() => onClickIssue(issue.key)}
+                      selected={selectedIds.has(issue.id)}
+                      onToggleSelect={toggleSelect}
                     />
                   ))}
                 </DroppableZone>
@@ -283,6 +332,8 @@ export function BacklogView({
                   key={issue.id}
                   issue={issue}
                   onClick={() => onClickIssue(issue.key)}
+                  selected={selectedIds.has(issue.id)}
+                  onToggleSelect={toggleSelect}
                 />
               ))}
             </DroppableZone>
@@ -294,6 +345,14 @@ export function BacklogView({
       <DragOverlay dropAnimation={{ duration: 150, easing: "ease" }}>
         {activeIssue && <DragOverlayContent issue={activeIssue} />}
       </DragOverlay>
+      {/* Bulk action bar */}
+      <BulkActionBar
+        selectedIds={selectedIds}
+        projectId={projectId}
+        sprints={board.sprints}
+        members={members ?? []}
+        onClear={() => setSelectedIds(new Set())}
+      />
     </DndContext>
   );
 }

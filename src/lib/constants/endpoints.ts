@@ -71,6 +71,7 @@ const ISSUES_ENDPOINTS = {
   worklogs: (id: string) => `${ISSUES_BASE}/${id}/worklogs`,
   activity: (id: string) => `${ISSUES_BASE}/${id}/activity`,
   attachments: (id: string) => `${ISSUES_BASE}/${id}/attachments`,
+  bulk: `${ISSUES_BASE}/bulk`,
 } as const;
 
 const ATTACHMENTS_BASE = "/attachments";

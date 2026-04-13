@@ -76,3 +76,32 @@ export function useDeleteIssue(projectId: string) {
     onError: handleApiError,
   });
 }
+
+export function useBulkUpdateIssues(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { issueIds: string[]; sprintId?: string | null; assigneeId?: string | null; priority?: string }) =>
+      issuesApi.bulkUpdate(data),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useBulkDeleteIssues(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (issueIds: string[]) => issuesApi.bulkDelete(issueIds),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+    },
+    onError: handleApiError,
+  });
+}

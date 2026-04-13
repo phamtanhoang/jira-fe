@@ -63,7 +63,8 @@
     "name": "Tên",
     "description": "Mô tả",
     "type": "Loại",
-    "manage": "Quản lý"
+    "manage": "Quản lý",
+    "selected": "đã chọn"
   },
   "dashboard": {
     "overview": "Tổng quan về không gian làm việc và hoạt động gần đây.",

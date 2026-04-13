@@ -138,6 +138,12 @@ export const issuesApi = {
   delete: (id: string) =>
     api.delete(ENDPOINTS.issues.byId(id)).then((r) => r.data),
 
+  bulkUpdate: (data: { issueIds: string[]; sprintId?: string | null; assigneeId?: string | null; priority?: string }) =>
+    api.patch<{ message: string; count: number }>(ENDPOINTS.issues.bulk, data).then((r) => r.data),
+
+  bulkDelete: (issueIds: string[]) =>
+    api.delete<{ message: string; count: number }>(ENDPOINTS.issues.bulk, { data: { issueIds } }).then((r) => r.data),
+
   getComments: (issueId: string) =>
     api
       .get<Comment[]>(ENDPOINTS.issues.comments(issueId))

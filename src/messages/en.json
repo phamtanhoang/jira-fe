@@ -63,7 +63,8 @@
     "name": "Name",
     "description": "Description",
     "type": "Type",
-    "manage": "Manage"
+    "manage": "Manage",
+    "selected": "selected"
   },
   "dashboard": {
     "overview": "Here's an overview of your workspaces and recent activity.",

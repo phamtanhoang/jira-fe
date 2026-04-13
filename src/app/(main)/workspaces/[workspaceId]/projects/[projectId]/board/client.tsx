@@ -332,6 +332,7 @@ export default function BoardPage() {
               onDeleteSprint={deleteSprint}
               onUpdateIssue={(id, data) => updateIssue({ id, ...data })}
               onClickIssue={handleClickIssue}
+              members={members}
               isCreatingSprint={isCreatingSprint}
               isStartingSprint={isStartingSprint}
               isCompletingSprint={isCompletingSprint}
