@@ -54,7 +54,10 @@ export function useMoveIssue() {
       issuesApi.move(id, data),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", result.issue.projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues-infinite", result.issue.projectId] });
       queryClient.invalidateQueries({ queryKey: ["issue"] });
+      queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
     },
     onError: handleApiError,
   });
@@ -69,7 +72,9 @@ export function useUpdateIssue() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
       queryClient.invalidateQueries({ queryKey: ["issues", result.issue.projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues-infinite", result.issue.projectId] });
       queryClient.invalidateQueries({ queryKey: ["issue", result.issue.key] });
+      queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
     },
     onError: handleApiError,
   });
