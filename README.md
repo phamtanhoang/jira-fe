@@ -4,7 +4,7 @@ A modern Next.js application for Jira frontend with authentication, internationa
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ with TypeScript 
+- **Framework**: Next.js 14+ with TypeScript
 - **Styling**: Tailwind CSS
 - **State Management**: Zustand
 - **Form Handling**: React Hook Form
