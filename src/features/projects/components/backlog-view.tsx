@@ -92,11 +92,13 @@ function DroppableZone({
   children,
   isEmpty,
   emptyText,
+  dropHereText,
 }: {
   id: string;
   children: React.ReactNode;
   isEmpty?: boolean;
   emptyText?: string;
+  dropHereText?: string;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -111,7 +113,7 @@ function DroppableZone({
         <div className={`px-4 py-6 text-center text-[12px] transition-colors duration-150 ${
           isOver ? "text-primary font-medium" : "text-muted-foreground"
         }`}>
-          {isOver ? "Drop here" : emptyText}
+          {isOver ? dropHereText : emptyText}
         </div>
       ) : (
         children
@@ -259,6 +261,7 @@ export function BacklogView({
                   id={sprint.id}
                   isEmpty={issueList.length === 0}
                   emptyText={t("sprint.emptyHint")}
+                  dropHereText={t("backlog.dropHere")}
                 >
                   {issueList.map((issue) => (
                     <DraggableIssueRow
@@ -326,6 +329,7 @@ export function BacklogView({
               id={BACKLOG_ID}
               isEmpty={backlogIssues.length === 0}
               emptyText={t("backlog.empty")}
+              dropHereText={t("backlog.dropHere")}
             >
               {backlogIssues.map((issue) => (
                 <DraggableIssueRow

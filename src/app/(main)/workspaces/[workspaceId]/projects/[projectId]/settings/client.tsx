@@ -280,12 +280,12 @@ export default function ProjectSettingsPage() {
                   </DialogHeader>
                   <form onSubmit={handleAddMember} className="space-y-4">
                     <div>
-                      <label className="mb-1.5 block text-[13px] font-medium">Email</label>
+                      <label className="mb-1.5 block text-[13px] font-medium">{t("common.email")}</label>
                       <Input
                         type="email"
                         value={memberEmail}
                         onChange={(e) => setMemberEmail(e.target.value)}
-                        placeholder="user@example.com"
+                        placeholder={t("project.emailPlaceholder")}
                         autoFocus
                       />
                     </div>
@@ -296,9 +296,9 @@ export default function ProjectSettingsPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ADMIN">Admin</SelectItem>
-                          <SelectItem value="DEVELOPER">Developer</SelectItem>
-                          <SelectItem value="VIEWER">Viewer</SelectItem>
+                          <SelectItem value="ADMIN">{t("project.roles.ADMIN")}</SelectItem>
+                          <SelectItem value="DEVELOPER">{t("project.roles.DEVELOPER")}</SelectItem>
+                          <SelectItem value="VIEWER">{t("project.roles.VIEWER")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -328,7 +328,7 @@ export default function ProjectSettingsPage() {
 
                   <Badge variant="secondary" className={`text-[10px] ${ROLE_COLORS[member.role] ?? ""}`}>
                     <Shield className="mr-1 h-3 w-3" />
-                    {member.role}
+                    {t(`project.roles.${member.role}` as any)}
                   </Badge>
 
                   {member.role !== "LEAD" && member.userId !== user?.id && (
@@ -343,9 +343,9 @@ export default function ProjectSettingsPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ADMIN">Admin</SelectItem>
-                          <SelectItem value="DEVELOPER">Developer</SelectItem>
-                          <SelectItem value="VIEWER">Viewer</SelectItem>
+                          <SelectItem value="ADMIN">{t("project.roles.ADMIN")}</SelectItem>
+                          <SelectItem value="DEVELOPER">{t("project.roles.DEVELOPER")}</SelectItem>
+                          <SelectItem value="VIEWER">{t("project.roles.VIEWER")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button

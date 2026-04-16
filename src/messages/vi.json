@@ -64,7 +64,13 @@
     "description": "Mô tả",
     "type": "Loại",
     "manage": "Quản lý",
-    "selected": "đã chọn"
+    "selected": "đã chọn",
+    "saving": "Đang lưu...",
+    "adding": "Đang thêm...",
+    "removing": "Đang xóa...",
+    "actions": "Hành động",
+    "role": "Vai trò",
+    "email": "Email"
   },
   "dashboard": {
     "overview": "Tổng quan về không gian làm việc và hoạt động gần đây.",
@@ -91,7 +97,21 @@
     "manageMembers": "Quản lý quyền truy cập không gian",
     "manageDesc": "Quản lý dự án và thành viên",
     "projects": "Dự án",
-    "members": "Thành viên"
+    "members": "Thành viên",
+    "addMember": "Thêm thành viên",
+    "emailPlaceholder": "member@example.com",
+    "existingAccountHint": "Người dùng phải có tài khoản",
+    "changeRole": "Đổi vai trò",
+    "changeRoleFor": "Đổi vai trò cho",
+    "removeMember": "Xóa thành viên",
+    "removeMemberConfirm": "Bạn có chắc muốn xóa {name} khỏi không gian này? Họ sẽ mất quyền truy cập tất cả dự án.",
+    "unnamed": "Chưa đặt tên",
+    "roles": {
+      "OWNER": "Chủ sở hữu",
+      "ADMIN": "Quản trị",
+      "MEMBER": "Thành viên",
+      "VIEWER": "Người xem"
+    }
   },
   "project": {
     "newProject": "Tạo dự án",
@@ -120,7 +140,14 @@
     "updated": "Đã cập nhật dự án.",
     "wipLimit": "Giới hạn WIP",
     "setWipLimit": "Đặt giới hạn WIP",
-    "noLimit": "Không giới hạn"
+    "noLimit": "Không giới hạn",
+    "emailPlaceholder": "user@example.com",
+    "roles": {
+      "LEAD": "Trưởng nhóm",
+      "ADMIN": "Quản trị",
+      "DEVELOPER": "Nhà phát triển",
+      "VIEWER": "Người xem"
+    }
   },
   "board": {
     "board": "Bảng",
@@ -145,11 +172,15 @@
     "summaryInProgress": "Đang làm",
     "summaryTodo": "Chờ xử lý",
     "summaryMembers": "Thành viên dự án",
-    "summaryRecentActivity": "Hoạt động gần đây"
+    "summaryRecentActivity": "Hoạt động gần đây",
+    "burndownDay": "Ngày {label}",
+    "burndownIdeal": "Lý tưởng",
+    "burndownActual": "Thực tế"
   },
   "issue": {
     "createIssue": "Tạo công việc",
     "deleteIssue": "Xóa công việc",
+    "bulkDeleteConfirm": "Xóa {count} công việc? Thao tác này không thể hoàn tác.",
     "details": "Chi tiết",
     "status": "Trạng thái",
     "backlogStatus": "Chờ xử lý",
@@ -180,6 +211,9 @@
     "addSubtask": "Thêm công việc con",
     "subtaskPlaceholder": "Cần làm gì?",
     "noComments": "Chưa có bình luận",
+    "noEpics": "Không tìm thấy epic",
+    "noIssues": "Không có công việc",
+    "epicNamePlaceholder": "Tên epic...",
     "attachments": "Tệp đính kèm",
     "dropOrClick": "Kéo thả tệp hoặc nhấn để chọn",
     "types": {
@@ -219,13 +253,17 @@
   },
   "backlog": {
     "title": "Danh sách chờ",
-    "empty": "Không có công việc. Tạo công việc mà không gán sprint."
+    "empty": "Không có công việc. Tạo công việc mà không gán sprint.",
+    "dropHere": "Thả vào đây"
   },
   "filter": {
     "searchIssues": "Tìm công việc...",
     "filters": "Bộ lọc",
     "type": "Loại",
-    "priority": "Độ ưu tiên"
+    "priority": "Độ ưu tiên",
+    "all": "Tất cả",
+    "open": "Đang mở",
+    "done": "Hoàn thành"
   },
   "activityFeed": {
     "created": "đã tạo công việc",

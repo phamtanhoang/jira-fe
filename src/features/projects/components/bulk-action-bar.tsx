@@ -49,7 +49,7 @@ export function BulkActionBar({
   }
 
   function handleDelete() {
-    if (!window.confirm(`Delete ${count} issue(s)? This cannot be undone.`)) return;
+    if (!window.confirm(t("issue.bulkDeleteConfirm", { count: String(count) }))) return;
     bulkDelete(ids, { onSuccess: onClear });
   }
 
@@ -72,10 +72,10 @@ export function BulkActionBar({
       <Select onValueChange={(v) => handleMoveSprint(v === "__backlog__" ? null : v as string)}>
         <SelectTrigger className="h-7 w-auto gap-1.5 text-[11px]">
           <Zap className="h-3 w-3" />
-          Sprint
+          {t("issue.sprint")}
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="__backlog__">Backlog</SelectItem>
+          <SelectItem value="__backlog__">{t("issue.backlogStatus")}</SelectItem>
           {sprints.map((s) => (
             <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
           ))}

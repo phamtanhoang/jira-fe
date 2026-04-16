@@ -78,7 +78,7 @@ export function EpicView({
                   : "text-muted-foreground hover:bg-muted"
               }`}
             >
-              {f === "all" ? "All" : f === "open" ? "Open" : "Done"}
+              {f === "all" ? t("filter.all") : f === "open" ? t("filter.open") : t("filter.done")}
               {f === "all" && ` (${epics.length})`}
             </button>
           ))}
@@ -95,7 +95,7 @@ export function EpicView({
           <Input
             value={newEpicName}
             onChange={(e) => setNewEpicName(e.target.value)}
-            placeholder="Epic name..."
+            placeholder={t("issue.epicNamePlaceholder")}
             className="h-9 text-[13px]"
             autoFocus
           />
@@ -112,7 +112,7 @@ export function EpicView({
       {filteredEpics.length === 0 ? (
         <div className="rounded-lg border border-dashed py-12 text-center text-[13px] text-muted-foreground">
           <Zap className="mx-auto mb-2 h-8 w-8 opacity-20" />
-          No epics found
+          {t("issue.noEpics")}
         </div>
       ) : (
         <div className="space-y-2">
@@ -139,6 +139,7 @@ function EpicCard({
   children: Issue[];
   onClickIssue: (key: string) => void;
 }) {
+  const { t } = useAppStore();
   const [expanded, setExpanded] = useState(false);
 
   const doneCount = children.filter((c) => c.boardColumn?.category === "DONE").length;
@@ -185,7 +186,7 @@ function EpicCard({
         )}
 
         {total === 0 && (
-          <span className="ml-auto text-[10px] text-muted-foreground">No issues</span>
+          <span className="ml-auto text-[10px] text-muted-foreground">{t("issue.noIssues")}</span>
         )}
       </div>
 

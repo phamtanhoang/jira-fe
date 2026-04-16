@@ -18,10 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAppStore } from "@/lib/stores/use-app-store";
 import { useAddWorkspaceMember } from "../hooks";
 import type { AddWorkspaceMemberPayload } from "../types";
 
 export function AddMemberDialog({ workspaceId }: { workspaceId: string }) {
+  const { t } = useAppStore();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<AddWorkspaceMemberPayload["role"]>("MEMBER");
@@ -47,28 +49,28 @@ export function AddMemberDialog({ workspaceId }: { workspaceId: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <Button render={<DialogTrigger />} size="sm">
         <UserPlus className="mr-1.5 h-4 w-4" />
-        Add Member
+        {t("workspace.addMember")}
       </Button>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Member</DialogTitle>
+          <DialogTitle>{t("workspace.addMember")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Email</label>
+            <label className="mb-1.5 block text-sm font-medium">{t("common.email")}</label>
             <Input
               type="email"
-              placeholder="member@example.com"
+              placeholder={t("workspace.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoFocus
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              User must have an existing account
+              {t("workspace.existingAccountHint")}
             </p>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Role</label>
+            <label className="mb-1.5 block text-sm font-medium">{t("common.role")}</label>
             <Select
               value={role}
               onValueChange={(v) =>
@@ -79,9 +81,9 @@ export function AddMemberDialog({ workspaceId }: { workspaceId: string }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="MEMBER">Member</SelectItem>
-                <SelectItem value="VIEWER">Viewer</SelectItem>
+                <SelectItem value="ADMIN">{t("workspace.roles.ADMIN")}</SelectItem>
+                <SelectItem value="MEMBER">{t("workspace.roles.MEMBER")}</SelectItem>
+                <SelectItem value="VIEWER">{t("workspace.roles.VIEWER")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -90,7 +92,7 @@ export function AddMemberDialog({ workspaceId }: { workspaceId: string }) {
             className="w-full"
             disabled={isPending || !email.trim()}
           >
-            {isPending ? "Adding..." : "Add Member"}
+            {isPending ? t("common.adding") : t("workspace.addMember")}
           </Button>
         </form>
       </DialogContent>

@@ -64,7 +64,13 @@
     "description": "Description",
     "type": "Type",
     "manage": "Manage",
-    "selected": "selected"
+    "selected": "selected",
+    "saving": "Saving...",
+    "adding": "Adding...",
+    "removing": "Removing...",
+    "actions": "Actions",
+    "role": "Role",
+    "email": "Email"
   },
   "dashboard": {
     "overview": "Here's an overview of your workspaces and recent activity.",
@@ -91,7 +97,21 @@
     "manageMembers": "Manage who has access to this workspace",
     "manageDesc": "Manage projects and team members",
     "projects": "Projects",
-    "members": "Members"
+    "members": "Members",
+    "addMember": "Add Member",
+    "emailPlaceholder": "member@example.com",
+    "existingAccountHint": "User must have an existing account",
+    "changeRole": "Change Role",
+    "changeRoleFor": "Change role for",
+    "removeMember": "Remove Member",
+    "removeMemberConfirm": "Are you sure you want to remove {name} from this workspace? They will lose access to all projects.",
+    "unnamed": "Unnamed",
+    "roles": {
+      "OWNER": "Owner",
+      "ADMIN": "Admin",
+      "MEMBER": "Member",
+      "VIEWER": "Viewer"
+    }
   },
   "project": {
     "newProject": "New Project",
@@ -120,7 +140,14 @@
     "updated": "Project updated.",
     "wipLimit": "WIP Limit",
     "setWipLimit": "Set WIP limit",
-    "noLimit": "No limit"
+    "noLimit": "No limit",
+    "emailPlaceholder": "user@example.com",
+    "roles": {
+      "LEAD": "Lead",
+      "ADMIN": "Admin",
+      "DEVELOPER": "Developer",
+      "VIEWER": "Viewer"
+    }
   },
   "board": {
     "board": "Board",
@@ -145,11 +172,15 @@
     "summaryInProgress": "In Progress",
     "summaryTodo": "To Do",
     "summaryMembers": "Project Members",
-    "summaryRecentActivity": "Recent Activity"
+    "summaryRecentActivity": "Recent Activity",
+    "burndownDay": "Day {label}",
+    "burndownIdeal": "Ideal",
+    "burndownActual": "Actual"
   },
   "issue": {
     "createIssue": "Create Issue",
     "deleteIssue": "Delete issue",
+    "bulkDeleteConfirm": "Delete {count} issue(s)? This cannot be undone.",
     "details": "Details",
     "status": "Status",
     "backlogStatus": "Backlog",
@@ -180,6 +211,9 @@
     "addSubtask": "Add subtask",
     "subtaskPlaceholder": "What needs to be done?",
     "noComments": "No comments yet",
+    "noEpics": "No epics found",
+    "noIssues": "No issues",
+    "epicNamePlaceholder": "Epic name...",
     "attachments": "Attachments",
     "dropOrClick": "Drop files here or click to browse",
     "types": {
@@ -219,13 +253,17 @@
   },
   "backlog": {
     "title": "Backlog",
-    "empty": "No issues in backlog. Create an issue without assigning a sprint."
+    "empty": "No issues in backlog. Create an issue without assigning a sprint.",
+    "dropHere": "Drop here"
   },
   "filter": {
     "searchIssues": "Search issues...",
     "filters": "Filters",
     "type": "Type",
-    "priority": "Priority"
+    "priority": "Priority",
+    "all": "All",
+    "open": "Open",
+    "done": "Done"
   },
   "activityFeed": {
     "created": "created this issue",

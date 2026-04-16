@@ -1,9 +1,9 @@
 import vi from "@/messages/vi.json";
 import en from "@/messages/en.json";
 
-export const locales = ["vi", "en"] as const;
+export const locales = ["en", "vi"] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = "vi";
+export const defaultLocale: Locale = "en";
 
 const messages = { vi, en } as const;
 

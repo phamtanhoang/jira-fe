@@ -61,7 +61,7 @@ export function BurndownChart({ sprintId }: { sprintId: string | undefined }) {
               backgroundColor: "var(--popover)",
               color: "var(--popover-foreground)",
             }}
-            labelFormatter={(label) => `Day ${label}`}
+            labelFormatter={(label) => t("board.burndownDay", { label: String(label) })}
           />
           <Legend
             wrapperStyle={{ fontSize: 11 }}
@@ -69,7 +69,7 @@ export function BurndownChart({ sprintId }: { sprintId: string | undefined }) {
           <Line
             type="monotone"
             dataKey="ideal"
-            name="Ideal"
+            name={t("board.burndownIdeal")}
             stroke="var(--muted-foreground)"
             strokeDasharray="6 3"
             strokeWidth={1.5}
@@ -78,7 +78,7 @@ export function BurndownChart({ sprintId }: { sprintId: string | undefined }) {
           <Line
             type="monotone"
             dataKey="actual"
-            name="Actual"
+            name={t("board.burndownActual")}
             stroke="var(--primary)"
             strokeWidth={2}
             dot={{ r: 3, fill: "var(--primary)" }}
