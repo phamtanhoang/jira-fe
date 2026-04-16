@@ -1,0 +1,7 @@
+services:
+  jira-fe:
+    image: phamtanhoang/jira-fe:latest
+    container_name: jira-fe
+    restart: unless-stopped
+    ports:
+      - "3030:3000"
