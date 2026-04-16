@@ -47,11 +47,6 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # Kill old non-docker process if running
-            pkill -f "next-server" || true
-            pkill -f "next start" || true
-
-            # Deploy with Docker
             docker pull ${{ env.DOCKER_IMAGE }}:latest
             docker stop jira-fe || true
             docker rm jira-fe || true
