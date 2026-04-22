@@ -7,7 +7,7 @@ import { defineConfig, devices } from "@playwright/test";
  * - baseURL: all page.goto("/path") calls resolve against this
  */
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

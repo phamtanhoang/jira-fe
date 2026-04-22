@@ -17,7 +17,7 @@ const eslintConfig = defineConfig([
     "jest.setup.ts",
     "playwright.config.ts",
     // E2E tests have their own test runner (Playwright, not Jest)
-    "e2e/**",
+    "tests/e2e/**",
     "playwright-report/**",
     "test-results/**",
   ]),
