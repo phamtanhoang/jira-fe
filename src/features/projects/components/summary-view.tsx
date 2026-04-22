@@ -9,6 +9,7 @@ import {
   CheckSquare,
 } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import type { MessageKey } from "@/lib/config/i18n";
 import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { BurndownChart } from "./burndown-chart";
@@ -184,7 +185,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
                     <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-sm ${conf.bg}`}>
                       <Icon className="h-3 w-3 text-white" />
                     </div>
-                    <span className="w-16 text-[12px] text-muted-foreground">{t(`issue.types.${type}` as any)}</span>
+                    <span className="w-16 text-[12px] text-muted-foreground">{t(`issue.types.${type}` as MessageKey)}</span>
                     <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                       <div className={`${conf.bg} transition-all`} style={{ width: `${pct}%` }} />
                     </div>
@@ -213,7 +214,7 @@ export function SummaryView({ board, allIssues, members }: Props) {
                 return (
                   <div key={prio} className="flex items-center gap-2.5">
                     <Icon className={`h-4 w-4 shrink-0 ${conf.color}`} />
-                    <span className="w-20 text-[12px] text-muted-foreground">{t(`issue.priorities.${prio}` as any)}</span>
+                    <span className="w-20 text-[12px] text-muted-foreground">{t(`issue.priorities.${prio}` as MessageKey)}</span>
                     <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                       <div className="bg-current transition-all" style={{ width: `${pct}%` }} />
                     </div>

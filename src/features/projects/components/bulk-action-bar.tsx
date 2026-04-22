@@ -2,6 +2,7 @@
 
 import { X, Trash2, UserPlus, Zap, ArrowUp } from "lucide-react";
 import { PRIORITIES } from "@/lib/constants/issue-config";
+import type { MessageKey } from "@/lib/config/i18n";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useBulkUpdateIssues, useBulkDeleteIssues } from "../hooks";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ export function BulkActionBar({
         </SelectTrigger>
         <SelectContent>
           {PRIORITIES.map((p) => (
-            <SelectItem key={p} value={p}>{t(`issue.priorities.${p}` as any)}</SelectItem>
+            <SelectItem key={p} value={p}>{t(`issue.priorities.${p}` as MessageKey)}</SelectItem>
           ))}
         </SelectContent>
       </Select>

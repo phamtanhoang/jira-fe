@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { t, type Locale } from "@/lib/config/i18n";
+import { t, type Locale, type MessageKey } from "@/lib/config/i18n";
 import type { AppSettings } from "@/lib/types";
 
 export interface MetadataParams {
@@ -15,9 +15,9 @@ export function generatePageMetadata({
   descKey,
   appSettings,
 }: MetadataParams): Metadata {
-  const title = t(locale, titleKey as any);
+  const title = t(locale, titleKey as MessageKey);
   const description = descKey
-    ? t(locale, descKey as any)
+    ? t(locale, descKey as MessageKey)
     : appSettings?.description || title;
 
   return {

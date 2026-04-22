@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Pencil, ChevronDown, ChevronRight, Settings } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
+import type { MessageKey } from "@/lib/config/i18n";
 import { getInitials, formatDate, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useBoard, useMoveIssue, useIssues } from "../hooks";
@@ -181,7 +182,7 @@ export function IssueDetailSidebar({
               <div className={`flex h-4 w-4 items-center justify-center rounded-sm ${typeConf.bg}`}>
                 <TypeIcon className="h-2.5 w-2.5 text-white" />
               </div>
-              {t(`issue.types.${issue.type}` as any)}
+              {t(`issue.types.${issue.type}` as MessageKey)}
             </span>
           }
         >
@@ -196,7 +197,7 @@ export function IssueDetailSidebar({
                   <div className={`flex h-4 w-4 items-center justify-center rounded-sm ${typeConf.bg}`}>
                     <TypeIcon className="h-2.5 w-2.5 text-white" />
                   </div>
-                  {t(`issue.types.${issue.type}` as any)}
+                  {t(`issue.types.${issue.type}` as MessageKey)}
                 </span>
               </SelectTrigger>
               <SelectContent>
@@ -208,7 +209,7 @@ export function IssueDetailSidebar({
                         <div className={`flex h-4 w-4 items-center justify-center rounded-sm ${cfg.bg}`}>
                           <Icon className="h-2.5 w-2.5 text-white" />
                         </div>
-                        {t(`issue.types.${val}` as any)}
+                        {t(`issue.types.${val}` as MessageKey)}
                       </span>
                     </SelectItem>
                   );
@@ -224,7 +225,7 @@ export function IssueDetailSidebar({
           displayValue={
             <span className="flex items-center gap-2">
               <PrioIcon className={`h-3.5 w-3.5 ${prioConf.color}`} />
-              {t(`issue.priorities.${issue.priority}` as any)}
+              {t(`issue.priorities.${issue.priority}` as MessageKey)}
             </span>
           }
         >
@@ -237,7 +238,7 @@ export function IssueDetailSidebar({
               <SelectTrigger className="h-8 w-full text-[12px]">
                 <span className="flex items-center gap-2">
                   <PrioIcon className={`h-3.5 w-3.5 ${prioConf.color}`} />
-                  {t(`issue.priorities.${issue.priority}` as any)}
+                  {t(`issue.priorities.${issue.priority}` as MessageKey)}
                 </span>
               </SelectTrigger>
               <SelectContent>
@@ -247,7 +248,7 @@ export function IssueDetailSidebar({
                     <SelectItem key={val} value={val}>
                       <span className="flex items-center gap-2">
                         <Icon className={`h-3.5 w-3.5 ${cfg.color}`} />
-                        {t(`issue.priorities.${val}` as any)}
+                        {t(`issue.priorities.${val}` as MessageKey)}
                       </span>
                     </SelectItem>
                   );

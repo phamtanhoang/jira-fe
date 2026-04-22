@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import type { MessageKey } from "@/lib/config/i18n";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useWorkspace } from "@/features/workspaces/hooks";
@@ -328,7 +329,7 @@ export default function ProjectSettingsPage() {
 
                   <Badge variant="secondary" className={`text-[10px] ${ROLE_COLORS[member.role] ?? ""}`}>
                     <Shield className="mr-1 h-3 w-3" />
-                    {t(`project.roles.${member.role}` as any)}
+                    {t(`project.roles.${member.role}` as MessageKey)}
                   </Badge>
 
                   {member.role !== "LEAD" && member.userId !== user?.id && (

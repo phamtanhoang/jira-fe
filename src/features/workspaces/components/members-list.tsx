@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { MessageKey } from "@/lib/config/i18n";
 import { MoreHorizontal, Shield, ShieldCheck, Eye, Crown, UserMinus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -104,7 +105,7 @@ function MemberRow({
         <div className="flex items-center gap-2">
           <Badge variant={roleConfig.variant} className="gap-1">
             <RoleIcon className="h-3 w-3" />
-            {t(`workspace.roles.${member.role}` as any)}
+            {t(`workspace.roles.${member.role}` as MessageKey)}
           </Badge>
           <span className="hidden text-xs text-muted-foreground sm:inline">
             {new Date(member.joinedAt).toLocaleDateString()}

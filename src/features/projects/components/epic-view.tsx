@@ -120,7 +120,7 @@ export function EpicView({
             <EpicCard
               key={epic.id}
               epic={epic}
-              children={childrenByEpic.get(epic.id) ?? []}
+              issues={childrenByEpic.get(epic.id) ?? []}
               onClickIssue={onClickIssue}
             />
           ))}
@@ -132,18 +132,18 @@ export function EpicView({
 
 function EpicCard({
   epic,
-  children,
+  issues,
   onClickIssue,
 }: {
   epic: Issue;
-  children: Issue[];
+  issues: Issue[];
   onClickIssue: (key: string) => void;
 }) {
   const { t } = useAppStore();
   const [expanded, setExpanded] = useState(false);
 
-  const doneCount = children.filter((c) => c.boardColumn?.category === "DONE").length;
-  const total = children.length;
+  const doneCount = issues.filter((c) => c.boardColumn?.category === "DONE").length;
+  const total = issues.length;
   const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   return (
@@ -193,7 +193,7 @@ function EpicCard({
       {/* Children */}
       {expanded && total > 0 && (
         <div className="border-t">
-          {children.map((child) => {
+          {issues.map((child) => {
             const isDone = child.boardColumn?.category === "DONE";
             return (
               <button
