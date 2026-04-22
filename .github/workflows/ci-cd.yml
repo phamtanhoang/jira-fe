@@ -10,10 +10,10 @@ env:
   DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/jira-fe
 
 jobs:
+  # ─────────── Job 1: Fast feedback (lint, types, unit tests) ───────────
   test:
-    name: Lint, Type-check, Test
+    name: Lint, Type-check, Unit Test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,14 +33,64 @@ jobs:
       - name: Run TypeScript type-check
         run: npm run type-check
 
-      - name: Run Jest tests
+      - name: Run Jest unit tests
         run: npm run test:run
 
-  build-and-deploy:
-    name: Build & Deploy
+  # ─────────── Job 2: E2E tests with real browser (Playwright) ───────────
+  e2e-test:
+    name: E2E Tests (Playwright)
     needs: test
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: http://localhost:3030/api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Run Playwright tests
+        run: npm run e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ─────────── Job 3: Build Docker image (only on push to main) ───────────
+  build:
+    name: Build & Push Docker Image
+    needs: e2e-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,11 +104,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: ${{ github.event_name == 'push' }}
+          push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
@@ -67,8 +117,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy to server
-        if: github.event_name == 'push'
+  # ─────────── Job 4: SSH deploy to server ───────────
+  deploy:
+    name: Deploy to Server
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -81,63 +137,54 @@ jobs:
             docker compose up -d --force-recreate
             docker image prune -f
 
-      - name: Notify Telegram (Success)
-        if: success()
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            ✅ *Frontend Deploy Success*
-
-            *Repo:* `${{ github.repository }}`
-            *Branch:* `${{ github.ref_name }}`
-            *Commit:* `${{ github.sha }}`
-            *Author:* ${{ github.actor }}
-            *Message:* ${{ github.event.head_commit.message }}
-
-            [View Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-      - name: Notify Telegram (Failure)
-        if: failure()
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            ❌ *Frontend Deploy Failed*
-
-            *Repo:* `${{ github.repository }}`
-            *Branch:* `${{ github.ref_name }}`
-            *Commit:* `${{ github.sha }}`
-            *Author:* ${{ github.actor }}
-            *Message:* ${{ github.event.head_commit.message }}
-
-            [View Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-  notify-test-failure:
-    name: Notify test failure
-    needs: test
-    if: failure() && github.event_name == 'push'
+  # ─────────── Job 5: Consolidated Telegram notification ───────────
+  notify:
+    name: Notify Telegram
+    needs: [test, e2e-test, build, deploy]
+    if: always() && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Notify Telegram (Test/Lint Failed — deploy blocked)
+      - name: Determine pipeline status
+        id: status
+        run: |
+          if [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "stage=success" >> $GITHUB_OUTPUT
+            echo "icon=✅" >> $GITHUB_OUTPUT
+            echo "title=Frontend Deploy Success" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.test.result }}" == "failure" ]]; then
+            echo "stage=test" >> $GITHUB_OUTPUT
+            echo "icon=🛑" >> $GITHUB_OUTPUT
+            echo "title=Deploy BLOCKED — Lint/Type/Unit test failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.e2e-test.result }}" == "failure" ]]; then
+            echo "stage=e2e" >> $GITHUB_OUTPUT
+            echo "icon=🛑" >> $GITHUB_OUTPUT
+            echo "title=Deploy BLOCKED — E2E test failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.build.result }}" == "failure" ]]; then
+            echo "stage=build" >> $GITHUB_OUTPUT
+            echo "icon=❌" >> $GITHUB_OUTPUT
+            echo "title=Docker Build Failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy.result }}" == "failure" ]]; then
+            echo "stage=deploy" >> $GITHUB_OUTPUT
+            echo "icon=❌" >> $GITHUB_OUTPUT
+            echo "title=Deploy Failed" >> $GITHUB_OUTPUT
+          else
+            echo "stage=skipped" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Telegram notification
+        if: steps.status.outputs.stage != 'skipped'
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           format: markdown
           message: |
-            🛑 *Frontend Deploy BLOCKED — tests/lint failed*
+            ${{ steps.status.outputs.icon }} *${{ steps.status.outputs.title }}*
 
             *Repo:* `${{ github.repository }}`
             *Branch:* `${{ github.ref_name }}`
             *Commit:* `${{ github.sha }}`
             *Author:* ${{ github.actor }}
             *Message:* ${{ github.event.head_commit.message }}
-
-            No Docker build, no deploy. Fix and push again.
 
             [View Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

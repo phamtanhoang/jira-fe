@@ -15,6 +15,11 @@ const eslintConfig = defineConfig([
     // Tooling config files (not part of application code)
     "jest.config.js",
     "jest.setup.ts",
+    "playwright.config.ts",
+    // E2E tests have their own test runner (Playwright, not Jest)
+    "e2e/**",
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 
