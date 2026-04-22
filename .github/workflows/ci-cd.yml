@@ -10,7 +10,35 @@ env:
   DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/jira-fe
 
 jobs:
+  test:
+    name: Lint, Type-check, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript type-check
+        run: npm run type-check
+
+      - name: Run Jest tests
+        run: npm run test:run
+
   build-and-deploy:
+    name: Build & Deploy
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -86,5 +114,30 @@ jobs:
             *Commit:* `${{ github.sha }}`
             *Author:* ${{ github.actor }}
             *Message:* ${{ github.event.head_commit.message }}
+
+            [View Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+  notify-test-failure:
+    name: Notify test failure
+    needs: test
+    if: failure() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Telegram (Test/Lint Failed — deploy blocked)
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            🛑 *Frontend Deploy BLOCKED — tests/lint failed*
+
+            *Repo:* `${{ github.repository }}`
+            *Branch:* `${{ github.ref_name }}`
+            *Commit:* `${{ github.sha }}`
+            *Author:* ${{ github.actor }}
+            *Message:* ${{ github.event.head_commit.message }}
+
+            No Docker build, no deploy. Fix and push again.
 
             [View Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
