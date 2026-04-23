@@ -26,15 +26,15 @@ describe("getInitials", () => {
   });
 
   it("falls back to email when name is empty string", () => {
-    expect(getInitials("", "david@kegmil.ai")).toBe("D");
+    expect(getInitials("", "david@3hteam.ai")).toBe("D");
   });
 
   it("falls back to email when name is null", () => {
-    expect(getInitials(null, "eva@kegmil.ai")).toBe("E");
+    expect(getInitials(null, "eva@3hteam.ai")).toBe("E");
   });
 
   it("falls back to email when name is undefined", () => {
-    expect(getInitials(undefined, "frank@kegmil.ai")).toBe("F");
+    expect(getInitials(undefined, "frank@3hteam.ai")).toBe("F");
   });
 
   it("returns '?' when both name and email are missing", () => {

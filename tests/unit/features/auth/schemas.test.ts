@@ -18,7 +18,7 @@ import {
 describe("loginSchema", () => {
   it("accepts valid email + password", () => {
     const result = loginSchema.safeParse({
-      email: "apollo@kegmil.ai",
+      email: "test@3hteam.com",
       password: "anypassword",
     });
     expect(result.success).toBe(true);
@@ -45,7 +45,7 @@ describe("loginSchema", () => {
 
   it("rejects empty password with PASSWORD_REQUIRED", () => {
     const result = loginSchema.safeParse({
-      email: "apollo@kegmil.ai",
+      email: "test@3hteam.com",
       password: "",
     });
     expect(result.success).toBe(false);
