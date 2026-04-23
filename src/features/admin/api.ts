@@ -30,3 +30,12 @@ export async function setSetting<T>(
   });
   return res.data;
 }
+
+/**
+ * Public endpoint — readable by any user (including non-admins). Returns
+ * `null` when the announcement has never been saved.
+ */
+export async function getPublicAnnouncement<T>(): Promise<T | null> {
+  const res = await api.get<T | null>(ENDPOINTS.settings.appAnnouncement);
+  return res.data ?? null;
+}

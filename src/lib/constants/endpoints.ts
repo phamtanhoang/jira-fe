@@ -25,6 +25,7 @@ const AUTH_ENDPOINTS = {
 const SETTINGS_ENDPOINTS = {
   settings: SETTINGS_BASE,
   appInfo: `${SETTINGS_BASE}/app-info`,
+  appAnnouncement: `${SETTINGS_BASE}/app-announcement`,
   byKey: (key: string) => `${SETTINGS_BASE}/${encodeURIComponent(key)}`,
 } as const;
 

@@ -8,7 +8,7 @@ import type {
   AnnouncementSeverity,
   AnnouncementValue,
 } from "@/features/admin/types";
-import { useSetting, SETTING_KEYS } from "@/features/admin";
+import { usePublicAnnouncement } from "@/features/admin";
 
 /**
  * Per-tab dismissal. The storage key embeds a short hash of the current
@@ -43,10 +43,7 @@ const SEVERITY_ICON: Record<AnnouncementSeverity, React.ElementType> = {
 };
 
 export function AnnouncementBanner() {
-  const { data } = useSetting<AnnouncementValue>(
-    SETTING_KEYS.APP_ANNOUNCEMENT,
-  );
-  const ann = data?.value;
+  const { data: ann } = usePublicAnnouncement();
   const storageKey = ann
     ? `announcement-dismissed-v${hashMessage(ann.message)}`
     : "";
