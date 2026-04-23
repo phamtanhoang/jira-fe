@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { AlertTriangle, Info, OctagonAlert, X } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { cn } from "@/lib/utils";
@@ -9,25 +10,6 @@ import type {
   AnnouncementValue,
 } from "@/features/admin/types";
 import { usePublicAnnouncement } from "@/features/admin";
-
-/**
- * Per-tab dismissal. The storage key embeds a short hash of the current
- * message so that editing the announcement resets dismissal for everyone.
- */
-function hashMessage(m: string): string {
-  let h = 0;
-  for (let i = 0; i < m.length; i++) h = (h * 31 + m.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(36);
-}
-
-function readDismissed(storageKey: string): boolean {
-  if (!storageKey || typeof window === "undefined") return false;
-  try {
-    return sessionStorage.getItem(storageKey) === "1";
-  } catch {
-    return false;
-  }
-}
 
 const SEVERITY_CLASSES: Record<AnnouncementSeverity, string> = {
   info: "bg-blue-500/10 text-blue-900 border-blue-500/30 dark:bg-blue-950/40 dark:text-blue-100",
@@ -44,27 +26,19 @@ const SEVERITY_ICON: Record<AnnouncementSeverity, React.ElementType> = {
 
 export function AnnouncementBanner() {
   const { data: ann } = usePublicAnnouncement();
-  const storageKey = ann
-    ? `announcement-dismissed-v${hashMessage(ann.message)}`
-    : "";
+  const pathname = usePathname();
 
-  // Remount the inner banner whenever the storage key changes so that dismissal
-  // state is re-read from sessionStorage purely at mount time — no useEffect.
   if (!ann || !ann.enabled || !ann.message.trim()) return null;
-  return <BannerBody key={storageKey} ann={ann} storageKey={storageKey} />;
+
+  // Remount on every route change AND whenever the admin edits the message —
+  // dismissal is purely in-memory for the current mount, so navigating to
+  // another page (or saving a new message) brings the banner back.
+  return <BannerBody key={`${pathname}::${ann.message}`} ann={ann} />;
 }
 
-function BannerBody({
-  ann,
-  storageKey,
-}: {
-  ann: AnnouncementValue;
-  storageKey: string;
-}) {
+function BannerBody({ ann }: { ann: AnnouncementValue }) {
   const { t } = useAppStore();
-  const [dismissed, setDismissed] = useState<boolean>(() =>
-    readDismissed(storageKey),
-  );
+  const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
 
@@ -81,14 +55,7 @@ function BannerBody({
       <span className="flex-1">{ann.message}</span>
       <button
         type="button"
-        onClick={() => {
-          try {
-            sessionStorage.setItem(storageKey, "1");
-          } catch {
-            /* ignore quota */
-          }
-          setDismissed(true);
-        }}
+        onClick={() => setDismissed(true)}
         className="rounded p-0.5 hover:bg-black/5 dark:hover:bg-white/10"
         aria-label={t("admin.common.dismiss")}
       >
