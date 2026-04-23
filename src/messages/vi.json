@@ -41,9 +41,156 @@
     "settings": "Cài đặt",
     "logout": "Đăng xuất",
     "newWorkspace": "Tạo không gian",
+    "admin": "Quản trị",
     "adminLogs": "Nhật ký request"
   },
   "admin": {
+    "badge": "Quản trị",
+    "exit": "Quay lại ứng dụng",
+    "nav": {
+      "overview": "Tổng quan",
+      "logs": "Nhật ký request",
+      "settings": "Cài đặt",
+      "users": "Người dùng",
+      "flags": "Feature Flag",
+      "announcement": "Thông báo",
+      "groupOverview": "Tổng quan",
+      "groupOperations": "Vận hành",
+      "groupConfiguration": "Cấu hình"
+    },
+    "footer": {
+      "system": "Hệ thống",
+      "version": "Phiên bản",
+      "docs": "Tài liệu API"
+    },
+    "stats": {
+      "users": "Người dùng",
+      "admins": "Quản trị",
+      "workspaces": "Không gian",
+      "projects": "Dự án",
+      "issues": "Issues",
+      "newLast7Days": "Mới tuần này",
+      "unverified": "Chưa xác minh",
+      "logsLast24h": "Log (24 giờ)",
+      "logsEmpty": "Không có hoạt động trong 24 giờ qua."
+    },
+    "users": {
+      "title": "Quản lý người dùng",
+      "description": "Quản lý tài khoản, thay đổi vai trò và xóa người dùng.",
+      "columns": {
+        "user": "Người dùng",
+        "role": "Vai trò",
+        "verified": "Đã xác minh",
+        "joined": "Ngày tham gia",
+        "actions": "Hành động"
+      },
+      "filters": {
+        "searchPlaceholder": "Tìm theo tên hoặc email…",
+        "role": "Vai trò",
+        "allRoles": "Tất cả",
+        "verified": "Xác minh",
+        "allVerified": "Tất cả",
+        "verifiedYes": "Đã xác minh",
+        "verifiedNo": "Chờ xác minh"
+      },
+      "actions": {
+        "changeRole": "Đổi vai trò",
+        "makeAdmin": "Thăng quyền admin",
+        "makeUser": "Hạ quyền user",
+        "delete": "Xóa người dùng",
+        "deleteConfirmTitle": "Xóa người dùng?",
+        "deleteConfirmDesc": "Hành động này sẽ xóa vĩnh viễn {email} và mọi workspace họ sở hữu. Không thể hoàn tác.",
+        "deleteCta": "Xóa tài khoản"
+      },
+      "selfBadge": "(bạn)",
+      "empty": "Không có người dùng nào phù hợp.",
+      "loadMore": "Tải thêm",
+      "meta": {
+        "title": "Quản lý người dùng",
+        "desc": "Trang quản lý người dùng"
+      }
+    },
+    "flags": {
+      "title": "Feature Flag",
+      "description": "Flag chạy runtime lưu trong setting {key}. Thay đổi có hiệu lực ngay.",
+      "columns": {
+        "key": "Flag",
+        "enabled": "Bật",
+        "actions": "Hành động"
+      },
+      "empty": "Chưa có feature flag nào.",
+      "addTitle": "Thêm flag",
+      "keyPlaceholder": "my_feature",
+      "keyHint": "chữ thường, số, dấu chấm hoặc gạch dưới",
+      "addCta": "Thêm flag",
+      "deleteConfirm": "Xóa flag \"{key}\"? Flag sẽ bị tắt ở mọi nơi.",
+      "meta": {
+        "title": "Feature Flag",
+        "desc": "Quản lý feature flag"
+      }
+    },
+    "announcement": {
+      "title": "Banner thông báo",
+      "description": "Hiển thị trên toàn app khi bật. Đóng banner reset khi bạn thay đổi nội dung.",
+      "enabled": "Bật",
+      "severity": "Mức độ",
+      "severityInfo": "Thông tin",
+      "severityWarn": "Cảnh báo",
+      "severityCritical": "Khẩn cấp",
+      "messageLabel": "Nội dung",
+      "messagePlaceholder": "Bảo trì vào 21:00 UTC — dự kiến 10 phút…",
+      "preview": "Xem trước",
+      "previewEmpty": "Bật banner và nhập nội dung để xem preview.",
+      "meta": {
+        "title": "Thông báo",
+        "desc": "Banner thông báo quản trị"
+      }
+    },
+    "common": {
+      "dismiss": "Đóng"
+    },
+    "overview": {
+      "title": "Tổng quan quản trị",
+      "description": "Cái nhìn nhanh về nhật ký và cấu hình ứng dụng.",
+      "cardLogsTitle": "Nhật ký request",
+      "cardLogsDesc": "Số lỗi trong 24 giờ qua",
+      "cardAppInfoTitle": "Thông tin ứng dụng",
+      "cardAppInfoDesc": "Thương hiệu, logo, mô tả",
+      "cardAppEmailTitle": "Email ứng dụng",
+      "cardAppEmailDesc": "Địa chỉ FROM gửi email",
+      "notConfigured": "Chưa cấu hình",
+      "meta": {
+        "title": "Tổng quan Quản trị",
+        "desc": "Bảng điều khiển quản trị"
+      }
+    },
+    "settings": {
+      "title": "Cài đặt ứng dụng",
+      "description": "Cấu hình thương hiệu, metadata và email gửi đi.",
+      "tabAppInfo": "Thông tin ứng dụng",
+      "tabAppEmail": "Email ứng dụng",
+      "appInfo": {
+        "name": "Tên ứng dụng",
+        "namePlaceholder": "Jira Clone",
+        "logoUrl": "URL logo",
+        "logoUrlPlaceholder": "https://...",
+        "description": "Mô tả",
+        "descriptionPlaceholder": "Tagline ngắn hiển thị trên trang đăng nhập + OG",
+        "authorName": "Tên tác giả",
+        "authorNamePlaceholder": "Tên nhóm",
+        "authorUrl": "URL tác giả",
+        "authorUrlPlaceholder": "https://..."
+      },
+      "appEmail": {
+        "email": "Địa chỉ email FROM",
+        "emailPlaceholder": "noreply@example.com",
+        "emailHint": "Email đi (OTP, reset mật khẩu) sẽ gửi từ địa chỉ này."
+      },
+      "meta": {
+        "title": "Cài đặt ứng dụng",
+        "desc": "Cấu hình quản trị cho app info và email"
+      }
+    },
     "logs": {
       "title": "Nhật ký request",
       "description": "Xem lỗi backend và frontend kèm user, payload và breadcrumbs.",
@@ -336,6 +483,10 @@
     "LOGOUT_SUCCESS": "Đăng xuất thành công.",
     "FORGOT_PASSWORD_SUCCESS": "Đã gửi mã đặt lại! Vui lòng kiểm tra email.",
     "RESET_PASSWORD_SUCCESS": "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.",
+    "SETTINGS_UPDATED": "Đã cập nhật cài đặt.",
+    "USER_ROLE_UPDATED": "Đã cập nhật vai trò người dùng.",
+    "USER_DELETED": "Đã xóa người dùng.",
+    "CANNOT_MODIFY_SELF": "Bạn không thể thao tác trên chính tài khoản của mình ở đây.",
     "WORKSPACE_CREATED": "Tạo không gian thành công!",
     "WORKSPACE_UPDATED": "Đã cập nhật không gian.",
     "WORKSPACE_DELETED": "Đã xóa không gian.",

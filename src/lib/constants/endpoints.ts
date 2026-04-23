@@ -25,6 +25,7 @@ const AUTH_ENDPOINTS = {
 const SETTINGS_ENDPOINTS = {
   settings: SETTINGS_BASE,
   appInfo: `${SETTINGS_BASE}/app-info`,
+  byKey: (key: string) => `${SETTINGS_BASE}/${encodeURIComponent(key)}`,
 } as const;
 
 const WORKSPACES_ENDPOINTS = {
@@ -99,6 +100,18 @@ const LOGS_ENDPOINTS = {
   client: `${LOGS_BASE}/client`,
 } as const;
 
+const USERS_BASE = "/users";
+const USERS_ENDPOINTS = {
+  base: USERS_BASE,
+  byId: (id: string) => `${USERS_BASE}/${id}`,
+  role: (id: string) => `${USERS_BASE}/${id}/role`,
+} as const;
+
+const ADMIN_BASE = "/admin";
+const ADMIN_ENDPOINTS = {
+  stats: `${ADMIN_BASE}/stats`,
+} as const;
+
 export const ENDPOINTS = {
   auth: AUTH_ENDPOINTS,
   settings: SETTINGS_ENDPOINTS,
@@ -112,4 +125,6 @@ export const ENDPOINTS = {
   comments: COMMENTS_ENDPOINTS,
   worklogs: WORKLOGS_ENDPOINTS,
   logs: LOGS_ENDPOINTS,
+  users: USERS_ENDPOINTS,
+  admin: ADMIN_ENDPOINTS,
 } as const;

@@ -41,9 +41,156 @@
     "settings": "Settings",
     "logout": "Logout",
     "newWorkspace": "New workspace",
+    "admin": "Admin",
     "adminLogs": "Request Logs"
   },
   "admin": {
+    "badge": "Admin",
+    "exit": "Back to app",
+    "nav": {
+      "overview": "Overview",
+      "logs": "Request Logs",
+      "settings": "Settings",
+      "users": "Users",
+      "flags": "Feature Flags",
+      "announcement": "Announcement",
+      "groupOverview": "Overview",
+      "groupOperations": "Operations",
+      "groupConfiguration": "Configuration"
+    },
+    "footer": {
+      "system": "System",
+      "version": "Version",
+      "docs": "API docs"
+    },
+    "stats": {
+      "users": "Users",
+      "admins": "Admins",
+      "workspaces": "Workspaces",
+      "projects": "Projects",
+      "issues": "Issues",
+      "newLast7Days": "New this week",
+      "unverified": "Unverified",
+      "logsLast24h": "Logs (24h)",
+      "logsEmpty": "No activity in the last 24 hours."
+    },
+    "users": {
+      "title": "User Management",
+      "description": "Manage accounts, change roles, and remove users.",
+      "columns": {
+        "user": "User",
+        "role": "Role",
+        "verified": "Verified",
+        "joined": "Joined",
+        "actions": "Actions"
+      },
+      "filters": {
+        "searchPlaceholder": "Search by name or email…",
+        "role": "Role",
+        "allRoles": "All roles",
+        "verified": "Verified",
+        "allVerified": "All",
+        "verifiedYes": "Verified",
+        "verifiedNo": "Pending"
+      },
+      "actions": {
+        "changeRole": "Change role",
+        "makeAdmin": "Promote to admin",
+        "makeUser": "Demote to user",
+        "delete": "Delete user",
+        "deleteConfirmTitle": "Delete user?",
+        "deleteConfirmDesc": "This will permanently remove {email} and any workspaces they own. This action cannot be undone.",
+        "deleteCta": "Delete account"
+      },
+      "selfBadge": "(you)",
+      "empty": "No users match the current filters.",
+      "loadMore": "Load more",
+      "meta": {
+        "title": "User Management",
+        "desc": "Admin user management"
+      }
+    },
+    "flags": {
+      "title": "Feature Flags",
+      "description": "Runtime flags stored in the {key} setting. Changes take effect immediately.",
+      "columns": {
+        "key": "Flag",
+        "enabled": "Enabled",
+        "actions": "Actions"
+      },
+      "empty": "No feature flags configured yet.",
+      "addTitle": "Add a flag",
+      "keyPlaceholder": "my_feature",
+      "keyHint": "lowercase letters, numbers, dots or underscores",
+      "addCta": "Add flag",
+      "deleteConfirm": "Remove the flag \"{key}\"? This will disable it everywhere.",
+      "meta": {
+        "title": "Feature Flags",
+        "desc": "Admin feature flag management"
+      }
+    },
+    "announcement": {
+      "title": "Announcement Banner",
+      "description": "Shown across the app when enabled. Dismissal resets when you change the message.",
+      "enabled": "Enabled",
+      "severity": "Severity",
+      "severityInfo": "Info",
+      "severityWarn": "Warning",
+      "severityCritical": "Critical",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Scheduled maintenance at 21:00 UTC — expect a 10-minute window…",
+      "preview": "Preview",
+      "previewEmpty": "Enable the banner and add a message to see a preview.",
+      "meta": {
+        "title": "Announcement",
+        "desc": "Admin announcement banner"
+      }
+    },
+    "common": {
+      "dismiss": "Dismiss"
+    },
+    "overview": {
+      "title": "Admin overview",
+      "description": "At-a-glance status of logs and application configuration.",
+      "cardLogsTitle": "Request Logs",
+      "cardLogsDesc": "Errors in the last 24 hours",
+      "cardAppInfoTitle": "App Info",
+      "cardAppInfoDesc": "Branding, logo, description",
+      "cardAppEmailTitle": "App Email",
+      "cardAppEmailDesc": "FROM address used for outbound mail",
+      "notConfigured": "Not configured",
+      "meta": {
+        "title": "Admin Overview",
+        "desc": "Admin dashboard for configuration and monitoring"
+      }
+    },
+    "settings": {
+      "title": "Application Settings",
+      "description": "Configure branding, metadata, and the FROM email address.",
+      "tabAppInfo": "App Info",
+      "tabAppEmail": "App Email",
+      "appInfo": {
+        "name": "App name",
+        "namePlaceholder": "Jira Clone",
+        "logoUrl": "Logo URL",
+        "logoUrlPlaceholder": "https://...",
+        "description": "Description",
+        "descriptionPlaceholder": "A short tagline shown on auth + OG meta",
+        "authorName": "Author name",
+        "authorNamePlaceholder": "Your team",
+        "authorUrl": "Author URL",
+        "authorUrlPlaceholder": "https://..."
+      },
+      "appEmail": {
+        "email": "FROM email address",
+        "emailPlaceholder": "noreply@example.com",
+        "emailHint": "Outbound mail (OTP, password reset) will be sent from this address."
+      },
+      "meta": {
+        "title": "App Settings",
+        "desc": "Admin configuration for app info and email"
+      }
+    },
     "logs": {
       "title": "Request Logs",
       "description": "Inspect backend and frontend errors with user context, payload, and breadcrumbs.",
@@ -336,6 +483,10 @@
     "LOGOUT_SUCCESS": "Logged out successfully.",
     "FORGOT_PASSWORD_SUCCESS": "Reset code sent! Please check your email.",
     "RESET_PASSWORD_SUCCESS": "Password reset successfully! Please sign in.",
+    "SETTINGS_UPDATED": "Settings updated.",
+    "USER_ROLE_UPDATED": "User role updated.",
+    "USER_DELETED": "User deleted.",
+    "CANNOT_MODIFY_SELF": "You cannot modify your own account here.",
     "WORKSPACE_CREATED": "Workspace created successfully!",
     "WORKSPACE_UPDATED": "Workspace updated.",
     "WORKSPACE_DELETED": "Workspace deleted.",

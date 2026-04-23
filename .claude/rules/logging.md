@@ -23,4 +23,4 @@
 ## Sentry
 - Init lives in `instrumentation.ts` (server/edge) and `instrumentation-client.ts` (browser) at project root
 - NEVER call `Sentry.*` directly from components — route through `reportError()` for consistent context
-- Package disables itself when `NEXT_PUBLIC_SENTRY_DSN` is missing — no guards needed at call sites
+- Package disables itself when `NEXT_PUBLIC_SENTRY_DSN` is missing OR when `NODE_ENV !== "production"` (local dev) — no guards needed at call sites

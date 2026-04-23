@@ -26,18 +26,23 @@ src/
 ├── app/
 │   ├── layout.tsx              # Root: ThemeProvider → AppProvider → LoggingProvider → QueryProvider → Toaster
 │   ├── (auth)/                 # Public routes: sign-in, sign-up, verify-email, forgot/reset-password
-│   └── (main)/                 # Protected routes: dashboard, workspaces, issues, profile, admin/logs
-│       └── {page}/
-│           ├── page.tsx        # Server component — generateMetadata + re-export client
-│           └── client.tsx      # "use client" — actual UI
+│   ├── (main)/                 # Protected routes: dashboard, workspaces, issues, profile
+│   │   └── {page}/
+│   │       ├── page.tsx        # Server component — generateMetadata + re-export client
+│   │       └── client.tsx      # "use client" — actual UI
+│   └── (admin)/                # ADMIN-only routes: /admin (overview with system stats), /admin/logs, /admin/users, /admin/settings, /admin/flags, /admin/announcement
+│       └── admin/              # AdminLayout enforces user.role === "ADMIN" (BE enforces via @Roles)
 ├── components/
 │   ├── layouts/
 │   │   ├── auth-layout/        # AuthLayout → components/ (header, footer)
-│   │   └── main-layout/        # MainLayout → components/ (header, sidebar — admin sees "Request Logs" link)
+│   │   ├── main-layout/        # MainLayout → components/ (header, sidebar — admins see "Admin" link → /admin)
+│   │   └── admin-layout/       # AdminLayout → components/ (header w/ amber Admin badge + "Back to app", grouped sidebar: Overview · Operations (Logs, Users) · Configuration (Settings, Flags, Announcement), dedicated AdminFooter). Redirects non-admins to /dashboard
 │   ├── shared/                 # locale-switcher, rich-editor (Tiptap — RichEditor + RichContent)
 │   ├── providers/              # AppProvider (zustand init), QueryProvider (staleTime 60s, retry 1), LoggingProvider (nav + click breadcrumbs)
 │   └── ui/                     # 18 shadcn components: avatar, badge, button, card, dialog, dropdown-menu, form, input, label, scroll-area, select, separator, sheet, skeleton, spinner, tabs, textarea, tooltip
 ├── features/
+│   ├── admin/                  # api.ts (getSetting/setSetting by key), hooks.ts (useSetting/useUpdateSetting), schemas.ts (appInfoSchema/appEmailSchema), types.ts (SETTING_KEYS for app.info/email/features/announcement, AnnouncementValue, FeatureFlags)
+│   ├── admin-users/             # api.ts (fetchUsers/updateUserRole/deleteUser/fetchAdminStats), hooks.ts (useAdminUsers/useUpdateUserRole/useDeleteUser/useAdminStats), types.ts — admin-only endpoints at /users + /admin/stats
 │   ├── auth/                   # api.ts, hooks.ts, types.ts (AuthUser has optional role: "USER"|"ADMIN"), schemas.ts, components/
 │   ├── projects/               # api.ts, types.ts, hooks/ (7 domain-split files), components/ (12 components)
 │   ├── workspaces/             # api.ts, hooks.ts, types.ts, components/ (2 components)
@@ -56,7 +61,7 @@ src/
 ### Root files (Sentry instrumentation)
 - `instrumentation.ts` — Node/edge runtime init
 - `instrumentation-client.ts` — browser init
-Both no-op when `NEXT_PUBLIC_SENTRY_DSN` missing.
+Both no-op when `NEXT_PUBLIC_SENTRY_DSN` is missing OR when `NODE_ENV !== "production"` (local `next dev` never sends events upstream even if a DSN is set).
 
 ## API Communication
 - Axios on `/api/*` → Next.js rewrite → backend (NEXT_PUBLIC_API_URL)
@@ -70,7 +75,7 @@ Both no-op when `NEXT_PUBLIC_SENTRY_DSN` missing.
 - `LoggingProvider` captures navigation (via `usePathname`) and global clicks (capture phase) → pushes to in-memory breadcrumb buffer (cap 50)
 - On any unrecoverable API error OR React error boundary catch → `reportError()` sends to Sentry + `/api/logs/client`
 - Breadcrumbs are a plain module-level array — NOT zustand. They never trigger re-renders and are not persisted
-- Sentry disabled automatically when `NEXT_PUBLIC_SENTRY_DSN` is missing — safe for dev
+- Sentry disabled automatically when `NEXT_PUBLIC_SENTRY_DSN` is missing OR when `NODE_ENV !== "production"` — local `next dev` never hits Sentry. Reports still flow to `/api/logs/client` (DB) for dev debugging
 
 ## i18n
 - Vietnamese (default) + English
@@ -94,4 +99,5 @@ Both no-op when `NEXT_PUBLIC_SENTRY_DSN` missing.
 - Logging: call `reportError()` from `@/lib/logging` ONLY for unexpected failures. Expected validation errors use `handleApiError()` (toast only, no backend log)
 - Logging: NEVER import from `@/lib/logging/report` inside the axios `api` client interceptor without using the bare `logClient` — recursion will crash the tab
 - Logging: do NOT capture `<input>` values in breadcrumbs — leak risk. `LoggingProvider` intentionally reads `textContent` only, not values
-- Admin routes: `src/app/(main)/admin/*` must check `user.role === "ADMIN"` in client.tsx AND hide the nav link in sidebar — BE enforces via `@Roles(Role.ADMIN)` regardless, but UX should not expose links to non-admins
+- Admin routes: live under `src/app/(admin)/admin/*` with dedicated `AdminLayout`. The layout itself gates `user.role === "ADMIN"` — individual admin `client.tsx` files MUST NOT duplicate the role check. MainLayout sidebar shows a single "Admin" link (to `/admin`) only to admins. BE enforces via `@Roles(Role.ADMIN)` regardless
+- Admin settings: use `useSetting<T>(key)` / `useUpdateSetting<T>(key)` from `@/features/admin`. Keys: `SETTING_KEYS.APP_INFO` (`app.info`), `SETTING_KEYS.APP_EMAIL` (`app.email`). `getSetting` returns null on 404 so forms render defaults

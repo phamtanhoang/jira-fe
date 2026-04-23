@@ -7,7 +7,7 @@ import {
   FolderKanban,
   Plus,
   PanelLeftClose,
-  ScrollText,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
@@ -33,7 +33,7 @@ export function Sidebar({
     { href: ROUTES.DASHBOARD, label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: ROUTES.WORKSPACES, label: t("nav.workspaces"), icon: FolderKanban },
     ...(user?.role === "ADMIN"
-      ? [{ href: ROUTES.ADMIN_LOGS, label: t("nav.adminLogs"), icon: ScrollText }]
+      ? [{ href: ROUTES.ADMIN, label: t("nav.admin"), icon: ShieldCheck }]
       : []),
   ];
 
