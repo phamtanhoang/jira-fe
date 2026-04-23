@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AlertTriangle, Info, OctagonAlert, X } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,15 @@ function hashMessage(m: string): string {
   return (h >>> 0).toString(36);
 }
 
+function readDismissed(storageKey: string): boolean {
+  if (!storageKey || typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(storageKey) === "1";
+  } catch {
+    return false;
+  }
+}
+
 const SEVERITY_CLASSES: Record<AnnouncementSeverity, string> = {
   info: "bg-blue-500/10 text-blue-900 border-blue-500/30 dark:bg-blue-950/40 dark:text-blue-100",
   warn: "bg-amber-500/10 text-amber-900 border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-100",
@@ -34,27 +43,33 @@ const SEVERITY_ICON: Record<AnnouncementSeverity, React.ElementType> = {
 };
 
 export function AnnouncementBanner() {
-  const { t } = useAppStore();
   const { data } = useSetting<AnnouncementValue>(
     SETTING_KEYS.APP_ANNOUNCEMENT,
   );
   const ann = data?.value;
-
-  const [dismissed, setDismissed] = useState(false);
   const storageKey = ann
     ? `announcement-dismissed-v${hashMessage(ann.message)}`
     : "";
 
-  useEffect(() => {
-    if (!storageKey) return;
-    try {
-      setDismissed(sessionStorage.getItem(storageKey) === "1");
-    } catch {
-      setDismissed(false);
-    }
-  }, [storageKey]);
+  // Remount the inner banner whenever the storage key changes so that dismissal
+  // state is re-read from sessionStorage purely at mount time — no useEffect.
+  if (!ann || !ann.enabled || !ann.message.trim()) return null;
+  return <BannerBody key={storageKey} ann={ann} storageKey={storageKey} />;
+}
 
-  if (!ann || !ann.enabled || !ann.message.trim() || dismissed) return null;
+function BannerBody({
+  ann,
+  storageKey,
+}: {
+  ann: AnnouncementValue;
+  storageKey: string;
+}) {
+  const { t } = useAppStore();
+  const [dismissed, setDismissed] = useState<boolean>(() =>
+    readDismissed(storageKey),
+  );
+
+  if (dismissed) return null;
 
   const Icon = SEVERITY_ICON[ann.severity];
 
