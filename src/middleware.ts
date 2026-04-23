@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ROUTES, PUBLIC_ROUTES, COOKIE_AUTH } from "@/lib/constants";
+import {
+  ROUTES,
+  PUBLIC_ROUTES,
+  COOKIE_AUTH,
+  COOKIE_ROLE,
+} from "@/lib/constants";
 
 type MaintenanceValue = {
   enabled: boolean;
@@ -48,10 +53,13 @@ function isAllowlistedDuringMaintenance(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAuthenticated = request.cookies.get(COOKIE_AUTH)?.value === "1";
+  const role = request.cookies.get(COOKIE_ROLE)?.value;
+  const isAdmin = role === "ADMIN";
 
   // Maintenance gate — runs BEFORE auth checks so unauthenticated visitors
-  // land on the maintenance page instead of the sign-in form.
-  if (!isAllowlistedDuringMaintenance(pathname)) {
+  // land on the maintenance page instead of the sign-in form. Admins bypass
+  // entirely so they can continue browsing and turn maintenance off.
+  if (!isAdmin && !isAllowlistedDuringMaintenance(pathname)) {
     const maintenance = await fetchMaintenance();
     if (maintenance?.enabled) {
       return NextResponse.redirect(new URL(ROUTES.MAINTENANCE, request.url));

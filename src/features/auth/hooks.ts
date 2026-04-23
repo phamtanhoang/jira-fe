@@ -1,8 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { ROUTES, COOKIE_AUTH, COOKIE_MAX_AGE_1Y } from "@/lib/constants";
+import {
+  ROUTES,
+  COOKIE_AUTH,
+  COOKIE_ROLE,
+  COOKIE_MAX_AGE_1Y,
+} from "@/lib/constants";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
 import type {
@@ -21,6 +27,15 @@ export function useCurrentUser() {
     retry: false,
   });
 
+  // Keep the role cookie in sync with server truth — cheap side-effect that
+  // lets middleware (edge) bypass maintenance redirects for admins even when
+  // the user lands from a cold browser.
+  const role = data?.role;
+  useEffect(() => {
+    if (!role) return;
+    document.cookie = `${COOKIE_ROLE}=${role};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+  }, [role]);
+
   return {
     user: data ?? null,
     isLoading,
@@ -37,6 +52,9 @@ export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
     mutationFn: (data: LoginPayload) => authApi.login(data),
     onSuccess: (result) => {
       document.cookie = `${COOKIE_AUTH}=1;path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+      if (result.user.role) {
+        document.cookie = `${COOKIE_ROLE}=${result.user.role};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+      }
       queryClient.setQueryData(["auth", "me"], result.user);
       if (onSuccess) {
         onSuccess();
@@ -155,6 +173,7 @@ export function useLogout() {
     },
     onSettled: () => {
       document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
+      document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
     },
