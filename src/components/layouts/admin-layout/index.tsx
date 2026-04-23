@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { Spinner } from "@/components/ui/spinner";
-import { AdminFooter, AdminHeader, AdminSidebar } from "./components";
+import { AdminHeader, AdminSidebar } from "./components";
 
 const STORAGE_KEY = "admin-sidebar-collapsed";
 
@@ -54,7 +54,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         <AdminHeader collapsed={collapsed} onToggleSidebar={toggle} />
         <main className="flex-1 overflow-auto">{children}</main>
-        <AdminFooter />
       </div>
     </div>
   );
