@@ -26,6 +26,7 @@ const SETTINGS_ENDPOINTS = {
   settings: SETTINGS_BASE,
   appInfo: `${SETTINGS_BASE}/app-info`,
   appAnnouncement: `${SETTINGS_BASE}/app-announcement`,
+  appMaintenance: `${SETTINGS_BASE}/app-maintenance`,
   byKey: (key: string) => `${SETTINGS_BASE}/${encodeURIComponent(key)}`,
 } as const;
 
@@ -106,11 +107,18 @@ const USERS_ENDPOINTS = {
   base: USERS_BASE,
   byId: (id: string) => `${USERS_BASE}/${id}`,
   role: (id: string) => `${USERS_BASE}/${id}/role`,
+  sessions: (id: string) => `${USERS_BASE}/${id}/sessions`,
+  sessionById: (id: string, tokenId: string) =>
+    `${USERS_BASE}/${id}/sessions/${tokenId}`,
 } as const;
 
 const ADMIN_BASE = "/admin";
 const ADMIN_ENDPOINTS = {
   stats: `${ADMIN_BASE}/stats`,
+  analytics: `${ADMIN_BASE}/analytics`,
+  metrics: `${ADMIN_BASE}/metrics`,
+  workspaces: `${ADMIN_BASE}/workspaces`,
+  workspaceById: (id: string) => `${ADMIN_BASE}/workspaces/${id}`,
 } as const;
 
 export const ENDPOINTS = {

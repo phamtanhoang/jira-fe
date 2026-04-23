@@ -54,6 +54,10 @@
       "users": "Người dùng",
       "flags": "Feature Flag",
       "announcement": "Thông báo",
+      "analytics": "Thống kê",
+      "metrics": "Hiệu năng",
+      "workspaces": "Workspace",
+      "maintenance": "Bảo trì",
       "groupOverview": "Tổng quan",
       "groupOperations": "Vận hành",
       "groupConfiguration": "Cấu hình"
@@ -127,6 +131,90 @@
       "meta": {
         "title": "Feature Flag",
         "desc": "Quản lý feature flag"
+      }
+    },
+    "analytics": {
+      "title": "Thống kê",
+      "description": "Hoạt động hằng ngày: signup, issue, workspace và request theo mức độ.",
+      "days7": "7 ngày qua",
+      "days14": "14 ngày qua",
+      "days30": "30 ngày qua",
+      "signups": "Đăng ký mới",
+      "issuesCreated": "Issue tạo mới",
+      "newWorkspaces": "Workspace mới",
+      "requestsByLevel": "Request theo mức độ",
+      "empty": "Chưa có hoạt động.",
+      "meta": {
+        "title": "Thống kê quản trị",
+        "desc": "Biểu đồ hoạt động theo ngày"
+      }
+    },
+    "metrics": {
+      "title": "Hiệu năng",
+      "description": "Top route theo lượng truy cập kèm latency và tỉ lệ lỗi.",
+      "since24h": "24 giờ qua",
+      "since72h": "3 ngày qua",
+      "since168h": "7 ngày qua",
+      "columns": {
+        "route": "Route",
+        "count": "Request",
+        "errorRate": "Tỉ lệ lỗi",
+        "p50": "p50",
+        "p95": "p95",
+        "p99": "p99"
+      },
+      "methodDistribution": "Phân bố method",
+      "statusDistribution": "Phân bố status",
+      "empty": "Không có request nào trong khoảng này.",
+      "meta": {
+        "title": "Hiệu năng",
+        "desc": "Top route và latency"
+      }
+    },
+    "workspaces": {
+      "title": "Tất cả Workspace",
+      "description": "Danh sách cross-tenant. Xóa workspace sẽ xóa luôn project, issue, sprint, comment và attachment bên trong.",
+      "columns": {
+        "workspace": "Workspace",
+        "owner": "Chủ sở hữu",
+        "members": "Thành viên",
+        "projects": "Project",
+        "created": "Tạo",
+        "actions": "Hành động"
+      },
+      "searchPlaceholder": "Tìm theo tên hoặc slug…",
+      "deleteConfirmTitle": "Xóa workspace?",
+      "deleteConfirmDesc": "Hành động này sẽ xóa vĩnh viễn \"{name}\" và mọi thứ bên trong. Không thể hoàn tác.",
+      "deleteCta": "Xóa workspace",
+      "empty": "Không có workspace nào phù hợp.",
+      "loadMore": "Tải thêm",
+      "meta": {
+        "title": "Tất cả Workspace",
+        "desc": "Quản lý workspace cross-tenant"
+      }
+    },
+    "sessions": {
+      "title": "Phiên đang hoạt động",
+      "revoke": "Thu hồi",
+      "revokeAll": "Thu hồi tất cả",
+      "revokeAllConfirm": "Thu hồi TẤT CẢ phiên của {email}? Họ sẽ buộc phải đăng nhập lại trên mọi thiết bị.",
+      "noSessions": "Không có phiên nào đang hoạt động.",
+      "created": "Tạo {date}",
+      "expires": "Hết hạn {date}"
+    },
+    "maintenance": {
+      "title": "Chế độ bảo trì",
+      "description": "Khi bật, user thường sẽ bị chuyển sang trang bảo trì cho đến khi tắt.",
+      "enabled": "Bật",
+      "messageLabel": "Nội dung",
+      "messagePlaceholder": "Hệ thống sẽ trở lại vào 21:00 UTC — cảm ơn bạn đã kiên nhẫn.",
+      "allowedEmails": "Email được phép",
+      "allowedEmailsHint": "Phân cách bằng dấu phẩy. User có email trong danh sách vẫn truy cập được khi bảo trì. Admin luôn bỏ qua.",
+      "pageTitle": "Hệ thống sẽ sớm trở lại",
+      "pageDefaultMessage": "App tạm ngưng để bảo trì theo lịch.",
+      "meta": {
+        "title": "Chế độ bảo trì",
+        "desc": "Bật/tắt bảo trì"
       }
     },
     "announcement": {
@@ -487,6 +575,9 @@
     "USER_ROLE_UPDATED": "Đã cập nhật vai trò người dùng.",
     "USER_DELETED": "Đã xóa người dùng.",
     "CANNOT_MODIFY_SELF": "Bạn không thể thao tác trên chính tài khoản của mình ở đây.",
+    "SESSION_REVOKED": "Đã thu hồi phiên.",
+    "SESSIONS_REVOKED": "Đã thu hồi toàn bộ phiên.",
+    "REFRESH_TOKEN_NOT_FOUND": "Không tìm thấy phiên.",
     "WORKSPACE_CREATED": "Tạo không gian thành công!",
     "WORKSPACE_UPDATED": "Đã cập nhật không gian.",
     "WORKSPACE_DELETED": "Đã xóa không gian.",

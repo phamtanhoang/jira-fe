@@ -61,17 +61,6 @@ export function AdminHeader({
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"
-          size="xs"
-          onClick={() => router.push(ROUTES.DASHBOARD)}
-          className="text-muted-foreground"
-        >
-          {t("admin.exit")}
-        </Button>
-
-        <Separator orientation="vertical" className="mx-1 h-5" />
-
-        <Button
-          variant="ghost"
           size="icon-xs"
           className="text-muted-foreground"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

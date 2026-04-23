@@ -2,8 +2,17 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError, showMessage } from "@/lib/utils";
-import { getPublicAnnouncement, getSetting, setSetting } from "./api";
-import type { AnnouncementValue, SettingRow } from "./types";
+import {
+  getPublicAnnouncement,
+  getPublicMaintenance,
+  getSetting,
+  setSetting,
+} from "./api";
+import type {
+  AnnouncementValue,
+  MaintenanceValue,
+  SettingRow,
+} from "./types";
 
 export function useSetting<T>(key: string) {
   return useQuery({
@@ -21,6 +30,7 @@ export function useUpdateSetting<T>(key: string) {
       queryClient.setQueryData<SettingRow<T> | null>(["settings", key], row);
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       queryClient.invalidateQueries({ queryKey: ["public-announcement"] });
+      queryClient.invalidateQueries({ queryKey: ["public-maintenance"] });
       showMessage("SETTINGS_UPDATED");
     },
     onError: handleApiError,
@@ -35,5 +45,12 @@ export function usePublicAnnouncement() {
   return useQuery({
     queryKey: ["public-announcement"],
     queryFn: () => getPublicAnnouncement<AnnouncementValue>(),
+  });
+}
+
+export function usePublicMaintenance() {
+  return useQuery({
+    queryKey: ["public-maintenance"],
+    queryFn: () => getPublicMaintenance<MaintenanceValue>(),
   });
 }

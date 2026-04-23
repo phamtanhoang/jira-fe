@@ -19,6 +19,11 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   ADMIN_FLAGS: "/admin/flags",
   ADMIN_ANNOUNCEMENT: "/admin/announcement",
+  ADMIN_ANALYTICS: "/admin/analytics",
+  ADMIN_METRICS: "/admin/metrics",
+  ADMIN_WORKSPACES: "/admin/workspaces",
+  ADMIN_MAINTENANCE: "/admin/maintenance",
+  MAINTENANCE: "/maintenance",
 } as const;
 
 export const PUBLIC_ROUTES = [

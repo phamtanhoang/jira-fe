@@ -9,15 +9,21 @@ import {
   Search,
   CheckCircle2,
   Circle,
+  ChevronDown,
+  ChevronRight,
+  Monitor,
 } from "lucide-react";
 import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
-import { cn, formatDate, getInitials } from "@/lib/utils";
+import { cn, formatDate, formatDateTime, getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import {
   useAdminUsers,
   useUpdateUserRole,
   useDeleteUser,
+  useUserSessions,
+  useRevokeSession,
+  useRevokeAllSessions,
   type AdminUser,
   type AdminUsersFilters,
   type Role,
@@ -59,6 +65,7 @@ export function AdminUsersClient() {
 
   const [filters, setFilters] = useState<AdminUsersFilters>({ take: 50 });
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data, isLoading } = useAdminUsers(filters);
   const updateRole = useUpdateUserRole();
@@ -175,6 +182,10 @@ export function AdminUsersClient() {
               key={u.id}
               user={u}
               isSelf={u.id === currentUser?.id}
+              expanded={expandedId === u.id}
+              onToggleExpand={() =>
+                setExpandedId((prev) => (prev === u.id ? null : u.id))
+              }
               onPromote={() =>
                 updateRole.mutate({
                   id: u.id,
@@ -256,12 +267,16 @@ export function AdminUsersClient() {
 function UserRow({
   user,
   isSelf,
+  expanded,
+  onToggleExpand,
   onPromote,
   onDelete,
   selfLabel,
 }: {
   user: AdminUser;
   isSelf: boolean;
+  expanded: boolean;
+  onToggleExpand: () => void;
   onPromote: () => void;
   onDelete: () => void;
   selfLabel: string;
@@ -271,8 +286,22 @@ function UserRow({
   const initials = getInitials(user.name, user.email);
 
   return (
-    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] items-center gap-2 border-b px-4 py-2.5 text-sm last:border-b-0 hover:bg-muted/30">
+    <div className="border-b last:border-b-0">
+      <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted/30">
       <div className="flex min-w-0 items-center gap-2.5">
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-expanded={expanded}
+          aria-label={t("admin.sessions.title")}
+        >
+          {expanded ? (
+            <ChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
+        </button>
         <Avatar className="h-8 w-8 shrink-0">
           {user.image ? (
             <AvatarImage src={user.image} alt={user.name ?? user.email} />
@@ -375,6 +404,97 @@ function UserRow({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+    </div>
+      {expanded && (
+        <SessionsPanel userId={user.id} userEmail={user.email} />
+      )}
+    </div>
+  );
+}
+
+function SessionsPanel({
+  userId,
+  userEmail,
+}: {
+  userId: string;
+  userEmail: string;
+}) {
+  const { t } = useAppStore();
+  const { data, isLoading } = useUserSessions(userId);
+  const revoke = useRevokeSession();
+  const revokeAll = useRevokeAllSessions();
+
+  const sessions = data?.data ?? [];
+
+  return (
+    <div className="bg-muted/20 px-4 py-3">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-[12px] font-semibold text-muted-foreground">
+          <Monitor className="h-3.5 w-3.5" />
+          {t("admin.sessions.title")}
+        </div>
+        {sessions.length > 0 && (
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={() => {
+              if (
+                window.confirm(
+                  t("admin.sessions.revokeAllConfirm", { email: userEmail }),
+                )
+              ) {
+                revokeAll.mutate(userId);
+              }
+            }}
+            disabled={revokeAll.isPending}
+          >
+            {t("admin.sessions.revokeAll")}
+          </Button>
+        )}
+      </div>
+
+      {isLoading ? (
+        <div className="flex h-16 items-center justify-center">
+          <Spinner className="h-4 w-4" />
+        </div>
+      ) : sessions.length === 0 ? (
+        <div className="py-2 text-center text-xs text-muted-foreground">
+          {t("admin.sessions.noSessions")}
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {sessions.map((s) => (
+            <div
+              key={s.id}
+              className="flex items-center justify-between rounded-md border bg-card px-3 py-1.5 text-xs"
+            >
+              <div className="flex flex-col text-[11px]">
+                <span className="text-muted-foreground">
+                  {t("admin.sessions.created", {
+                    date: formatDateTime(s.createdAt),
+                  })}
+                </span>
+                <span className="text-muted-foreground/70">
+                  {t("admin.sessions.expires", {
+                    date: formatDateTime(s.expiresAt),
+                  })}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() =>
+                  revoke.mutate({ userId, tokenId: s.id })
+                }
+                disabled={revoke.isPending}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                {t("admin.sessions.revoke")}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

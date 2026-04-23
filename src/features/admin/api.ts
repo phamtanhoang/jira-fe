@@ -39,3 +39,12 @@ export async function getPublicAnnouncement<T>(): Promise<T | null> {
   const res = await api.get<T | null>(ENDPOINTS.settings.appAnnouncement);
   return res.data ?? null;
 }
+
+/**
+ * Public endpoint — anyone can read maintenance state (needed by middleware
+ * before the user is authenticated). Returns `null` when unset.
+ */
+export async function getPublicMaintenance<T>(): Promise<T | null> {
+  const res = await api.get<T | null>(ENDPOINTS.settings.appMaintenance);
+  return res.data ?? null;
+}

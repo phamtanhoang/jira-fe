@@ -54,6 +54,10 @@
       "users": "Users",
       "flags": "Feature Flags",
       "announcement": "Announcement",
+      "analytics": "Analytics",
+      "metrics": "Metrics",
+      "workspaces": "Workspaces",
+      "maintenance": "Maintenance",
       "groupOverview": "Overview",
       "groupOperations": "Operations",
       "groupConfiguration": "Configuration"
@@ -127,6 +131,90 @@
       "meta": {
         "title": "Feature Flags",
         "desc": "Admin feature flag management"
+      }
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Daily activity across signups, issues, workspaces, and request levels.",
+      "days7": "Last 7 days",
+      "days14": "Last 14 days",
+      "days30": "Last 30 days",
+      "signups": "User signups",
+      "issuesCreated": "Issues created",
+      "newWorkspaces": "New workspaces",
+      "requestsByLevel": "Requests by level",
+      "empty": "No activity yet.",
+      "meta": {
+        "title": "Admin Analytics",
+        "desc": "Daily time-series of app activity"
+      }
+    },
+    "metrics": {
+      "title": "Performance Metrics",
+      "description": "Top routes by volume with latency percentiles and error rate.",
+      "since24h": "Last 24 hours",
+      "since72h": "Last 3 days",
+      "since168h": "Last 7 days",
+      "columns": {
+        "route": "Route",
+        "count": "Requests",
+        "errorRate": "Error rate",
+        "p50": "p50",
+        "p95": "p95",
+        "p99": "p99"
+      },
+      "methodDistribution": "Method distribution",
+      "statusDistribution": "Status distribution",
+      "empty": "No request logs in this window.",
+      "meta": {
+        "title": "Performance Metrics",
+        "desc": "Top routes and latency"
+      }
+    },
+    "workspaces": {
+      "title": "All Workspaces",
+      "description": "Cross-tenant list. Deleting a workspace cascades to its projects, issues, sprints, comments, and attachments.",
+      "columns": {
+        "workspace": "Workspace",
+        "owner": "Owner",
+        "members": "Members",
+        "projects": "Projects",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "searchPlaceholder": "Search by name or slug…",
+      "deleteConfirmTitle": "Delete workspace?",
+      "deleteConfirmDesc": "This will permanently delete \"{name}\" and everything inside it. This action cannot be undone.",
+      "deleteCta": "Delete workspace",
+      "empty": "No workspaces match the current filters.",
+      "loadMore": "Load more",
+      "meta": {
+        "title": "All Workspaces",
+        "desc": "Admin workspace management"
+      }
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "revoke": "Revoke",
+      "revokeAll": "Revoke all",
+      "revokeAllConfirm": "Revoke ALL sessions for {email}? They will be forced to sign in again on every device.",
+      "noSessions": "No active sessions.",
+      "created": "Created {date}",
+      "expires": "Expires {date}"
+    },
+    "maintenance": {
+      "title": "Maintenance Mode",
+      "description": "When enabled, non-admin users are redirected to a maintenance page until you turn it off.",
+      "enabled": "Enabled",
+      "messageLabel": "Message",
+      "messagePlaceholder": "We'll be back at 21:00 UTC — thanks for your patience.",
+      "allowedEmails": "Allowed emails",
+      "allowedEmailsHint": "Comma-separated. Listed users keep full access while maintenance is on. Admins always bypass.",
+      "pageTitle": "We'll be right back",
+      "pageDefaultMessage": "The app is temporarily unavailable for scheduled maintenance.",
+      "meta": {
+        "title": "Maintenance Mode",
+        "desc": "Admin maintenance toggle"
       }
     },
     "announcement": {
@@ -487,6 +575,9 @@
     "USER_ROLE_UPDATED": "User role updated.",
     "USER_DELETED": "User deleted.",
     "CANNOT_MODIFY_SELF": "You cannot modify your own account here.",
+    "SESSION_REVOKED": "Session revoked.",
+    "SESSIONS_REVOKED": "All sessions revoked.",
+    "REFRESH_TOKEN_NOT_FOUND": "Session not found.",
     "WORKSPACE_CREATED": "Workspace created successfully!",
     "WORKSPACE_UPDATED": "Workspace updated.",
     "WORKSPACE_DELETED": "Workspace deleted.",
