@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Toggle } from "@/components/ui/toggle";
 import {
   Select,
   SelectContent,
@@ -119,22 +120,12 @@ function AnnouncementForm({
     <div className="space-y-4">
       {/* Enabled toggle */}
       <label className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setForm((f) => ({ ...f, enabled: !f.enabled }))}
-          className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-            form.enabled
-              ? "bg-emerald-500"
-              : "bg-muted-foreground/20 dark:bg-muted-foreground/30"
-          }`}
-          aria-pressed={form.enabled}
-        >
-          <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-              form.enabled ? "translate-x-4" : "translate-x-0.5"
-            }`}
-          />
-        </button>
+        <Toggle
+          checked={form.enabled}
+          onChange={() => setForm((f) => ({ ...f, enabled: !f.enabled }))}
+          variant="success"
+          ariaLabel={t("admin.announcement.enabled")}
+        />
         <span className="text-sm font-medium">
           {t("admin.announcement.enabled")}
         </span>

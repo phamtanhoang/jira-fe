@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Toggle } from "@/components/ui/toggle";
 import {
   Card,
   CardContent,
@@ -109,22 +110,12 @@ function MaintenanceForm({
     <div className="space-y-4">
       {/* Enabled */}
       <label className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setEnabled((v) => !v)}
-          className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-            enabled
-              ? "bg-red-500"
-              : "bg-muted-foreground/20 dark:bg-muted-foreground/30"
-          }`}
-          aria-pressed={enabled}
-        >
-          <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-              enabled ? "translate-x-4" : "translate-x-0.5"
-            }`}
-          />
-        </button>
+        <Toggle
+          checked={enabled}
+          onChange={() => setEnabled((v) => !v)}
+          variant="danger"
+          ariaLabel={t("admin.maintenance.enabled")}
+        />
         <span className="text-sm font-medium">
           {t("admin.maintenance.enabled")}
         </span>

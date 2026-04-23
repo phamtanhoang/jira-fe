@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Toggle } from "@/components/ui/toggle";
 import {
   Card,
   CardContent,
@@ -134,23 +135,13 @@ export function AdminFlagsClient() {
                   <div className="flex-1 min-w-0">
                     <div className="font-mono text-[13px]">{key}</div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => toggle(key)}
+                  <Toggle
+                    checked={enabled}
+                    onChange={() => toggle(key)}
                     disabled={update.isPending}
-                    className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                      enabled
-                        ? "bg-emerald-500"
-                        : "bg-muted-foreground/20 dark:bg-muted-foreground/30"
-                    }`}
-                    aria-pressed={enabled}
-                  >
-                    <span
-                      className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                        enabled ? "translate-x-4" : "translate-x-0.5"
-                      }`}
-                    />
-                  </button>
+                    variant="success"
+                    ariaLabel={key}
+                  />
                   <Button
                     variant="ghost"
                     size="icon-xs"
