@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { ROUTES, ENDPOINTS, COOKIE_AUTH } from "@/lib/constants";
+import { pushBreadcrumb, reportError } from "@/lib/logging";
 import { handleApiError } from "@/lib/utils";
 
 export const api = axios.create({
@@ -8,10 +9,19 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// ─── Send timezone header ──────────────────────────────
+// ─── Send timezone header + breadcrumb ──────────────────────
 api.interceptors.request.use((config) => {
   config.headers["x-timezone"] =
     Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Don't breadcrumb log traffic on itself
+  if (!config.url?.includes(ENDPOINTS.logs.client)) {
+    pushBreadcrumb({
+      type: "api",
+      message: `${(config.method ?? "get").toUpperCase()} ${config.url ?? ""}`,
+      data: { method: config.method, url: config.url },
+    });
+  }
   return config;
 });
 
@@ -29,10 +39,28 @@ function processQueue(error: unknown) {
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    // Don't log or refresh the log-ingestion endpoint itself
+    const isLogEndpoint = originalRequest?.url?.includes(
+      ENDPOINTS.logs.client,
+    );
+
+    const status = error.response?.status;
+
+    if (status !== 401 || !originalRequest || originalRequest._retry) {
+      // Not a 401 we can retry — report and reject
+      if (!isLogEndpoint) {
+        reportError(error, {
+          url: originalRequest?.url,
+          method: originalRequest?.method?.toUpperCase(),
+          statusCode: status,
+          level: status && status >= 500 ? "ERROR" : "WARN",
+        });
+      }
       return Promise.reject(error);
     }
 

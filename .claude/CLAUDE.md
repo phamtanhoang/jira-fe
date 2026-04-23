@@ -24,38 +24,53 @@ npm run lint      # ESLint
 ```
 src/
 ├── app/
-│   ├── layout.tsx              # Root: ThemeProvider → AppProvider → QueryProvider → Toaster
+│   ├── layout.tsx              # Root: ThemeProvider → AppProvider → LoggingProvider → QueryProvider → Toaster
 │   ├── (auth)/                 # Public routes: sign-in, sign-up, verify-email, forgot/reset-password
-│   └── (main)/                 # Protected routes: dashboard, workspaces, issues, profile
+│   └── (main)/                 # Protected routes: dashboard, workspaces, issues, profile, admin/logs
 │       └── {page}/
 │           ├── page.tsx        # Server component — generateMetadata + re-export client
 │           └── client.tsx      # "use client" — actual UI
 ├── components/
 │   ├── layouts/
 │   │   ├── auth-layout/        # AuthLayout → components/ (header, footer)
-│   │   └── main-layout/        # MainLayout → components/ (header, sidebar)
+│   │   └── main-layout/        # MainLayout → components/ (header, sidebar — admin sees "Request Logs" link)
 │   ├── shared/                 # locale-switcher, rich-editor (Tiptap — RichEditor + RichContent)
-│   ├── providers/              # AppProvider (zustand init), QueryProvider (staleTime 60s, retry 1)
+│   ├── providers/              # AppProvider (zustand init), QueryProvider (staleTime 60s, retry 1), LoggingProvider (nav + click breadcrumbs)
 │   └── ui/                     # 18 shadcn components: avatar, badge, button, card, dialog, dropdown-menu, form, input, label, scroll-area, select, separator, sheet, skeleton, spinner, tabs, textarea, tooltip
 ├── features/
-│   ├── auth/                   # api.ts, hooks.ts, types.ts, schemas.ts, components/ (5 form components)
+│   ├── auth/                   # api.ts, hooks.ts, types.ts (AuthUser has optional role: "USER"|"ADMIN"), schemas.ts, components/
 │   ├── projects/               # api.ts, types.ts, hooks/ (7 domain-split files), components/ (12 components)
-│   └── workspaces/             # api.ts, hooks.ts, types.ts, components/ (2 components)
+│   ├── workspaces/             # api.ts, hooks.ts, types.ts, components/ (2 components)
+│   └── logs/                   # Admin-only. api.ts, hooks.ts, types.ts, components/ (logs-table, logs-filters, log-detail-sheet)
 ├── lib/
-│   ├── api/client.ts           # Axios: baseURL="/api", withCredentials, x-timezone header, 401 auto-refresh with queue
+│   ├── api/client.ts           # Axios: baseURL="/api", withCredentials, x-timezone header, 401 auto-refresh, breadcrumb + error reporting
 │   ├── config/i18n.ts          # locales: ["vi","en"], defaultLocale: "vi", t(locale, key, vars?)
-│   ├── constants/              # routes, endpoints, settings (COOKIE_AUTH, COOKIE_LOCALE), issue-config, validation
-│   ├── stores/                 # Zustand: SettingsSlice (name, logoUrl, etc) + LocaleSlice (locale, setLocale, t)
+│   ├── constants/              # routes, endpoints, settings, issue-config, validation
+│   ├── logging/                # breadcrumbs.ts (ring buffer 50), report.ts (bare axios → /logs/client + Sentry), types.ts
+│   ├── stores/                 # Zustand: SettingsSlice + LocaleSlice
 │   └── utils/                  # cn(), getInitials(), formatDate/Short/Time(), toggleArrayItem(), showMessage(), handleApiError()
-├── messages/                   # vi.json (~320 keys), en.json (~320 keys)
+├── messages/                   # vi.json + en.json — 30+ admin.logs.* keys added for admin logs UI
 └── middleware.ts               # Checks COOKIE_AUTH cookie → redirect public↔protected routes
 ```
+
+### Root files (Sentry instrumentation)
+- `instrumentation.ts` — Node/edge runtime init
+- `instrumentation-client.ts` — browser init
+Both no-op when `NEXT_PUBLIC_SENTRY_DSN` missing.
 
 ## API Communication
 - Axios on `/api/*` → Next.js rewrite → backend (NEXT_PUBLIC_API_URL)
 - Every request gets x-timezone header (Intl.DateTimeFormat)
+- Every request pushes a breadcrumb (method + url); skipped for `/logs/client` to avoid recursion
 - 401 responses trigger auto-refresh: queue failed requests, refresh once, replay all
+- Non-401 errors call `reportError()` → Sentry + POST /logs/client with breadcrumbs attached
 - Auth state: COOKIE_AUTH="1" cookie (set by FE login hook, checked by middleware)
+
+## Observability
+- `LoggingProvider` captures navigation (via `usePathname`) and global clicks (capture phase) → pushes to in-memory breadcrumb buffer (cap 50)
+- On any unrecoverable API error OR React error boundary catch → `reportError()` sends to Sentry + `/api/logs/client`
+- Breadcrumbs are a plain module-level array — NOT zustand. They never trigger re-renders and are not persisted
+- Sentry disabled automatically when `NEXT_PUBLIC_SENTRY_DSN` is missing — safe for dev
 
 ## i18n
 - Vietnamese (default) + English
@@ -76,3 +91,7 @@ src/
 - Hooks: ALWAYS use `queryClient` (not `qc`) for useQueryClient() variable name
 - UNASSIGNED_VALUE ("__none__") for unassigned select — NEVER hardcode the string
 - Rich text: description + comments use Tiptap (RichEditor/RichContent from @/components/shared/rich-editor). HTML stored in DB. Use `minimal` prop for comments (no headings/image)
+- Logging: call `reportError()` from `@/lib/logging` ONLY for unexpected failures. Expected validation errors use `handleApiError()` (toast only, no backend log)
+- Logging: NEVER import from `@/lib/logging/report` inside the axios `api` client interceptor without using the bare `logClient` — recursion will crash the tab
+- Logging: do NOT capture `<input>` values in breadcrumbs — leak risk. `LoggingProvider` intentionally reads `textContent` only, not values
+- Admin routes: `src/app/(main)/admin/*` must check `user.role === "ADMIN"` in client.tsx AND hide the nav link in sidebar — BE enforces via `@Roles(Role.ADMIN)` regardless, but UX should not expose links to non-admins

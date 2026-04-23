@@ -40,7 +40,54 @@
     "workspaces": "Workspaces",
     "settings": "Settings",
     "logout": "Logout",
-    "newWorkspace": "New workspace"
+    "newWorkspace": "New workspace",
+    "adminLogs": "Request Logs"
+  },
+  "admin": {
+    "logs": {
+      "title": "Request Logs",
+      "description": "Inspect backend and frontend errors with user context, payload, and breadcrumbs.",
+      "empty": "No logs match the current filters.",
+      "loadMore": "Load more",
+      "meta": {
+        "title": "Request Logs",
+        "desc": "Admin view for errors and traffic"
+      },
+      "columns": {
+        "time": "Time",
+        "level": "Level",
+        "method": "Method",
+        "url": "URL",
+        "status": "Status",
+        "user": "User",
+        "duration": "Duration"
+      },
+      "filters": {
+        "searchPlaceholder": "Search URL…",
+        "emailPlaceholder": "User email…",
+        "level": "Level",
+        "method": "Method",
+        "statusCode": "Status"
+      },
+      "detail": {
+        "title": "Log detail",
+        "level": "Level",
+        "status": "Status",
+        "time": "Time",
+        "duration": "Duration",
+        "user": "User",
+        "ip": "IP",
+        "source": "Source",
+        "route": "Route",
+        "errorMessage": "Error message",
+        "stackTrace": "Stack trace",
+        "requestBody": "Request body",
+        "requestQuery": "Request query",
+        "responseBody": "Response body",
+        "breadcrumbs": "Breadcrumbs",
+        "userAgent": "User agent"
+      }
+    }
   },
   "common": {
     "save": "Save",

@@ -8,6 +8,7 @@ const ISSUES_BASE = "/issues";
 const LABELS_BASE = "/labels";
 const COMMENTS_BASE = "/comments";
 const WORKLOGS_BASE = "/worklogs";
+const LOGS_BASE = "/logs";
 
 const AUTH_ENDPOINTS = {
   auth: AUTH_BASE,
@@ -92,6 +93,12 @@ const WORKLOGS_ENDPOINTS = {
   byId: (id: string) => `${WORKLOGS_BASE}/${id}`,
 } as const;
 
+const LOGS_ENDPOINTS = {
+  base: LOGS_BASE,
+  byId: (id: string) => `${LOGS_BASE}/${id}`,
+  client: `${LOGS_BASE}/client`,
+} as const;
+
 export const ENDPOINTS = {
   auth: AUTH_ENDPOINTS,
   settings: SETTINGS_ENDPOINTS,
@@ -104,4 +111,5 @@ export const ENDPOINTS = {
   attachments: ATTACHMENTS_ENDPOINTS,
   comments: COMMENTS_ENDPOINTS,
   worklogs: WORKLOGS_ENDPOINTS,
+  logs: LOGS_ENDPOINTS,
 } as const;

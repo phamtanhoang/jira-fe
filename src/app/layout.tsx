@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import { AppProvider } from "@/components/providers/app-provider";
+import { LoggingProvider } from "@/components/providers/logging-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
 import { COOKIE_LOCALE } from "@/lib/constants";
@@ -41,8 +42,10 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AppProvider initialLocale={locale} initialSettings={appSettings}>
-            <QueryProvider>{children}</QueryProvider>
-            <Toaster position="top-right" richColors closeButton />
+            <LoggingProvider>
+              <QueryProvider>{children}</QueryProvider>
+              <Toaster position="top-right" richColors closeButton />
+            </LoggingProvider>
           </AppProvider>
         </ThemeProvider>
       </body>

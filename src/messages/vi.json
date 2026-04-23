@@ -40,7 +40,54 @@
     "workspaces": "Không gian làm việc",
     "settings": "Cài đặt",
     "logout": "Đăng xuất",
-    "newWorkspace": "Tạo không gian"
+    "newWorkspace": "Tạo không gian",
+    "adminLogs": "Nhật ký request"
+  },
+  "admin": {
+    "logs": {
+      "title": "Nhật ký request",
+      "description": "Xem lỗi backend và frontend kèm user, payload và breadcrumbs.",
+      "empty": "Không có log nào phù hợp.",
+      "loadMore": "Tải thêm",
+      "meta": {
+        "title": "Nhật ký request",
+        "desc": "Trang admin để xem lỗi và traffic"
+      },
+      "columns": {
+        "time": "Thời gian",
+        "level": "Mức độ",
+        "method": "Method",
+        "url": "URL",
+        "status": "Status",
+        "user": "User",
+        "duration": "Thời lượng"
+      },
+      "filters": {
+        "searchPlaceholder": "Tìm theo URL…",
+        "emailPlaceholder": "Email user…",
+        "level": "Mức độ",
+        "method": "Method",
+        "statusCode": "Status"
+      },
+      "detail": {
+        "title": "Chi tiết log",
+        "level": "Mức độ",
+        "status": "Status",
+        "time": "Thời gian",
+        "duration": "Thời lượng",
+        "user": "User",
+        "ip": "IP",
+        "source": "Nguồn",
+        "route": "Route",
+        "errorMessage": "Thông điệp lỗi",
+        "stackTrace": "Stack trace",
+        "requestBody": "Request body",
+        "requestQuery": "Request query",
+        "responseBody": "Response body",
+        "breadcrumbs": "Breadcrumbs",
+        "userAgent": "User agent"
+      }
+    }
   },
   "common": {
     "save": "Lưu",

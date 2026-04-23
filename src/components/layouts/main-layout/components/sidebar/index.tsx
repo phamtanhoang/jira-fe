@@ -7,10 +7,12 @@ import {
   FolderKanban,
   Plus,
   PanelLeftClose,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { useCurrentUser } from "@/features/auth/hooks";
 import { useWorkspaces } from "@/features/workspaces/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -25,10 +27,14 @@ export function Sidebar({
   const pathname = usePathname();
   const { name: appName, logoUrl, authorName, authorUrl, t } = useAppStore();
   const { data: workspaces } = useWorkspaces();
+  const { user } = useCurrentUser();
 
   const navItems = [
     { href: ROUTES.DASHBOARD, label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: ROUTES.WORKSPACES, label: t("nav.workspaces"), icon: FolderKanban },
+    ...(user?.role === "ADMIN"
+      ? [{ href: ROUTES.ADMIN_LOGS, label: t("nav.adminLogs"), icon: ScrollText }]
+      : []),
   ];
 
   if (collapsed) return null;
