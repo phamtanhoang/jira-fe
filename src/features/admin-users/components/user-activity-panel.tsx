@@ -101,9 +101,9 @@ export function UserActivityPanel() {
             ) : topUsers.length === 0 ? (
               <Empty />
             ) : (
-              topUsers.map((u) => (
+              topUsers.map((u, idx) => (
                 <div
-                  key={u.userId ?? u.userEmail ?? Math.random()}
+                  key={u.userId ?? u.userEmail ?? `row-${idx}`}
                   className="flex items-center gap-3 border-b px-4 py-2 text-[12px] last:border-b-0"
                 >
                   <span className="min-w-0 flex-1 truncate">
