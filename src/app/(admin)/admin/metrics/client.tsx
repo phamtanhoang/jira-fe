@@ -20,6 +20,7 @@ import { LogDetailSheet } from "@/features/logs/components";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import {
   Card,
   CardContent,
@@ -277,7 +278,8 @@ export function AdminMetricsClient() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="grid grid-cols-[auto_2fr_auto_auto_1.4fr_1.4fr] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {/* Fixed-width grid so columns align regardless of URL/email length. */}
+          <div className="grid grid-cols-[70px_minmax(0,2fr)_70px_90px_minmax(0,1.4fr)_minmax(0,1.2fr)] items-center gap-3 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             <span>{t("admin.metrics.columns.method")}</span>
             <span>{t("admin.metrics.columns.url")}</span>
             <span className="text-right">
@@ -303,12 +305,15 @@ export function AdminMetricsClient() {
                 key={r.id}
                 type="button"
                 onClick={() => setSelectedId(r.id)}
-                className="grid w-full grid-cols-[auto_2fr_auto_auto_1.4fr_1.4fr] items-center gap-2 border-b px-4 py-2 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
+                className="grid w-full grid-cols-[70px_minmax(0,2fr)_70px_90px_minmax(0,1.4fr)_minmax(0,1.2fr)] items-center gap-3 border-b px-4 py-2 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
               >
                 <span className="font-mono text-[11px] text-muted-foreground">
                   {r.method}
                 </span>
-                <span className="truncate font-mono text-[12px]">{r.url}</span>
+                <TruncatedText
+                  text={r.url}
+                  className="font-mono text-[12px]"
+                />
                 <span className="text-right tabular-nums">
                   <Badge
                     variant="outline"
@@ -327,12 +332,15 @@ export function AdminMetricsClient() {
                 <span className="text-right tabular-nums font-semibold">
                   {r.durationMs}ms
                 </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {r.userEmail ?? "-"}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {formatDateTime(r.createdAt)}
-                </span>
+                <TruncatedText
+                  text={r.userEmail}
+                  fallback="-"
+                  className="text-xs text-muted-foreground"
+                />
+                <TruncatedText
+                  text={formatDateTime(r.createdAt)}
+                  className="text-xs text-muted-foreground"
+                />
               </button>
             ))
           )}

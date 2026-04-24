@@ -189,7 +189,7 @@ export function UserActivityPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="grid grid-cols-[auto_auto_1.5fr_2fr_1fr] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="grid grid-cols-[70px_70px_minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             <span>{t("admin.logs.columns.method")}</span>
             <span>{t("admin.logs.columns.status")}</span>
             <span>{t("admin.logs.columns.user")}</span>
@@ -210,7 +210,7 @@ export function UserActivityPanel() {
               return (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[auto_auto_1.5fr_2fr_1fr] items-center gap-2 border-b px-4 py-2 text-sm last:border-b-0 hover:bg-muted/30"
+                  className="grid grid-cols-[70px_70px_minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0 hover:bg-muted/30"
                 >
                   <span className="shrink-0 rounded bg-muted px-1.5 py-px font-mono text-[10px] text-muted-foreground">
                     {r.method}
@@ -233,9 +233,10 @@ export function UserActivityPanel() {
                     text={r.url}
                     className="font-mono text-[11px] text-muted-foreground"
                   />
-                  <span className="truncate text-[11px] text-muted-foreground">
-                    {formatDateTime(r.createdAt)}
-                  </span>
+                  <TruncatedText
+                    text={formatDateTime(r.createdAt)}
+                    className="text-[11px] text-muted-foreground"
+                  />
                 </div>
               );
             })

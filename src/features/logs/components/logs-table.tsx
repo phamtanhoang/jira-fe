@@ -44,7 +44,19 @@ export function LogsTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full text-[12px]">
+      {/* `table-fixed` + <colgroup> → columns stop jumping around based on
+          cell content. Explicit widths keep the grid straight even when URLs
+          / emails vary wildly. */}
+      <table className="w-full table-fixed text-[12px]">
+        <colgroup>
+          <col className="w-[140px]" />
+          <col className="w-[72px]" />
+          <col className="w-[72px]" />
+          <col />
+          <col className="w-[72px]" />
+          <col className="w-[200px]" />
+          <col className="w-[96px]" />
+        </colgroup>
         <thead className="bg-muted/50 text-muted-foreground">
           <tr>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.time")}</th>
@@ -79,12 +91,16 @@ const LogRow = memo(function LogRow({
       onClick={() => onClick(log.id)}
       className="cursor-pointer border-t transition-colors hover:bg-muted/50"
     >
-      <td className="px-3 py-2 whitespace-nowrap">{formatDateTime(log.createdAt)}</td>
+      <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
+        <TruncatedText text={formatDateTime(log.createdAt)} />
+      </td>
       <td className="px-3 py-2">
         <Badge className={LEVEL_BADGE[log.level]}>{log.level}</Badge>
       </td>
-      <td className="px-3 py-2 font-mono">{log.method}</td>
-      <td className="px-3 py-2 max-w-[320px] font-mono">
+      <td className="px-3 py-2 font-mono">
+        <TruncatedText text={log.method} />
+      </td>
+      <td className="px-3 py-2 font-mono">
         <TruncatedText text={log.url} />
       </td>
       <td className="px-3 py-2">
@@ -92,10 +108,10 @@ const LogRow = memo(function LogRow({
           <Badge className={statusBadgeClass(log.statusCode)}>{log.statusCode}</Badge>
         )}
       </td>
-      <td className="px-3 py-2 max-w-[180px]">
+      <td className="px-3 py-2">
         <TruncatedText text={log.userEmail} fallback="-" />
       </td>
-      <td className="px-3 py-2 text-right text-muted-foreground">
+      <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
         {log.durationMs != null ? `${log.durationMs}ms` : "-"}
       </td>
     </tr>
