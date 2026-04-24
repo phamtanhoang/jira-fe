@@ -114,11 +114,43 @@ function processQueue(error: unknown) {
   failedQueue = [];
 }
 
+// ─── 429 auto-retry (GET only) ──────────────────────────────
+//
+// On Too Many Requests we want to be forgiving: the user legitimately needs
+// to read data, and the backoff is usually small. We honour the server's
+// `Retry-After` header when present, and fall back to exponential backoff
+// [1s, 2s, 4s] otherwise. Capped at 3 retries.
+//
+// Only GET is retried — POST/PATCH/DELETE may not be idempotent, so we
+// reject immediately and let the UI show the toast.
+
+const TOO_MANY_REQUESTS_BACKOFF_MS = [1000, 2000, 4000] as const;
+const MAX_429_RETRIES = TOO_MANY_REQUESTS_BACKOFF_MS.length;
+
+function parseRetryAfterMs(header: unknown): number | null {
+  if (typeof header !== "string") return null;
+  const seconds = Number(header);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+  const date = Date.parse(header);
+  if (!Number.isNaN(date)) {
+    const diff = date - Date.now();
+    return diff > 0 ? diff : 0;
+  }
+  return null;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as
-      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | (InternalAxiosRequestConfig & {
+          _retry?: boolean;
+          _retry429Count?: number;
+        })
       | undefined;
 
     // Don't log or refresh the log-ingestion endpoint itself
@@ -137,6 +169,28 @@ api.interceptors.response.use(
     if (status === 401 && isRefreshEndpoint) {
       processQueue(error);
       clearSessionAndRedirect();
+      return Promise.reject(error);
+    }
+
+    // 429: auto-retry GETs with Retry-After / exponential backoff.
+    if (status === 429 && originalRequest) {
+      const method = (originalRequest.method ?? "get").toLowerCase();
+      const retries = originalRequest._retry429Count ?? 0;
+      if (method === "get" && retries < MAX_429_RETRIES) {
+        const serverHint = parseRetryAfterMs(error.response?.headers["retry-after"]);
+        const backoff = serverHint ?? TOO_MANY_REQUESTS_BACKOFF_MS[retries];
+        originalRequest._retry429Count = retries + 1;
+        await sleep(backoff);
+        return api(originalRequest);
+      }
+      // POST/PATCH/DELETE or exhausted retries — let the caller handle it.
+      // Rewrite the error payload so handleApiError shows the friendly key.
+      if (error.response) {
+        (error.response.data as { message?: string } | undefined) = {
+          ...(error.response.data as object | undefined),
+          message: "TOO_MANY_REQUESTS",
+        };
+      }
       return Promise.reject(error);
     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,7 +8,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsIssuePending } from "../hooks";
 import type { Issue } from "../types";
 
-export function IssueCard({
+// Boards render 100+ cards. Memo avoids re-rendering all cards when one
+// card's local state (drag) or a sibling's mutation changes. Props are
+// already stable — `issue` is referentially stable from React Query cache,
+// and consumers must pass a stable `onClick` (useCallback).
+export const IssueCard = memo(function IssueCard({
   issue,
   onClick,
 }: {
@@ -98,4 +102,4 @@ export function IssueCard({
       </div>
     </div>
   );
-}
+});

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { handleApiError } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { issuesApi } from "../api";
 
 export function useActivity(issueId: string) {
@@ -20,40 +20,34 @@ export function useWorklogs(issueId: string) {
   });
 }
 
-export function useAddWorklog(issueId: string) {
-  const queryClient = useQueryClient();
+const worklogsKey = (issueId: string) => ["worklogs", issueId];
 
-  return useMutation({
-    mutationFn: (data: { timeSpent: number; startedAt: string; description?: string }) =>
+export function useAddWorklog(issueId: string) {
+  return useInvalidatingMutation(
+    (data: { timeSpent: number; startedAt: string; description?: string }) =>
       issuesApi.addWorklog(issueId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worklogs", issueId] });
-    },
-    onError: handleApiError,
-  });
+    worklogsKey(issueId),
+  );
 }
 
 export function useUpdateWorklog(issueId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ worklogId, ...data }: { worklogId: string; timeSpent?: number; startedAt?: string; description?: string }) =>
-      issuesApi.updateWorklog(worklogId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worklogs", issueId] });
+  return useInvalidatingMutation(
+    (vars: {
+      worklogId: string;
+      timeSpent?: number;
+      startedAt?: string;
+      description?: string;
+    }) => {
+      const { worklogId, ...data } = vars;
+      return issuesApi.updateWorklog(worklogId, data);
     },
-    onError: handleApiError,
-  });
+    worklogsKey(issueId),
+  );
 }
 
 export function useDeleteWorklog(issueId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (worklogId: string) => issuesApi.deleteWorklog(worklogId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["worklogs", issueId] });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (worklogId: string) => issuesApi.deleteWorklog(worklogId),
+    worklogsKey(issueId),
+  );
 }

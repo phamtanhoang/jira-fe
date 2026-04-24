@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_BADGE_COLORS, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { cn, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,7 +9,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsIssuePending } from "../hooks";
 import type { Issue } from "../types";
 
-export function IssueRow({
+// Backlog renders 50+ rows. Memo keeps re-renders local to the changed row.
+export const IssueRow = memo(function IssueRow({
   issue,
   onClick,
 }: {
@@ -99,4 +101,4 @@ export function IssueRow({
       )}
     </div>
   );
-}
+});

@@ -9,6 +9,7 @@ import { useMyDashboard } from "../hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Issue } from "../types";
 
 export function MyWorkWidget() {
@@ -32,12 +33,12 @@ export function MyWorkWidget() {
   if (assigned.length === 0) {
     return (
       <Card>
-        <CardContent className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-          <CheckCircle2 className="h-8 w-8 text-emerald-500/70" />
-          <p className="text-[13px] font-medium">{t("myWork.emptyTitle")}</p>
-          <p className="text-[11px] text-muted-foreground">
-            {t("myWork.emptyHint")}
-          </p>
+        <CardContent className="p-0">
+          <EmptyState
+            icon={CheckCircle2}
+            title={t("myWork.emptyTitle")}
+            description={t("myWork.emptyHint")}
+          />
         </CardContent>
       </Card>
     );

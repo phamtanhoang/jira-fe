@@ -9,6 +9,7 @@ import {
   COOKIE_ROLE,
   COOKIE_MAX_AGE_1Y,
 } from "@/lib/constants";
+import { STALE_AUTH_USER } from "@/lib/constants/query-stale";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
 import type {
@@ -25,6 +26,11 @@ export function useCurrentUser() {
     queryKey: ["auth", "me"],
     queryFn: () => authApi.me(),
     retry: false,
+    // Mounted on every layout + header + sidebar + many page components.
+    // Without a long staleTime each page nav after 60s would refetch;
+    // identity rarely changes during a session, so 5 minutes is safe.
+    staleTime: STALE_AUTH_USER,
+    refetchOnWindowFocus: false,
   });
 
   // Keep the role cookie in sync with server truth — cheap side-effect that

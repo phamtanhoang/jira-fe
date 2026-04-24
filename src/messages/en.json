@@ -748,6 +748,7 @@
     "SETTING_NOT_FOUND": "Setting not found.",
     "APP_INFO_NOT_FOUND": "Application info not found.",
     "INTERNAL_SERVER_ERROR": "Something went wrong. Please try again later.",
+    "TOO_MANY_REQUESTS": "You're going too fast — please wait a moment and retry.",
     "UNKNOWN_ERROR": "An unexpected error occurred."
   },
   "validation": {

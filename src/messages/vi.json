@@ -748,6 +748,7 @@
     "SETTING_NOT_FOUND": "Không tìm thấy cài đặt.",
     "APP_INFO_NOT_FOUND": "Không tìm thấy thông tin ứng dụng.",
     "INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau.",
+    "TOO_MANY_REQUESTS": "Đang thao tác quá nhanh, vui lòng chờ vài giây rồi thử lại.",
     "UNKNOWN_ERROR": "Đã xảy ra lỗi không mong muốn."
   },
   "validation": {

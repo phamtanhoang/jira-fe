@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserActivity } from "../hooks";
 import type { UserActivityTopUser, UserActivityTopRoute } from "../types";
@@ -274,9 +275,5 @@ function StatTile({
 
 function Empty() {
   const { t } = useAppStore();
-  return (
-    <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-      {t("admin.logs.empty")}
-    </div>
-  );
+  return <EmptyState compact description={t("admin.logs.empty")} />;
 }

@@ -9,6 +9,7 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 import { isEqual } from "lodash";
+import { STALE_DASHBOARD_WIDGET } from "@/lib/constants/query-stale";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { issuesApi } from "../api";
 import type { Board, CreateIssuePayload, Issue, MoveIssuePayload } from "../types";
@@ -63,7 +64,7 @@ export function useMyDashboard() {
   return useQuery({
     queryKey: ["issues", "me", "dashboard"],
     queryFn: () => issuesApi.myDashboard(),
-    staleTime: 30_000,
+    staleTime: STALE_DASHBOARD_WIDGET,
   });
 }
 

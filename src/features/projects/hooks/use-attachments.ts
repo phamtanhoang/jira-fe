@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { issuesApi } from "../api";
 
 export function useAttachments(issueId: string) {
@@ -12,27 +12,19 @@ export function useAttachments(issueId: string) {
   });
 }
 
-export function useUploadAttachments(issueId: string) {
-  const queryClient = useQueryClient();
+const attachmentsKey = (issueId: string) => ["attachments", issueId];
 
-  return useMutation({
-    mutationFn: (files: File[]) => issuesApi.uploadAttachments(issueId, files),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["attachments", issueId] });
-    },
-    onError: handleApiError,
-  });
+export function useUploadAttachments(issueId: string) {
+  return useInvalidatingMutation(
+    (files: File[]) => issuesApi.uploadAttachments(issueId, files),
+    attachmentsKey(issueId),
+    { successMessage: (r) => r.message },
+  );
 }
 
 export function useDeleteAttachment(issueId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (attachmentId: string) => issuesApi.deleteAttachment(attachmentId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["attachments", issueId] });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (attachmentId: string) => issuesApi.deleteAttachment(attachmentId),
+    attachmentsKey(issueId),
+  );
 }

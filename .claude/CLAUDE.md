@@ -101,3 +101,11 @@ Both no-op when `NEXT_PUBLIC_SENTRY_DSN` is missing OR when `NODE_ENV !== "produ
 - Logging: do NOT capture `<input>` values in breadcrumbs — leak risk. `LoggingProvider` intentionally reads `textContent` only, not values
 - Admin routes: live under `src/app/(admin)/admin/*` with dedicated `AdminLayout`. The layout itself gates `user.role === "ADMIN"` — individual admin `client.tsx` files MUST NOT duplicate the role check. MainLayout sidebar shows a single "Admin" link (to `/admin`) only to admins. BE enforces via `@Roles(Role.ADMIN)` regardless
 - Admin settings: use `useSetting<T>(key)` / `useUpdateSetting<T>(key)` from `@/features/admin`. Keys: `SETTING_KEYS.APP_INFO` (`app.info`), `SETTING_KEYS.APP_EMAIL` (`app.email`). `getSetting` returns null on 404 so forms render defaults
+- API client: ALWAYS call through `api` from `@/lib/api/client` — it has GET dedupe + `x-origin` + 401 refresh + 429 retry. Never `axios.create` elsewhere. See `.claude/rules/api-client.md`
+- React Query: pick `staleTime` from `@/lib/constants/query-stale` for identity/public-ish endpoints. Default 60s is fine for domain data. See `.claude/rules/react-query.md`
+- Mutations: plain invalidation uses `useInvalidatingMutation`; optimistic updates hand-roll `useMutation` with `onMutate`/`onError`/`onSettled` (see `useUpdateIssue` for the canonical pattern)
+- Pagination: numbered pages use `<Pagination>` + page-based response; infinite scroll uses `useInfiniteQuery` + cursor — see `.claude/rules/pagination.md`
+- List rows (50+ rendered): wrap in `React.memo` + pass stable `onClick` — see `IssueCard`, `LogsTable::LogRow`
+- Empty states: use `<EmptyState>` from `@/components/ui/empty-state`, never redeclare inline
+- Rich editor is lazy-loaded via `next/dynamic` — import from `@/components/shared/rich-editor`, never from `./editor.client`
+- UI magic numbers: import `UI_SIZES`/`DEBOUNCE`/`HTTP_STATUS_RANGE`/`RICH_EDITOR` from `@/lib/constants/ui` — never inline `300ms`, `240px`, `400`

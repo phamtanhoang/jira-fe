@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { STALE_PUBLIC_SETTING } from "@/lib/constants/query-stale";
 import { handleApiError, showMessage } from "@/lib/utils";
 import {
   getPublicAnnouncement,
@@ -40,18 +41,16 @@ export function useUpdateSetting<T>(key: string) {
 }
 
 /**
- * Reads the announcement via the public endpoint so non-admin users can
- * actually see the banner (the byKey endpoint is admin-only).
+ * Public settings probes — toggled rarely by admin, but read on every layout
+ * mount. A long staleTime keeps them from hammering BE as users navigate.
+ * Reads go through the public endpoint so non-admin users can see the banner
+ * (the byKey endpoint is admin-only).
  */
-// Public settings probes — both are toggled rarely and read on every layout
-// mount. A long staleTime keeps them from hammering BE as users navigate.
-const PUBLIC_SETTING_STALE_MS = 5 * 60 * 1000;
-
 export function usePublicAnnouncement() {
   return useQuery({
     queryKey: ["public-announcement"],
     queryFn: () => getPublicAnnouncement<AnnouncementValue>(),
-    staleTime: PUBLIC_SETTING_STALE_MS,
+    staleTime: STALE_PUBLIC_SETTING,
     refetchOnWindowFocus: false,
   });
 }
@@ -60,7 +59,7 @@ export function usePublicMaintenance() {
   return useQuery({
     queryKey: ["public-maintenance"],
     queryFn: () => getPublicMaintenance<MaintenanceValue>(),
-    staleTime: PUBLIC_SETTING_STALE_MS,
+    staleTime: STALE_PUBLIC_SETTING,
     refetchOnWindowFocus: false,
   });
 }
