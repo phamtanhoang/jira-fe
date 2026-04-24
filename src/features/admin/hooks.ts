@@ -7,7 +7,9 @@ import {
   getPublicMaintenance,
   getSetting,
   setSetting,
+  uploadAppLogo,
 } from "./api";
+import { SETTING_KEYS } from "./types";
 import type {
   AnnouncementValue,
   MaintenanceValue,
@@ -52,5 +54,20 @@ export function usePublicMaintenance() {
   return useQuery({
     queryKey: ["public-maintenance"],
     queryFn: () => getPublicMaintenance<MaintenanceValue>(),
+  });
+}
+
+export function useUploadAppLogo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => uploadAppLogo(file),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({
+        queryKey: ["settings", SETTING_KEYS.APP_INFO],
+      });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+    onError: handleApiError,
   });
 }

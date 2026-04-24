@@ -13,9 +13,14 @@ const SUCCESS_KEYS: Set<string> = new Set([
   "SETTINGS_UPDATED",
   "USER_ROLE_UPDATED",
   "USER_DELETED",
+  "USER_DEACTIVATED",
+  "USER_ACTIVATED",
   "SESSION_REVOKED",
   "SESSIONS_REVOKED",
   "WORKSPACE_DELETED",
+  "FLAG_CREATED",
+  "FLAG_UPDATED",
+  "FLAG_DELETED",
 ]);
 
 function translate(key: string): string {

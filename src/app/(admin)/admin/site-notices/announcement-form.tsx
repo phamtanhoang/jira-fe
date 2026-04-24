@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Info, OctagonAlert, Megaphone } from "lucide-react";
+import { AlertTriangle, Info, OctagonAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
@@ -24,13 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 const SEVERITY_CLASSES: Record<AnnouncementSeverity, string> = {
   info: "bg-blue-500/10 text-blue-900 border-blue-500/30 dark:bg-blue-950/40 dark:text-blue-100",
@@ -45,8 +38,7 @@ const SEVERITY_ICON: Record<AnnouncementSeverity, React.ElementType> = {
   critical: OctagonAlert,
 };
 
-export function AdminAnnouncementClient() {
-  const { t } = useAppStore();
+export function AnnouncementFormPanel() {
   const { data, isLoading } = useSetting<AnnouncementValue>(
     SETTING_KEYS.APP_ANNOUNCEMENT,
   );
@@ -54,51 +46,26 @@ export function AdminAnnouncementClient() {
     SETTING_KEYS.APP_ANNOUNCEMENT,
   );
 
-  return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          {t("admin.announcement.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("admin.announcement.description")}
-        </p>
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-24 w-full" />
       </div>
+    );
+  }
 
-      <Card>
-        <CardHeader className="border-b pb-4">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <Megaphone className="h-4 w-4" />
-            {t("admin.announcement.title")}
-          </CardTitle>
-          <CardDescription className="text-xs">
-            {t("admin.announcement.description")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-24 w-full" />
-            </div>
-          ) : (
-            <AnnouncementForm
-              // Remount with fresh state when the server value updates —
-              // avoids syncing server → local state via useEffect.
-              key={data?.updatedAt ?? "new"}
-              initial={{
-                enabled: data?.value?.enabled ?? DEFAULT_ANNOUNCEMENT.enabled,
-                message: data?.value?.message ?? DEFAULT_ANNOUNCEMENT.message,
-                severity:
-                  data?.value?.severity ?? DEFAULT_ANNOUNCEMENT.severity,
-              }}
-              onSave={(v) => update.mutate(v)}
-              isPending={update.isPending}
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+  return (
+    <AnnouncementForm
+      key={data?.updatedAt ?? "new"}
+      initial={{
+        enabled: data?.value?.enabled ?? DEFAULT_ANNOUNCEMENT.enabled,
+        message: data?.value?.message ?? DEFAULT_ANNOUNCEMENT.message,
+        severity: data?.value?.severity ?? DEFAULT_ANNOUNCEMENT.severity,
+      }}
+      onSave={(v) => update.mutate(v)}
+      isPending={update.isPending}
+    />
   );
 }
 
@@ -118,7 +85,6 @@ function AnnouncementForm({
 
   return (
     <div className="space-y-4">
-      {/* Enabled toggle */}
       <label className="flex items-center gap-3">
         <Toggle
           checked={form.enabled}
@@ -131,7 +97,6 @@ function AnnouncementForm({
         </span>
       </label>
 
-      {/* Severity */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium">
           {t("admin.announcement.severity")}
@@ -159,7 +124,6 @@ function AnnouncementForm({
         </Select>
       </div>
 
-      {/* Message */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium">
           {t("admin.announcement.messageLabel")}
@@ -172,7 +136,6 @@ function AnnouncementForm({
         />
       </div>
 
-      {/* Preview */}
       <div className="space-y-1.5">
         <div className="text-sm font-medium">
           {t("admin.announcement.preview")}

@@ -1,11 +1,5 @@
-import { createGenerateMetadata } from "@/lib/utils/server";
-import { AdminAnnouncementClient } from "./client";
+import { redirect } from "next/navigation";
 
-export const generateMetadata = createGenerateMetadata(
-  "admin.announcement.meta.title",
-  "admin.announcement.meta.desc",
-);
-
-export default function AdminAnnouncementPage() {
-  return <AdminAnnouncementClient />;
+export default function DeprecatedAnnouncementPage() {
+  redirect("/admin/site-notices?tab=announcement");
 }

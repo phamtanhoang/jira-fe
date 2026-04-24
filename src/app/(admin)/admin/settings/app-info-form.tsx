@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Upload } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   appInfoSchema,
   SETTING_KEYS,
   useSetting,
   useUpdateSetting,
+  useUploadAppLogo,
   type AppInfoInput,
   type AppInfoValue,
 } from "@/features/admin";
@@ -45,6 +47,8 @@ export function AppInfoForm() {
   const { t } = useAppStore();
   const { data, isLoading } = useSetting<AppInfoValue>(SETTING_KEYS.APP_INFO);
   const update = useUpdateSetting<AppInfoValue>(SETTING_KEYS.APP_INFO);
+  const uploadLogo = useUploadAppLogo();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<AppInfoInput>({
     resolver: zodResolver(appInfoSchema),
@@ -117,13 +121,49 @@ export function AppInfoForm() {
                       {t("admin.settings.appInfo.logoUrl")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder={t(
-                          "admin.settings.appInfo.logoUrlPlaceholder",
-                        )}
-                        {...field}
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder={t(
+                            "admin.settings.appInfo.logoUrlPlaceholder",
+                          )}
+                          {...field}
+                        />
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            uploadLogo.mutate(file, {
+                              onSuccess: (res) => {
+                                form.setValue("logoUrl", res.logoUrl, {
+                                  shouldDirty: true,
+                                });
+                              },
+                            });
+                            e.target.value = "";
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={uploadLogo.isPending}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          {uploadLogo.isPending ? (
+                            <Spinner className="mr-1.5 h-3.5 w-3.5" />
+                          ) : (
+                            <Upload className="mr-1.5 h-3.5 w-3.5" />
+                          )}
+                          {t("admin.settings.appInfo.uploadCta")}
+                        </Button>
+                      </div>
                     </FormControl>
+                    <p className="text-[11px] text-muted-foreground">
+                      {t("admin.settings.appInfo.uploadHint")}
+                    </p>
                     <FormMessage renderMessage={te} />
                   </FormItem>
                 )}

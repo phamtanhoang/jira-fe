@@ -41,6 +41,17 @@ export async function deleteUser(id: string): Promise<{ message: string }> {
   return res.data;
 }
 
+export async function setUserActive(
+  id: string,
+  active: boolean,
+): Promise<{ message: string; user: AdminUser }> {
+  const res = await api.patch<{ message: string; user: AdminUser }>(
+    ENDPOINTS.users.status(id),
+    { active },
+  );
+  return res.data;
+}
+
 export async function fetchAdminStats(): Promise<AdminStats> {
   const res = await api.get<AdminStats>(ENDPOINTS.admin.stats);
   return res.data;

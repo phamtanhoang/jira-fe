@@ -12,7 +12,6 @@ import {
   LineChart,
   Activity,
   Briefcase,
-  Wrench,
   PanelLeftClose,
   ShieldCheck,
   ArrowLeft,
@@ -20,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { usePublicMaintenance } from "@/features/admin";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,8 @@ export function AdminSidebar({
 }) {
   const pathname = usePathname();
   const { name: appName, logoUrl, t } = useAppStore();
+  const { data: maintenance } = usePublicMaintenance();
+  const maintenanceOn = !!maintenance?.enabled;
 
   const groups: { label: string; items: Item[] }[] = [
     {
@@ -81,6 +83,11 @@ export function AdminSidebar({
           label: t("admin.nav.workspaces"),
           icon: Briefcase,
         },
+        {
+          href: ROUTES.ADMIN_AUDIT,
+          label: t("admin.nav.audit"),
+          icon: ScrollText,
+        },
       ],
     },
     {
@@ -97,14 +104,9 @@ export function AdminSidebar({
           icon: Flag,
         },
         {
-          href: ROUTES.ADMIN_ANNOUNCEMENT,
-          label: t("admin.nav.announcement"),
+          href: ROUTES.ADMIN_SITE_NOTICES,
+          label: t("admin.nav.siteNotices"),
           icon: Megaphone,
-        },
-        {
-          href: ROUTES.ADMIN_MAINTENANCE,
-          label: t("admin.nav.maintenance"),
-          icon: Wrench,
         },
       ],
     },
@@ -174,7 +176,14 @@ export function AdminSidebar({
                       )}
                     >
                       <item.icon className="h-4.5 w-4.5 shrink-0" />
-                      {item.label}
+                      <span className="flex-1">{item.label}</span>
+                      {item.href === ROUTES.ADMIN_SITE_NOTICES &&
+                        maintenanceOn && (
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-red-500"
+                            aria-label="maintenance active"
+                          />
+                        )}
                     </Link>
                   );
                 })}

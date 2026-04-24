@@ -16,6 +16,8 @@ import {
   UserX,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { cn, formatDateShort, getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   useSetting,
@@ -24,6 +26,7 @@ import {
   type AppInfoValue,
 } from "@/features/admin";
 import { useAdminStats } from "@/features/admin-users";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -101,6 +104,133 @@ export function AdminOverviewClient() {
           value={stats?.issues.total}
           loading={loadingStats}
         />
+      </div>
+
+      {/* Active users + recent signups + top workspaces */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Active users 24h */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <UserCheck className="h-4 w-4" />
+              {t("admin.overview.activeUsers24h")}
+            </CardTitle>
+            <CardDescription className="text-xs">
+              {t("admin.overview.activeUsers24hDesc")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingStats ? (
+              <Skeleton className="h-10 w-20" />
+            ) : (
+              <div className="text-4xl font-semibold tabular-nums">
+                {stats?.activeUsers24h ?? 0}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent signups */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Users className="h-4 w-4" />
+              {t("admin.overview.recentSignups")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loadingStats ? (
+              <div className="space-y-2 px-4 pb-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-8 w-full" />
+                ))}
+              </div>
+            ) : !stats?.recentSignups?.length ? (
+              <div className="py-6 text-center text-xs text-muted-foreground">
+                {t("admin.overview.notConfigured")}
+              </div>
+            ) : (
+              <div className="divide-y">
+                {stats.recentSignups.map((u) => (
+                  <div
+                    key={u.id}
+                    className="flex items-center gap-2 px-4 py-2 text-xs"
+                  >
+                    <Avatar className="h-6 w-6 shrink-0">
+                      {u.image ? (
+                        <AvatarImage src={u.image} alt={u.name ?? u.email} />
+                      ) : null}
+                      <AvatarFallback className={cn(AVATAR_GRADIENT, "text-[10px]")}>
+                        {getInitials(u.name, u.email)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">
+                        {u.name || u.email}
+                      </div>
+                      <div className="truncate text-[10px] text-muted-foreground">
+                        {u.email}
+                      </div>
+                    </div>
+                    <span className="shrink-0 text-[10px] text-muted-foreground">
+                      {formatDateShort(u.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top workspaces */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Briefcase className="h-4 w-4" />
+              {t("admin.overview.topWorkspaces")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loadingStats ? (
+              <div className="space-y-2 px-4 pb-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : !stats?.topWorkspaces?.length ? (
+              <div className="py-6 text-center text-xs text-muted-foreground">
+                {t("admin.overview.notConfigured")}
+              </div>
+            ) : (
+              <div className="divide-y">
+                {stats.topWorkspaces.map((w) => (
+                  <div
+                    key={w.id}
+                    className="flex items-center gap-3 px-4 py-2 text-xs"
+                  >
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[11px] font-semibold text-primary">
+                      {w.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{w.name}</div>
+                      <div className="truncate text-[10px] text-muted-foreground">
+                        {w.owner.name ?? "—"}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right text-[10px] text-muted-foreground">
+                      <div>
+                        {w._count.members} {t("admin.overview.members")}
+                      </div>
+                      <div>
+                        {w._count.projects} {t("admin.overview.projects")}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Logs 24h breakdown */}

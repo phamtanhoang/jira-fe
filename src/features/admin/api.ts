@@ -40,6 +40,19 @@ export async function getPublicAnnouncement<T>(): Promise<T | null> {
   return res.data ?? null;
 }
 
+export async function uploadAppLogo(
+  file: File,
+): Promise<{ message: string; logoUrl: string }> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await api.post<{ message: string; logoUrl: string }>(
+    ENDPOINTS.settings.appInfoLogo,
+    form,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return res.data;
+}
+
 /**
  * Public endpoint — anyone can read maintenance state (needed by middleware
  * before the user is authenticated). Returns `null` when unset.

@@ -21,6 +21,7 @@ import {
   useAdminUsers,
   useUpdateUserRole,
   useDeleteUser,
+  useSetUserActive,
   useUserSessions,
   useRevokeSession,
   useRevokeAllSessions,
@@ -70,6 +71,7 @@ export function AdminUsersClient() {
   const { data, isLoading } = useAdminUsers(filters);
   const updateRole = useUpdateUserRole();
   const deleteUser = useDeleteUser();
+  const setActive = useSetUserActive();
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
@@ -158,9 +160,10 @@ export function AdminUsersClient() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border bg-card">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>{t("admin.users.columns.user")}</span>
           <span>{t("admin.users.columns.role")}</span>
+          <span>{t("admin.users.columns.status")}</span>
           <span>{t("admin.users.columns.verified")}</span>
           <span>{t("admin.users.columns.joined")}</span>
           <span className="w-10 text-right">
@@ -191,6 +194,9 @@ export function AdminUsersClient() {
                   id: u.id,
                   role: u.role === "ADMIN" ? "USER" : "ADMIN",
                 })
+              }
+              onToggleActive={() =>
+                setActive.mutate({ id: u.id, active: !u.active })
               }
               onDelete={() => setDeleteTarget(u)}
               selfLabel={t("admin.users.selfBadge")}
@@ -270,6 +276,7 @@ function UserRow({
   expanded,
   onToggleExpand,
   onPromote,
+  onToggleActive,
   onDelete,
   selfLabel,
 }: {
@@ -278,6 +285,7 @@ function UserRow({
   expanded: boolean;
   onToggleExpand: () => void;
   onPromote: () => void;
+  onToggleActive: () => void;
   onDelete: () => void;
   selfLabel: string;
 }) {
@@ -287,7 +295,7 @@ function UserRow({
 
   return (
     <div className="border-b last:border-b-0">
-      <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted/30">
+      <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted/30">
       <div className="flex min-w-0 items-center gap-2.5">
         <button
           type="button"
@@ -346,6 +354,22 @@ function UserRow({
         </Badge>
       </div>
 
+      <div>
+        <Badge
+          variant="outline"
+          className={cn(
+            "gap-1 text-[11px]",
+            user.active
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+              : "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400",
+          )}
+        >
+          {user.active
+            ? t("admin.users.statusActive")
+            : t("admin.users.statusInactive")}
+        </Badge>
+      </div>
+
       <div className="flex items-center gap-1 text-xs">
         {verified ? (
           <>
@@ -389,6 +413,19 @@ function UserRow({
                 <>
                   <ShieldCheck className="mr-2 h-3.5 w-3.5" />
                   {t("admin.users.actions.makeAdmin")}
+                </>
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onToggleActive} disabled={isSelf}>
+              {user.active ? (
+                <>
+                  <Circle className="mr-2 h-3.5 w-3.5" />
+                  {t("admin.users.actions.deactivate")}
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
+                  {t("admin.users.actions.activate")}
                 </>
               )}
             </DropdownMenuItem>

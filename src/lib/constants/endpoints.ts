@@ -25,6 +25,7 @@ const AUTH_ENDPOINTS = {
 const SETTINGS_ENDPOINTS = {
   settings: SETTINGS_BASE,
   appInfo: `${SETTINGS_BASE}/app-info`,
+  appInfoLogo: `${SETTINGS_BASE}/app-info/logo`,
   appAnnouncement: `${SETTINGS_BASE}/app-announcement`,
   appMaintenance: `${SETTINGS_BASE}/app-maintenance`,
   byKey: (key: string) => `${SETTINGS_BASE}/${encodeURIComponent(key)}`,
@@ -107,9 +108,17 @@ const USERS_ENDPOINTS = {
   base: USERS_BASE,
   byId: (id: string) => `${USERS_BASE}/${id}`,
   role: (id: string) => `${USERS_BASE}/${id}/role`,
+  status: (id: string) => `${USERS_BASE}/${id}/status`,
   sessions: (id: string) => `${USERS_BASE}/${id}/sessions`,
   sessionById: (id: string, tokenId: string) =>
     `${USERS_BASE}/${id}/sessions/${tokenId}`,
+} as const;
+
+const FEATURE_FLAGS_BASE = "/feature-flags";
+const FEATURE_FLAGS_ENDPOINTS = {
+  base: FEATURE_FLAGS_BASE,
+  byId: (id: string) => `${FEATURE_FLAGS_BASE}/${id}`,
+  me: `${FEATURE_FLAGS_BASE}/me`,
 } as const;
 
 const ADMIN_BASE = "/admin";
@@ -119,6 +128,7 @@ const ADMIN_ENDPOINTS = {
   metrics: `${ADMIN_BASE}/metrics`,
   workspaces: `${ADMIN_BASE}/workspaces`,
   workspaceById: (id: string) => `${ADMIN_BASE}/workspaces/${id}`,
+  audit: `${ADMIN_BASE}/audit`,
 } as const;
 
 export const ENDPOINTS = {
@@ -136,4 +146,5 @@ export const ENDPOINTS = {
   logs: LOGS_ENDPOINTS,
   users: USERS_ENDPOINTS,
   admin: ADMIN_ENDPOINTS,
+  featureFlags: FEATURE_FLAGS_ENDPOINTS,
 } as const;

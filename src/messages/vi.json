@@ -58,6 +58,8 @@
       "metrics": "Hiệu năng",
       "workspaces": "Workspace",
       "maintenance": "Bảo trì",
+      "siteNotices": "Thông báo hệ thống",
+      "audit": "Nhật ký quản trị",
       "groupOverview": "Tổng quan",
       "groupOperations": "Vận hành",
       "groupConfiguration": "Cấu hình"
@@ -84,6 +86,7 @@
       "columns": {
         "user": "Người dùng",
         "role": "Vai trò",
+        "status": "Trạng thái",
         "verified": "Đã xác minh",
         "joined": "Ngày tham gia",
         "actions": "Hành động"
@@ -97,10 +100,14 @@
         "verifiedYes": "Đã xác minh",
         "verifiedNo": "Chờ xác minh"
       },
+      "statusActive": "Hoạt động",
+      "statusInactive": "Bị khóa",
       "actions": {
         "changeRole": "Đổi vai trò",
         "makeAdmin": "Thăng quyền admin",
         "makeUser": "Hạ quyền user",
+        "deactivate": "Vô hiệu hóa",
+        "activate": "Kích hoạt lại",
         "delete": "Xóa người dùng",
         "deleteConfirmTitle": "Xóa người dùng?",
         "deleteConfirmDesc": "Hành động này sẽ xóa vĩnh viễn {email} và mọi workspace họ sở hữu. Không thể hoàn tác.",
@@ -116,17 +123,32 @@
     },
     "flags": {
       "title": "Feature Flag",
-      "description": "Flag chạy runtime lưu trong setting {key}. Thay đổi có hiệu lực ngay.",
+      "description": "Điều khiển truy cập tính năng theo role, email, workspace hoặc % rollout. Cache 30 giây rồi broadcast tới tất cả client.",
       "columns": {
         "key": "Flag",
         "enabled": "Bật",
         "actions": "Hành động"
       },
       "empty": "Chưa có feature flag nào.",
-      "addTitle": "Thêm flag",
+      "addTitle": "Flag mới",
+      "editTitle": "Sửa flag",
+      "dialogDesc": "Flag được đánh giá phía server cho từng user khi gọi /feature-flags/me.",
       "keyPlaceholder": "my_feature",
-      "keyHint": "chữ thường, số, dấu chấm hoặc gạch dưới",
+      "keyHint": "chữ thường, số, dấu chấm, gạch dưới. Không thể đổi sau khi tạo.",
       "addCta": "Thêm flag",
+      "hasConditions": "có điều kiện",
+      "formKey": "Key",
+      "formName": "Tên",
+      "formDescription": "Mô tả",
+      "descPlaceholder": "Flag này điều khiển gì?",
+      "formEnabled": "Bật",
+      "formRollout": "Rollout",
+      "formRolloutHint": "% user được flag khi không match rule cụ thể. 0 = opt-in, 100 = tất cả.",
+      "formRoles": "Role (cách nhau bởi dấu phẩy)",
+      "formRolesHint": "Giá trị: USER, ADMIN",
+      "formEmails": "Email (cách nhau bởi dấu phẩy)",
+      "formWorkspaceIds": "Workspace ID (cách nhau bởi dấu phẩy)",
+      "deleteTitle": "Xóa flag?",
       "deleteConfirm": "Xóa flag \"{key}\"? Flag sẽ bị tắt ở mọi nơi.",
       "meta": {
         "title": "Feature Flag",
@@ -135,15 +157,22 @@
     },
     "analytics": {
       "title": "Thống kê",
-      "description": "Hoạt động hằng ngày: signup, issue, workspace và request theo mức độ.",
-      "days7": "7 ngày qua",
-      "days14": "14 ngày qua",
-      "days30": "30 ngày qua",
+      "description": "Hoạt động hằng ngày của toàn app. Tắt/bật biểu đồ, chọn cửa sổ 1–180 ngày.",
+      "range": "Khoảng",
+      "daysN": "{n} ngày qua",
+      "custom": "Tùy chọn:",
+      "daysShort": "ngày",
       "signups": "Đăng ký mới",
+      "activeUsers": "Người dùng hoạt động",
       "issuesCreated": "Issue tạo mới",
       "newWorkspaces": "Workspace mới",
+      "comments": "Bình luận",
+      "worklogs": "Worklog",
       "requestsByLevel": "Request theo mức độ",
+      "errors": "Lỗi (5xx)",
       "empty": "Chưa có hoạt động.",
+      "exportCsv": "Xuất CSV",
+      "csvFilename": "thong-ke.csv",
       "meta": {
         "title": "Thống kê quản trị",
         "desc": "Biểu đồ hoạt động theo ngày"
@@ -161,10 +190,22 @@
         "errorRate": "Tỉ lệ lỗi",
         "p50": "p50",
         "p95": "p95",
-        "p99": "p99"
+        "p99": "p99",
+        "method": "Method",
+        "url": "URL",
+        "status": "Status",
+        "duration": "Thời lượng",
+        "user": "User",
+        "time": "Thời gian"
       },
+      "topRoutes": "Top route",
       "methodDistribution": "Phân bố method",
       "statusDistribution": "Phân bố status",
+      "slowestRequests": "Request chậm nhất",
+      "slowestHint": "Top 10 request lâu nhất. Click vào dòng để mở log chi tiết.",
+      "errorTrend": "Xu hướng lỗi 5xx",
+      "errorTrendHint": "Số lỗi server theo giờ trong khoảng được chọn.",
+      "errorEmpty": "Không có lỗi 5xx nào.",
       "empty": "Không có request nào trong khoảng này.",
       "meta": {
         "title": "Hiệu năng",
@@ -217,6 +258,34 @@
         "desc": "Bật/tắt bảo trì"
       }
     },
+    "audit": {
+      "title": "Nhật ký quản trị",
+      "description": "Mọi hành động đổi role, xóa user, revoke session, sửa flag và setting đều được lưu kèm actor + payload.",
+      "allActions": "Tất cả hành động",
+      "columns": {
+        "action": "Hành động",
+        "actor": "Người thực hiện",
+        "target": "Đối tượng",
+        "time": "Thời gian"
+      },
+      "payload": "Payload",
+      "empty": "Không có entry nào.",
+      "loadMore": "Tải thêm",
+      "meta": {
+        "title": "Nhật ký quản trị",
+        "desc": "Lịch sử hành động admin"
+      }
+    },
+    "siteNotices": {
+      "title": "Thông báo hệ thống",
+      "description": "Phát broadcast thông báo và bật maintenance mode trong cùng 1 nơi.",
+      "tabAnnouncement": "Banner thông báo",
+      "tabMaintenance": "Maintenance",
+      "meta": {
+        "title": "Thông báo hệ thống",
+        "desc": "Quản trị banner thông báo + maintenance"
+      }
+    },
     "announcement": {
       "title": "Banner thông báo",
       "description": "Hiển thị trên toàn app khi bật. Đóng banner reset khi bạn thay đổi nội dung.",
@@ -247,6 +316,12 @@
       "cardAppEmailTitle": "Email ứng dụng",
       "cardAppEmailDesc": "Địa chỉ FROM gửi email",
       "notConfigured": "Chưa cấu hình",
+      "activeUsers24h": "User hoạt động (24h)",
+      "activeUsers24hDesc": "Số user khác nhau gọi API trong 24 giờ qua.",
+      "recentSignups": "Đăng ký mới",
+      "topWorkspaces": "Workspace nổi bật",
+      "members": "thành viên",
+      "projects": "dự án",
       "meta": {
         "title": "Tổng quan Quản trị",
         "desc": "Bảng điều khiển quản trị"
@@ -262,6 +337,8 @@
         "namePlaceholder": "Jira Clone",
         "logoUrl": "URL logo",
         "logoUrlPlaceholder": "https://...",
+        "uploadCta": "Tải lên",
+        "uploadHint": "PNG, JPG, WebP hoặc SVG tối đa 2MB. Upload qua Supabase.",
         "description": "Mô tả",
         "descriptionPlaceholder": "Tagline ngắn hiển thị trên trang đăng nhập + OG",
         "authorName": "Tên tác giả",
@@ -574,6 +651,14 @@
     "SETTINGS_UPDATED": "Đã cập nhật cài đặt.",
     "USER_ROLE_UPDATED": "Đã cập nhật vai trò người dùng.",
     "USER_DELETED": "Đã xóa người dùng.",
+    "USER_ACTIVATED": "Đã kích hoạt lại tài khoản.",
+    "USER_DEACTIVATED": "Đã vô hiệu hóa tài khoản.",
+    "ACCOUNT_DEACTIVATED": "Tài khoản này đã bị vô hiệu hóa.",
+    "FLAG_CREATED": "Đã tạo feature flag.",
+    "FLAG_UPDATED": "Đã cập nhật feature flag.",
+    "FLAG_DELETED": "Đã xóa feature flag.",
+    "FLAG_NOT_FOUND": "Không tìm thấy feature flag.",
+    "FLAG_KEY_EXISTS": "Đã tồn tại flag với key này.",
     "CANNOT_MODIFY_SELF": "Bạn không thể thao tác trên chính tài khoản của mình ở đây.",
     "SESSION_REVOKED": "Đã thu hồi phiên.",
     "SESSIONS_REVOKED": "Đã thu hồi toàn bộ phiên.",

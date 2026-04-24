@@ -7,6 +7,8 @@ export type AdminUser = {
   emailVerified: string | null;
   image: string | null;
   role: Role;
+  active: boolean;
+  deactivatedAt: string | null;
   createdAt: string;
   updatedAt: string;
   _count: {
@@ -30,6 +32,22 @@ export type AdminUsersFilters = {
   take?: number;
 };
 
+export type RecentSignup = {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  createdAt: string;
+};
+
+export type TopWorkspace = {
+  id: string;
+  name: string;
+  slug: string;
+  owner: { id: string; name: string | null; image: string | null };
+  _count: { projects: number; members: number };
+};
+
 export type AdminStats = {
   users: {
     total: number;
@@ -41,6 +59,9 @@ export type AdminStats = {
   projects: { total: number };
   issues: { total: number };
   logs: { last24h: { INFO: number; WARN: number; ERROR: number } };
+  recentSignups: RecentSignup[];
+  topWorkspaces: TopWorkspace[];
+  activeUsers24h: number;
 };
 
 export type DailyCount = { date: string; count: number };
@@ -56,6 +77,9 @@ export type AdminAnalytics = {
   signups: DailyCount[];
   issuesCreated: DailyCount[];
   newWorkspaces: DailyCount[];
+  comments: DailyCount[];
+  worklogs: DailyCount[];
+  activeUsers: DailyCount[];
   requestsByLevel: DailyLogRow[];
 };
 
@@ -68,11 +92,28 @@ export type RouteMetric = {
   p99: number;
 };
 
+export type SlowRequestRow = {
+  id: string;
+  url: string;
+  method: string;
+  statusCode: number | null;
+  durationMs: number;
+  userEmail: string | null;
+  createdAt: string;
+};
+
+export type HourlyErrorPoint = {
+  bucket: string;
+  count: number;
+};
+
 export type AdminMetrics = {
   sinceHours: number;
   topRoutes: RouteMetric[];
   methodDistribution: { method: string; count: number }[];
   statusDistribution: { statusCode: number; count: number }[];
+  slowestRequests: SlowRequestRow[];
+  errorTrendHourly: HourlyErrorPoint[];
 };
 
 export type AdminWorkspaceRow = {

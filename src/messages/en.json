@@ -58,6 +58,8 @@
       "metrics": "Metrics",
       "workspaces": "Workspaces",
       "maintenance": "Maintenance",
+      "siteNotices": "Site Notices",
+      "audit": "Audit Log",
       "groupOverview": "Overview",
       "groupOperations": "Operations",
       "groupConfiguration": "Configuration"
@@ -84,6 +86,7 @@
       "columns": {
         "user": "User",
         "role": "Role",
+        "status": "Status",
         "verified": "Verified",
         "joined": "Joined",
         "actions": "Actions"
@@ -97,10 +100,14 @@
         "verifiedYes": "Verified",
         "verifiedNo": "Pending"
       },
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
       "actions": {
         "changeRole": "Change role",
         "makeAdmin": "Promote to admin",
         "makeUser": "Demote to user",
+        "deactivate": "Deactivate",
+        "activate": "Reactivate",
         "delete": "Delete user",
         "deleteConfirmTitle": "Delete user?",
         "deleteConfirmDesc": "This will permanently remove {email} and any workspaces they own. This action cannot be undone.",
@@ -116,17 +123,32 @@
     },
     "flags": {
       "title": "Feature Flags",
-      "description": "Runtime flags stored in the {key} setting. Changes take effect immediately.",
+      "description": "Control feature access per role, email, workspace, or percentage rollout. Changes are cached 30 seconds then propagate to all clients.",
       "columns": {
         "key": "Flag",
         "enabled": "Enabled",
         "actions": "Actions"
       },
       "empty": "No feature flags configured yet.",
-      "addTitle": "Add a flag",
+      "addTitle": "New flag",
+      "editTitle": "Edit flag",
+      "dialogDesc": "Flags are evaluated server-side for each user on every call to /feature-flags/me.",
       "keyPlaceholder": "my_feature",
-      "keyHint": "lowercase letters, numbers, dots or underscores",
-      "addCta": "Add flag",
+      "keyHint": "lowercase letters, numbers, dots or underscores. Cannot be changed after create.",
+      "addCta": "New flag",
+      "hasConditions": "has rules",
+      "formKey": "Key",
+      "formName": "Name",
+      "formDescription": "Description",
+      "descPlaceholder": "What does this flag control?",
+      "formEnabled": "Enabled",
+      "formRollout": "Rollout",
+      "formRolloutHint": "Percentage of users who get this flag when no explicit rule matches. 0 = opt-in, 100 = everyone.",
+      "formRoles": "Roles (comma-separated)",
+      "formRolesHint": "Accepted values: USER, ADMIN",
+      "formEmails": "Emails (comma-separated)",
+      "formWorkspaceIds": "Workspace IDs (comma-separated)",
+      "deleteTitle": "Delete flag?",
       "deleteConfirm": "Remove the flag \"{key}\"? This will disable it everywhere.",
       "meta": {
         "title": "Feature Flags",
@@ -135,15 +157,22 @@
     },
     "analytics": {
       "title": "Analytics",
-      "description": "Daily activity across signups, issues, workspaces, and request levels.",
-      "days7": "Last 7 days",
-      "days14": "Last 14 days",
-      "days30": "Last 30 days",
+      "description": "Daily activity across the whole app. Toggle series off/on, pick any window 1–180 days.",
+      "range": "Range",
+      "daysN": "Last {n} days",
+      "custom": "Custom:",
+      "daysShort": "days",
       "signups": "User signups",
+      "activeUsers": "Active users",
       "issuesCreated": "Issues created",
       "newWorkspaces": "New workspaces",
+      "comments": "Comments",
+      "worklogs": "Worklogs",
       "requestsByLevel": "Requests by level",
+      "errors": "Errors (5xx)",
       "empty": "No activity yet.",
+      "exportCsv": "Export CSV",
+      "csvFilename": "analytics.csv",
       "meta": {
         "title": "Admin Analytics",
         "desc": "Daily time-series of app activity"
@@ -161,10 +190,22 @@
         "errorRate": "Error rate",
         "p50": "p50",
         "p95": "p95",
-        "p99": "p99"
+        "p99": "p99",
+        "method": "Method",
+        "url": "URL",
+        "status": "Status",
+        "duration": "Duration",
+        "user": "User",
+        "time": "Time"
       },
+      "topRoutes": "Top routes",
       "methodDistribution": "Method distribution",
       "statusDistribution": "Status distribution",
+      "slowestRequests": "Slowest requests",
+      "slowestHint": "Top 10 individual requests by duration. Click a row to open the full log.",
+      "errorTrend": "5xx error trend",
+      "errorTrendHint": "Hourly count of server errors over the selected window.",
+      "errorEmpty": "No 5xx errors in this window.",
       "empty": "No request logs in this window.",
       "meta": {
         "title": "Performance Metrics",
@@ -217,6 +258,34 @@
         "desc": "Admin maintenance toggle"
       }
     },
+    "audit": {
+      "title": "Admin Audit Log",
+      "description": "Every role change, user delete, session revoke, flag change, and setting write lands here with actor + payload.",
+      "allActions": "All actions",
+      "columns": {
+        "action": "Action",
+        "actor": "Actor",
+        "target": "Target",
+        "time": "Time"
+      },
+      "payload": "Payload",
+      "empty": "No audit entries match the current filters.",
+      "loadMore": "Load more",
+      "meta": {
+        "title": "Admin Audit Log",
+        "desc": "Administrator action history"
+      }
+    },
+    "siteNotices": {
+      "title": "Site Notices",
+      "description": "Broadcast announcements and toggle full maintenance mode from one place.",
+      "tabAnnouncement": "Announcement",
+      "tabMaintenance": "Maintenance",
+      "meta": {
+        "title": "Site Notices",
+        "desc": "Admin site-wide announcements and maintenance mode"
+      }
+    },
     "announcement": {
       "title": "Announcement Banner",
       "description": "Shown across the app when enabled. Dismissal resets when you change the message.",
@@ -247,6 +316,12 @@
       "cardAppEmailTitle": "App Email",
       "cardAppEmailDesc": "FROM address used for outbound mail",
       "notConfigured": "Not configured",
+      "activeUsers24h": "Active users (24h)",
+      "activeUsers24hDesc": "Distinct users that hit the API in the last 24 hours.",
+      "recentSignups": "Recent signups",
+      "topWorkspaces": "Top workspaces",
+      "members": "members",
+      "projects": "projects",
       "meta": {
         "title": "Admin Overview",
         "desc": "Admin dashboard for configuration and monitoring"
@@ -262,6 +337,8 @@
         "namePlaceholder": "Jira Clone",
         "logoUrl": "Logo URL",
         "logoUrlPlaceholder": "https://...",
+        "uploadCta": "Upload",
+        "uploadHint": "PNG, JPG, WebP or SVG up to 2MB. Uploads via Supabase.",
         "description": "Description",
         "descriptionPlaceholder": "A short tagline shown on auth + OG meta",
         "authorName": "Author name",
@@ -574,6 +651,14 @@
     "SETTINGS_UPDATED": "Settings updated.",
     "USER_ROLE_UPDATED": "User role updated.",
     "USER_DELETED": "User deleted.",
+    "USER_ACTIVATED": "User reactivated.",
+    "USER_DEACTIVATED": "User deactivated.",
+    "ACCOUNT_DEACTIVATED": "This account has been deactivated.",
+    "FLAG_CREATED": "Feature flag created.",
+    "FLAG_UPDATED": "Feature flag updated.",
+    "FLAG_DELETED": "Feature flag deleted.",
+    "FLAG_NOT_FOUND": "Feature flag not found.",
+    "FLAG_KEY_EXISTS": "A flag with that key already exists.",
     "CANNOT_MODIFY_SELF": "You cannot modify your own account here.",
     "SESSION_REVOKED": "Session revoked.",
     "SESSIONS_REVOKED": "All sessions revoked.",

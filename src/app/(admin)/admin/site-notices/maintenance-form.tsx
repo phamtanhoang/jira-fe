@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Wrench } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   DEFAULT_MAINTENANCE,
@@ -16,16 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toggle } from "@/components/ui/toggle";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-export function AdminMaintenanceClient() {
-  const { t } = useAppStore();
+export function MaintenanceFormPanel() {
   const { data, isLoading } = useSetting<MaintenanceValue>(
     SETTING_KEYS.APP_MAINTENANCE,
   );
@@ -33,52 +24,27 @@ export function AdminMaintenanceClient() {
     SETTING_KEYS.APP_MAINTENANCE,
   );
 
-  return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          {t("admin.maintenance.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("admin.maintenance.description")}
-        </p>
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-24 w-full" />
       </div>
+    );
+  }
 
-      <Card>
-        <CardHeader className="border-b pb-4">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <Wrench className="h-4 w-4" />
-            {t("admin.maintenance.title")}
-          </CardTitle>
-          <CardDescription className="text-xs">
-            {t("admin.maintenance.description")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-24 w-full" />
-            </div>
-          ) : (
-            <MaintenanceForm
-              key={data?.updatedAt ?? "new"}
-              initial={{
-                enabled:
-                  data?.value?.enabled ?? DEFAULT_MAINTENANCE.enabled,
-                message:
-                  data?.value?.message ?? DEFAULT_MAINTENANCE.message,
-                allowedEmails:
-                  data?.value?.allowedEmails ??
-                  DEFAULT_MAINTENANCE.allowedEmails,
-              }}
-              onSave={(v) => update.mutate(v)}
-              isPending={update.isPending}
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+  return (
+    <MaintenanceForm
+      key={data?.updatedAt ?? "new"}
+      initial={{
+        enabled: data?.value?.enabled ?? DEFAULT_MAINTENANCE.enabled,
+        message: data?.value?.message ?? DEFAULT_MAINTENANCE.message,
+        allowedEmails:
+          data?.value?.allowedEmails ?? DEFAULT_MAINTENANCE.allowedEmails,
+      }}
+      onSave={(v) => update.mutate(v)}
+      isPending={update.isPending}
+    />
   );
 }
 
@@ -108,7 +74,6 @@ function MaintenanceForm({
 
   return (
     <div className="space-y-4">
-      {/* Enabled */}
       <label className="flex items-center gap-3">
         <Toggle
           checked={enabled}
@@ -121,7 +86,6 @@ function MaintenanceForm({
         </span>
       </label>
 
-      {/* Message */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium">
           {t("admin.maintenance.messageLabel")}
@@ -134,7 +98,6 @@ function MaintenanceForm({
         />
       </div>
 
-      {/* Allowed emails */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium">
           {t("admin.maintenance.allowedEmails")}

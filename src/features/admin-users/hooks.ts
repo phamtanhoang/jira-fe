@@ -13,6 +13,7 @@ import {
   fetchUsers,
   revokeAllUserSessions,
   revokeUserSession,
+  setUserActive,
   updateUserRole,
 } from "./api";
 import type {
@@ -46,6 +47,20 @@ export function useDeleteUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteUser(id),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useSetUserActive() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      setUserActive(id, active),
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
