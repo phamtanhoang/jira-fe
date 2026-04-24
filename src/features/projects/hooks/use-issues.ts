@@ -1,10 +1,44 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type QueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useMutationState,
+  useQuery,
+  useQueryClient,
+  useInfiniteQuery,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { isEqual } from "lodash";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { issuesApi } from "../api";
 import type { Board, CreateIssuePayload, Issue, MoveIssuePayload } from "../types";
+
+// Shared mutation key so consumers can subscribe to "is this issue currently
+// being mutated?" via useMutationState. Drag/drop + quick-edit both use it.
+const ISSUE_MUTATION_KEY = ["issue-mutate"] as const;
+
+/**
+ * Returns the set of issue IDs that currently have an in-flight update or
+ * move mutation. Used by IssueCard / IssueRow / detail sidebar to show a
+ * spinner overlay while the server round-trip completes.
+ */
+export function usePendingIssueIds(): Set<string> {
+  const variables = useMutationState<unknown>({
+    filters: { mutationKey: ISSUE_MUTATION_KEY, status: "pending" },
+    select: (m) => m.state.variables,
+  });
+  const ids = new Set<string>();
+  for (const v of variables) {
+    const id = (v as { id?: string } | undefined)?.id;
+    if (typeof id === "string") ids.add(id);
+  }
+  return ids;
+}
+
+export function useIsIssuePending(issueId: string | undefined): boolean {
+  const ids = usePendingIssueIds();
+  return !!issueId && ids.has(issueId);
+}
 
 export function useIssues(projectId: string, filters?: Record<string, string>) {
   return useQuery({
@@ -159,6 +193,7 @@ export function useMoveIssue() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: ISSUE_MUTATION_KEY,
     mutationFn: ({ id, ...data }: MoveIssuePayload & { id: string }) =>
       issuesApi.move(id, data),
     onMutate: async ({ id, columnId }) => {
@@ -196,6 +231,7 @@ export function useUpdateIssue() {
     { id: string } & Record<string, unknown>,
     { snapshot: ReturnType<QueryClient["getQueriesData"]>; previous: Issue | null }
   >({
+    mutationKey: ISSUE_MUTATION_KEY,
     mutationFn: (payload) => {
       const { id, ...data } = payload;
       if (Object.keys(data).length === 0) {

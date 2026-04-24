@@ -14,7 +14,7 @@ import {
   type AuditLogRow,
 } from "@/features/admin-audit";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
@@ -36,7 +36,10 @@ const ANY = "__any__";
 
 export function AuditPanel() {
   const { t } = useAppStore();
-  const [filters, setFilters] = useState<AuditLogFilters>({ take: 50 });
+  const [filters, setFilters] = useState<AuditLogFilters>({
+    take: 50,
+    page: 1,
+  });
   const [selected, setSelected] = useState<AuditLogRow | null>(null);
   const { data, isLoading } = useAuditLog(filters);
 
@@ -49,7 +52,7 @@ export function AuditPanel() {
             setFilters((f) => ({
               ...f,
               action: v === ANY ? undefined : (v as AuditAction),
-              cursor: undefined,
+              page: 1,
             }))
           }
         >
@@ -137,21 +140,12 @@ export function AuditPanel() {
         )}
       </div>
 
-      {data?.hasMore && (
-        <div className="flex justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                cursor: data.nextCursor ?? undefined,
-              }))
-            }
-          >
-            {t("admin.audit.loadMore")}
-          </Button>
-        </div>
+      {data && data.totalPages > 1 && (
+        <Pagination
+          page={data.page}
+          totalPages={data.totalPages}
+          onChange={(page) => setFilters((f) => ({ ...f, page }))}
+        />
       )}
 
       <AuditDetailSheet

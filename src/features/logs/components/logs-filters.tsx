@@ -40,7 +40,7 @@ export function LogsFiltersBar({
       filters.excludeUserId === undefined &&
       filters.errorsOnly === undefined
     ) {
-      onChange({ ...filters, excludeUserId: user.id, cursor: undefined });
+      onChange({ ...filters, excludeUserId: user.id, page: 1 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
@@ -53,7 +53,7 @@ export function LogsFiltersBar({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onBlur={() =>
-          onChange({ ...filters, search: search || undefined, cursor: undefined })
+          onChange({ ...filters, search: search || undefined, page: 1 })
         }
       />
       <Input
@@ -65,7 +65,7 @@ export function LogsFiltersBar({
           onChange({
             ...filters,
             userEmail: email || undefined,
-            cursor: undefined,
+            page: 1,
           })
         }
       />
@@ -75,7 +75,7 @@ export function LogsFiltersBar({
           onChange({
             ...filters,
             level: (v || undefined) as LogLevel | undefined,
-            cursor: undefined,
+            page: 1,
           })
         }
       >
@@ -93,7 +93,7 @@ export function LogsFiltersBar({
       <Select
         value={filters.method ?? ""}
         onValueChange={(v) =>
-          onChange({ ...filters, method: v || undefined, cursor: undefined })
+          onChange({ ...filters, method: v || undefined, page: 1 })
         }
       >
         <SelectTrigger className="h-8 w-28">
@@ -116,7 +116,7 @@ export function LogsFiltersBar({
           onChange({
             ...filters,
             statusCode: e.target.value ? Number(e.target.value) : undefined,
-            cursor: undefined,
+            page: 1,
           })
         }
       />
@@ -126,7 +126,7 @@ export function LogsFiltersBar({
           onChange({
             ...filters,
             excludeUserId: !hideMine && user?.id ? user.id : undefined,
-            cursor: undefined,
+            page: 1,
           })
         }
       >
@@ -138,7 +138,7 @@ export function LogsFiltersBar({
           onChange({
             ...filters,
             errorsOnly: !errorsOnly ? true : undefined,
-            cursor: undefined,
+            page: 1,
           })
         }
       >

@@ -1,9 +1,11 @@
 "use client";
 
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_BADGE_COLORS, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
-import { getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { useIsIssuePending } from "../hooks";
 import type { Issue } from "../types";
 
 export function IssueRow({
@@ -13,6 +15,7 @@ export function IssueRow({
   issue: Issue;
   onClick: () => void;
 }) {
+  const isPending = useIsIssuePending(issue.id);
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
   const prioConf = PRIORITY_CONFIG[issue.priority] ?? PRIORITY_CONFIG.MEDIUM;
@@ -21,8 +24,16 @@ export function IssueRow({
   return (
     <div
       onClick={onClick}
-      className="flex cursor-pointer items-center gap-3 border-b px-4 py-2.5 transition-colors last:border-b-0 hover:bg-muted/50"
+      className={cn(
+        "relative flex cursor-pointer items-center gap-3 border-b px-4 py-2.5 transition-colors last:border-b-0 hover:bg-muted/50",
+        isPending && "opacity-60",
+      )}
     >
+      {isPending && (
+        <div className="pointer-events-none absolute right-3 top-1/2 z-10 -translate-y-1/2">
+          <Spinner className="h-3.5 w-3.5 text-primary" />
+        </div>
+      )}
       {/* Type */}
       <div className={`flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-sm ${typeConf.bg}`}>
         <TypeIcon className="h-3 w-3 text-white" />

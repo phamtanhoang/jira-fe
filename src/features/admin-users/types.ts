@@ -116,6 +116,37 @@ export type AdminMetrics = {
   errorTrendHourly: HourlyErrorPoint[];
 };
 
+export type UserActivityTopUser = {
+  userId: string | null;
+  userEmail: string | null;
+  count: number;
+  lastSeen: string | null;
+};
+
+export type UserActivityTopRoute = {
+  route: string | null;
+  method: string;
+  count: number;
+};
+
+export type UserActivityRecent = {
+  id: string;
+  method: string;
+  url: string;
+  route: string | null;
+  statusCode: number | null;
+  userEmail: string | null;
+  createdAt: string;
+};
+
+export type UserActivity = {
+  sinceHours: number;
+  totalRequests: number;
+  topUsers: UserActivityTopUser[];
+  topRoutes: UserActivityTopRoute[];
+  recent: UserActivityRecent[];
+};
+
 export type AdminWorkspaceRow = {
   id: string;
   name: string;

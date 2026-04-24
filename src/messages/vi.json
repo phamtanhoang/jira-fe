@@ -280,6 +280,18 @@
         "desc": "Lịch sử hành động admin"
       }
     },
+    "userActivity": {
+      "description": "Tổng hợp từ request log — user thực sự dùng gì trong app (đã loại traffic từ trang admin).",
+      "totalRequests": "Tổng request",
+      "activeUsers": "User hoạt động",
+      "uniqueRoutes": "Route được dùng",
+      "topUsers": "User hoạt động nhất",
+      "topUsersHint": "Xếp hạng theo số request trong khoảng thời gian đã chọn.",
+      "topRoutes": "Route được dùng nhiều",
+      "topRoutesHint": "Các endpoint user thường gọi trong app.",
+      "recent": "Hoạt động gần đây",
+      "recentHint": "30 request mới nhất từ user (không phải admin)."
+    },
     "siteNotices": {
       "title": "Thông báo hệ thống",
       "description": "Phát broadcast thông báo và bật maintenance mode trong cùng 1 nơi.",
@@ -362,9 +374,10 @@
     },
     "logs": {
       "title": "Nhật ký hệ thống",
-      "description": "Xem request log và audit log của quản trị trong cùng một nơi.",
+      "description": "Request log, audit log và thống kê hoạt động user trong cùng một nơi.",
       "tabRequests": "Request",
       "tabAudit": "Audit",
+      "tabActivity": "Hoạt động user",
       "empty": "Không có log nào phù hợp.",
       "loadMore": "Tải thêm",
       "meta": {
@@ -665,7 +678,8 @@
     "attached": "đã đính kèm tệp",
     "loggedWork": "đã ghi nhận thời gian",
     "loading": "Đang tải hoạt động...",
-    "noActivity": "Chưa có hoạt động"
+    "noActivity": "Chưa có hoạt động",
+    "unset": "đã bỏ"
   },
   "worklog": {
     "title": "Theo dõi thời gian",

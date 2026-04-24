@@ -26,6 +26,14 @@ api.interceptors.request.use((config) => {
   config.headers["x-timezone"] =
     Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+  // Tag requests originating from admin pages so the BE can skip persisting
+  // them to the request log — otherwise the admin's own dashboard reads
+  // flood the log they're trying to read.
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    config.headers["x-origin"] = path.startsWith("/admin") ? "admin" : "app";
+  }
+
   // Don't breadcrumb log traffic on itself
   if (!config.url?.includes(ENDPOINTS.logs.client)) {
     pushBreadcrumb({

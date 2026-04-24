@@ -89,11 +89,6 @@ export function AdminSidebar({
       label: t("admin.nav.groupConfiguration"),
       items: [
         {
-          href: ROUTES.ADMIN_SETTINGS,
-          label: t("admin.nav.settings"),
-          icon: Settings,
-        },
-        {
           href: ROUTES.ADMIN_FLAGS,
           label: t("admin.nav.flags"),
           icon: Flag,
@@ -102,6 +97,11 @@ export function AdminSidebar({
           href: ROUTES.ADMIN_SITE_NOTICES,
           label: t("admin.nav.siteNotices"),
           icon: Megaphone,
+        },
+        {
+          href: ROUTES.ADMIN_SETTINGS,
+          label: t("admin.nav.settings"),
+          icon: Settings,
         },
       ],
     },

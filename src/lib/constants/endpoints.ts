@@ -127,6 +127,7 @@ const ADMIN_ENDPOINTS = {
   stats: `${ADMIN_BASE}/stats`,
   analytics: `${ADMIN_BASE}/analytics`,
   metrics: `${ADMIN_BASE}/metrics`,
+  userActivity: `${ADMIN_BASE}/user-activity`,
   workspaces: `${ADMIN_BASE}/workspaces`,
   workspaceById: (id: string) => `${ADMIN_BASE}/workspaces/${id}`,
   audit: `${ADMIN_BASE}/audit`,

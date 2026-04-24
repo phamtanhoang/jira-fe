@@ -280,6 +280,18 @@
         "desc": "Administrator action history"
       }
     },
+    "userActivity": {
+      "description": "Aggregated from request logs — what users actually do in the app (admin traffic excluded).",
+      "totalRequests": "Total requests",
+      "activeUsers": "Active users",
+      "uniqueRoutes": "Unique routes",
+      "topUsers": "Most active users",
+      "topUsersHint": "Ranked by request volume over the selected window.",
+      "topRoutes": "Most-used routes",
+      "topRoutesHint": "Endpoints users call the most in the app.",
+      "recent": "Recent activity",
+      "recentHint": "30 most recent end-user requests (admin excluded)."
+    },
     "siteNotices": {
       "title": "Site Notices",
       "description": "Broadcast announcements and toggle full maintenance mode from one place.",
@@ -362,9 +374,10 @@
     },
     "logs": {
       "title": "System Logs",
-      "description": "Request logs and admin audit logs in one place.",
+      "description": "Request logs, admin audit logs, and user activity analytics in one place.",
       "tabRequests": "Requests",
       "tabAudit": "Audit",
+      "tabActivity": "User activity",
       "empty": "No logs match the current filters.",
       "loadMore": "Load more",
       "meta": {
@@ -665,7 +678,8 @@
     "attached": "added an attachment",
     "loggedWork": "logged work",
     "loading": "Loading activity...",
-    "noActivity": "No activity yet"
+    "noActivity": "No activity yet",
+    "unset": "unset"
   },
   "worklog": {
     "title": "Time Tracking",

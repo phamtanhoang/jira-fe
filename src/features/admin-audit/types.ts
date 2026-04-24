@@ -34,12 +34,17 @@ export type AuditLogFilters = {
   action?: AuditAction;
   actorId?: string;
   targetType?: string;
-  cursor?: string;
+  page?: number;
   take?: number;
 };
 
 export type AuditLogResponse = {
   data: AuditLogRow[];
-  nextCursor: string | null;
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
   hasMore: boolean;
+  // Deprecated — kept so old callers don't throw. Use `page` + `totalPages`.
+  nextCursor: string | null;
 };

@@ -11,6 +11,7 @@ import type {
   AdminWorkspacesListResponse,
   Role,
   SessionsResponse,
+  UserActivity,
 } from "./types";
 
 export async function fetchUsers(
@@ -70,6 +71,15 @@ export async function fetchAdminMetrics(
   sinceHours: number,
 ): Promise<AdminMetrics> {
   const res = await api.get<AdminMetrics>(ENDPOINTS.admin.metrics, {
+    params: { sinceHours },
+  });
+  return res.data;
+}
+
+export async function fetchUserActivity(
+  sinceHours: number,
+): Promise<UserActivity> {
+  const res = await api.get<UserActivity>(ENDPOINTS.admin.userActivity, {
     params: { sinceHours },
   });
   return res.data;

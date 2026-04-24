@@ -9,6 +9,7 @@ import {
   fetchAdminMetrics,
   fetchAdminStats,
   fetchAdminWorkspaces,
+  fetchUserActivity,
   fetchUserSessions,
   fetchUsers,
   revokeAllUserSessions,
@@ -88,6 +89,13 @@ export function useAdminMetrics(sinceHours: number) {
   return useQuery({
     queryKey: ["admin-metrics", sinceHours],
     queryFn: () => fetchAdminMetrics(sinceHours),
+  });
+}
+
+export function useUserActivity(sinceHours: number) {
+  return useQuery({
+    queryKey: ["admin-user-activity", sinceHours],
+    queryFn: () => fetchUserActivity(sinceHours),
   });
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -13,21 +13,26 @@ import {
 import { useLogs } from "@/features/logs/hooks";
 import type { LogsFilters } from "@/features/logs/types";
 import { AuditPanel } from "@/features/admin-audit/components/audit-panel";
+import { UserActivityPanel } from "@/features/admin-users/components/user-activity-panel";
 import { useAppStore } from "@/lib/stores/use-app-store";
 
-type TabValue = "requests" | "audit";
+type TabValue = "requests" | "audit" | "activity";
 
 export function AdminLogsClient() {
   const { t } = useAppStore();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialTab: TabValue =
-    searchParams.get("tab") === "audit" ? "audit" : "requests";
+  const initialTab: TabValue = ((): TabValue => {
+    const t = searchParams.get("tab");
+    if (t === "audit" || t === "activity") return t;
+    return "requests";
+  })();
   const [tab, setTab] = useState<TabValue>(initialTab);
 
   function handleTabChange(next: string) {
-    const value = next === "audit" ? "audit" : "requests";
+    const value: TabValue =
+      next === "audit" || next === "activity" ? next : "requests";
     setTab(value);
     const params = new URLSearchParams(searchParams.toString());
     if (value === "requests") params.delete("tab");
@@ -52,6 +57,9 @@ export function AdminLogsClient() {
             {t("admin.logs.tabRequests")}
           </TabsTrigger>
           <TabsTrigger value="audit">{t("admin.logs.tabAudit")}</TabsTrigger>
+          <TabsTrigger value="activity">
+            {t("admin.logs.tabActivity")}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="requests" className="mt-4">
@@ -61,21 +69,27 @@ export function AdminLogsClient() {
         <TabsContent value="audit" className="mt-4">
           <AuditPanel />
         </TabsContent>
+
+        <TabsContent value="activity" className="mt-4">
+          <UserActivityPanel />
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
 
 function RequestsTab() {
-  const { t } = useAppStore();
-  const [filters, setFilters] = useState<LogsFilters>({ take: 50 });
+  const [filters, setFilters] = useState<LogsFilters>({ take: 50, page: 1 });
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { data, isLoading } = useLogs(filters);
 
   return (
     <div className="space-y-4">
-      <LogsFiltersBar filters={filters} onChange={setFilters} />
+      <LogsFiltersBar
+        filters={filters}
+        onChange={(next) => setFilters({ ...next, page: 1 })}
+      />
 
       {isLoading ? (
         <div className="flex h-40 items-center justify-center">
@@ -84,21 +98,12 @@ function RequestsTab() {
       ) : (
         <>
           <LogsTable logs={data?.data ?? []} onRowClick={setSelectedId} />
-          {data?.hasMore && (
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setFilters((f) => ({
-                    ...f,
-                    cursor: data.nextCursor ?? undefined,
-                  }))
-                }
-              >
-                {t("admin.logs.loadMore")}
-              </Button>
-            </div>
+          {data && data.totalPages > 1 && (
+            <Pagination
+              page={data.page}
+              totalPages={data.totalPages}
+              onChange={(page) => setFilters((f) => ({ ...f, page }))}
+            />
           )}
         </>
       )}

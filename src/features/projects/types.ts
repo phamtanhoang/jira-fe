@@ -146,6 +146,9 @@ export type Activity = {
   field: string | null;
   oldValue: string | null;
   newValue: string | null;
+  /** Resolved display string (e.g. user name) — falls back to raw value when absent. */
+  oldValueDisplay?: string | null;
+  newValueDisplay?: string | null;
   createdAt: string;
   user: UserPreview;
 };
