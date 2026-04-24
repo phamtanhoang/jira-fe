@@ -115,6 +115,7 @@ export function useUpdateProjectMember(projectId: string) {
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["projectMembers", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
     },
     onError: handleApiError,
   });

@@ -41,7 +41,7 @@ export function LogDetailSheet({
 
   return (
     <Sheet open={!!logId} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-[860px] sm:max-w-[640px] overflow-y-auto">
+      <SheetContent className="w-[720px] max-w-[95vw] overflow-y-auto sm:max-w-[720px] lg:max-w-[800px]">
         <SheetHeader>
           <SheetTitle>{t("admin.logs.detail.title")}</SheetTitle>
           <SheetDescription>

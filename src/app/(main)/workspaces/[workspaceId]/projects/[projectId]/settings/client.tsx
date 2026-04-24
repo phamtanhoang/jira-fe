@@ -21,7 +21,6 @@ import {
   useProject,
   useUpdateProject,
   useDeleteProject,
-  useProjectMembers,
   useBulkAddProjectMembers,
   useUpdateProjectMember,
   useRemoveProjectMember,
@@ -68,7 +67,10 @@ export default function ProjectSettingsPage() {
   const { user } = useCurrentUser();
   const { data: workspace } = useWorkspace(workspaceId);
   const { data: project, isLoading } = useProject(projectId);
-  const { data: members } = useProjectMembers(projectId);
+  // `useProject.findById` already includes members — reuse that instead of
+  // adding a separate fetch. Keeps the UI working even when the dedicated
+  // GET /projects/:id/members endpoint isn't deployed.
+  const members = project?.members;
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject();
   const { mutate: bulkAddMembers, isPending: isAddingMember } =

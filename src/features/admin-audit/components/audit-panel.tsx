@@ -171,7 +171,7 @@ function AuditDetailSheet({
   if (!row) {
     return (
       <Sheet open={false} onOpenChange={(open) => !open && onClose()}>
-        <SheetContent className="w-[520px] sm:max-w-[520px]" />
+        <SheetContent className="w-180 max-w-[95vw] sm:max-w-180 lg:max-w-200" />
       </Sheet>
     );
   }
@@ -186,7 +186,7 @@ function AuditDetailSheet({
 
   return (
     <Sheet open={!!row} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-[560px] max-w-[100vw] overflow-y-auto p-0 sm:max-w-[560px]">
+      <SheetContent className="w-180 max-w-[95vw] overflow-y-auto p-0 sm:max-w-180 lg:max-w-200">
         <SheetHeader className="border-b px-6 pt-6 pb-4">
           <SheetTitle className="flex items-center gap-3">
             <span
