@@ -1,7 +1,19 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { ROUTES, ENDPOINTS, COOKIE_AUTH } from "@/lib/constants";
+import { ROUTES, ENDPOINTS, COOKIE_AUTH, COOKIE_ROLE } from "@/lib/constants";
 import { pushBreadcrumb, reportError } from "@/lib/logging";
 import { handleApiError } from "@/lib/utils";
+
+function clearSessionAndRedirect() {
+  document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
+  document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+  // Avoid redirect loops from pages that are already public (sign-in, etc.)
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    if (!path.startsWith(ROUTES.SIGN_IN)) {
+      window.location.href = ROUTES.SIGN_IN;
+    }
+  }
+}
 
 export const api = axios.create({
   baseURL: "/api",
@@ -50,6 +62,18 @@ api.interceptors.response.use(
     );
 
     const status = error.response?.status;
+    const isRefreshEndpoint = originalRequest?.url?.includes(
+      ENDPOINTS.auth.refresh,
+    );
+
+    // A 401 on the refresh endpoint itself means the refresh token is gone /
+    // expired / revoked — session is dead, kick to sign-in. Do NOT queue or
+    // retry (that would deadlock the queue waiting on itself).
+    if (status === 401 && isRefreshEndpoint) {
+      processQueue(error);
+      clearSessionAndRedirect();
+      return Promise.reject(error);
+    }
 
     if (status !== 401 || !originalRequest || originalRequest._retry) {
       // Not a 401 we can retry — report and reject
@@ -86,8 +110,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError);
       handleApiError(refreshError);
-      document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
-      window.location.href = ROUTES.SIGN_IN;
+      clearSessionAndRedirect();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
