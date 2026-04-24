@@ -7,6 +7,7 @@ import { handleApiError, showMessage } from "@/lib/utils";
 import { workspacesApi } from "./api";
 import type {
   CreateWorkspacePayload,
+  UpdateWorkspacePayload,
   AddWorkspaceMemberPayload,
   UpdateWorkspaceMemberPayload,
 } from "./types";
@@ -36,6 +37,21 @@ export function useCreateWorkspace() {
       showMessage(result.message);
       qc.invalidateQueries({ queryKey: ["workspaces"] });
       router.push(ROUTES.WORKSPACE(result.workspace.id));
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useUpdateWorkspace() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateWorkspacePayload }) =>
+      workspacesApi.update(id, data),
+    onSuccess: (result, vars) => {
+      showMessage(result.message);
+      qc.invalidateQueries({ queryKey: ["workspaces", vars.id] });
+      qc.invalidateQueries({ queryKey: ["workspaces"] });
     },
     onError: handleApiError,
   });

@@ -74,6 +74,23 @@ export function useProjectMembers(projectId: string) {
   });
 }
 
+export function useBulkAddProjectMembers(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      userIds: string[];
+      role?: "ADMIN" | "DEVELOPER" | "VIEWER";
+    }) => projectsApi.bulkAddMembers(projectId, data),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: ["projectMembers", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+    },
+    onError: handleApiError,
+  });
+}
+
 export function useAddProjectMember(projectId: string) {
   const queryClient = useQueryClient();
 

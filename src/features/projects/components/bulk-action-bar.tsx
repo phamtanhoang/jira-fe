@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { X, Trash2, UserPlus, Zap, ArrowUp } from "lucide-react";
 import { PRIORITIES } from "@/lib/constants/issue-config";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useBulkUpdateIssues, useBulkDeleteIssues } from "../hooks";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
@@ -31,6 +33,7 @@ export function BulkActionBar({
   const { t } = useAppStore();
   const { mutate: bulkUpdate, isPending: updating } = useBulkUpdateIssues(projectId);
   const { mutate: bulkDelete, isPending: deleting } = useBulkDeleteIssues(projectId);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const count = selectedIds.size;
 
   if (count === 0) return null;
@@ -49,9 +52,9 @@ export function BulkActionBar({
     bulkUpdate({ issueIds: ids, priority }, { onSuccess: onClear });
   }
 
-  function handleDelete() {
-    if (!window.confirm(t("issue.bulkDeleteConfirm", { count: String(count) }))) return;
+  function confirmDelete() {
     bulkDelete(ids, { onSuccess: onClear });
+    setDeleteOpen(false);
   }
 
   return (
@@ -113,12 +116,29 @@ export function BulkActionBar({
       <div className="h-5 w-px bg-border" />
 
       {/* Delete */}
-      <Button size="xs" variant="destructive" onClick={handleDelete} disabled={deleting}>
+      <Button
+        size="xs"
+        variant="destructive"
+        onClick={() => setDeleteOpen(true)}
+        disabled={deleting}
+      >
         {deleting ? <Spinner className="mr-1 h-3 w-3" /> : <Trash2 className="mr-1 h-3 w-3" />}
         {t("common.delete")}
       </Button>
 
       {updating && <Spinner className="h-4 w-4 text-primary" />}
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t("common.delete")}
+        description={t("issue.bulkDeleteConfirm", { count: String(count) })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

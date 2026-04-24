@@ -22,7 +22,7 @@ import {
   useUpdateProject,
   useDeleteProject,
   useProjectMembers,
-  useAddProjectMember,
+  useBulkAddProjectMembers,
   useUpdateProjectMember,
   useRemoveProjectMember,
 } from "@/features/projects/hooks";
@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -70,7 +71,8 @@ export default function ProjectSettingsPage() {
   const { data: members } = useProjectMembers(projectId);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { mutate: deleteProject, isPending: isDeleting } = useDeleteProject();
-  const { mutate: addMember, isPending: isAddingMember } = useAddProjectMember(projectId);
+  const { mutate: bulkAddMembers, isPending: isAddingMember } =
+    useBulkAddProjectMembers(projectId);
   const { mutate: updateMember } = useUpdateProjectMember(projectId);
   const { mutate: removeMember } = useRemoveProjectMember(projectId);
 
@@ -80,8 +82,26 @@ export default function ProjectSettingsPage() {
   const [initialized, setInitialized] = useState(false);
 
   const [addOpen, setAddOpen] = useState(false);
-  const [memberEmail, setMemberEmail] = useState("");
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [memberRole, setMemberRole] = useState<"ADMIN" | "DEVELOPER" | "VIEWER">("DEVELOPER");
+  const [memberSearch, setMemberSearch] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<ProjectMember | null>(null);
+
+  // Role of the current user inside this project. Workspace OWNER/ADMIN are
+  // treated as managers of all projects they oversee, even when they don't
+  // have an explicit ProjectMember row.
+  const myProjectRole = members?.find((m) => m.userId === user?.id)?.role;
+  const myWorkspaceRole = workspace?.members?.find(
+    (m) => m.userId === user?.id,
+  )?.role;
+  const isWorkspaceManager =
+    myWorkspaceRole === "OWNER" || myWorkspaceRole === "ADMIN";
+  const canManage =
+    isWorkspaceManager ||
+    myProjectRole === "LEAD" ||
+    myProjectRole === "ADMIN";
+  const canDelete = isWorkspaceManager || myProjectRole === "LEAD";
 
   // Initialize form values when project loads
   if (project && !initialized) {
@@ -102,7 +122,6 @@ export default function ProjectSettingsPage() {
   }
 
   function handleDelete() {
-    if (!window.confirm(t("project.deleteConfirm"))) return;
     deleteProject(projectId, {
       onSuccess: () => router.push(ROUTES.WORKSPACE(workspaceId)),
     });
@@ -110,25 +129,49 @@ export default function ProjectSettingsPage() {
 
   function handleAddMember(e: React.FormEvent) {
     e.preventDefault();
-    if (!memberEmail.trim()) return;
-    addMember(
-      { email: memberEmail.trim(), role: memberRole },
+    if (selectedUserIds.length === 0) return;
+    bulkAddMembers(
+      { userIds: selectedUserIds, role: memberRole },
       {
         onSuccess: () => {
           setAddOpen(false);
-          setMemberEmail("");
+          setSelectedUserIds([]);
+          setMemberSearch("");
         },
       },
     );
   }
+
+  const leadMember = members?.find((m) => m.userId === project?.leadId);
+
+  // Workspace members not already on this project — the add-member dropdown
+  // only shows people who can actually be added (must be in the workspace,
+  // not yet in the project).
+  const projectMemberIds = new Set(members?.map((m) => m.userId) ?? []);
+  const eligibleWsMembers = (workspace?.members ?? [])
+    .filter((m) => !projectMemberIds.has(m.userId))
+    .filter((m) => {
+      if (!memberSearch.trim()) return true;
+      const q = memberSearch.trim().toLowerCase();
+      return (
+        (m.user.name ?? "").toLowerCase().includes(q) ||
+        m.user.email.toLowerCase().includes(q)
+      );
+    });
 
   function handleChangeRole(member: ProjectMember, role: "ADMIN" | "DEVELOPER" | "VIEWER") {
     updateMember({ memberId: member.id, role });
   }
 
   function handleRemoveMember(member: ProjectMember) {
-    if (!window.confirm(t("project.removeMemberConfirm"))) return;
-    removeMember(member.id);
+    setMemberToRemove(member);
+  }
+
+  function confirmRemoveMember() {
+    if (!memberToRemove) return;
+    removeMember(memberToRemove.id, {
+      onSettled: () => setMemberToRemove(null),
+    });
   }
 
   if (isLoading) {
@@ -188,6 +231,7 @@ export default function ProjectSettingsPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={t("project.namePlaceholder")}
+                    disabled={!canManage}
                   />
                 </div>
                 <div>
@@ -197,11 +241,16 @@ export default function ProjectSettingsPage() {
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
                     className="text-[13px]"
+                    disabled={!canManage}
                   />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-[13px] font-medium">{t("project.visibility")}</label>
-                  <Select value={visibility} onValueChange={(v) => v && setVisibility(v as "PUBLIC" | "PRIVATE")}>
+                  <Select
+                    value={visibility}
+                    onValueChange={(v) => v && setVisibility(v as "PUBLIC" | "PRIVATE")}
+                    disabled={!canManage}
+                  >
                     <SelectTrigger className="w-48">
                       <SelectValue />
                     </SelectTrigger>
@@ -212,18 +261,45 @@ export default function ProjectSettingsPage() {
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[13px] font-medium">{t("project.lead", { name: "" }).replace(": ", "")}</label>
+                  <label className="mb-1.5 block text-[13px] font-medium">
+                    {t("project.lead", { name: "" }).replace(": ", "")}
+                  </label>
                   <Select
                     value={project?.leadId ?? ""}
-                    onValueChange={(v) => v && updateProject({ id: projectId, leadId: v })}
+                    onValueChange={(v) =>
+                      v && updateProject({ id: projectId, leadId: v })
+                    }
+                    disabled={!canManage}
                   >
                     <SelectTrigger className="w-64">
-                      <SelectValue />
+                      <span className="flex min-w-0 items-center gap-2 truncate">
+                        {leadMember ? (
+                          <>
+                            <UserAvatar
+                              user={leadMember.user}
+                              className="h-5 w-5"
+                              fallbackClassName="text-[9px]"
+                            />
+                            <span className="truncate">
+                              {leadMember.user.name || leadMember.user.email}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
                       {members?.map((m) => (
                         <SelectItem key={m.userId} value={m.userId}>
-                          {m.user.name || m.user.email}
+                          <span className="flex items-center gap-2">
+                            <UserAvatar
+                              user={m.user}
+                              className="h-5 w-5"
+                              fallbackClassName="text-[9px]"
+                            />
+                            {m.user.name || m.user.email}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -238,27 +314,39 @@ export default function ProjectSettingsPage() {
                 </div>
               </div>
               <Separator className="my-5" />
-              <Button onClick={handleSave} disabled={isUpdating || !name.trim()}>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating || !name.trim() || !canManage}
+              >
                 {isUpdating ? t("common.loading") : t("common.save")}
               </Button>
+              {!canManage && (
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  {t("project.readOnlyNotice")}
+                </p>
+              )}
             </div>
 
             {/* Danger zone */}
-            <div className="rounded-lg border border-destructive/20 p-6">
-              <h3 className="mb-2 text-[14px] font-semibold text-destructive">{t("project.deleteProject")}</h3>
-              <p className="mb-4 text-[12px] text-muted-foreground">
-                {t("project.deleteConfirm")}
-              </p>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                {t("project.deleteProject")}
-              </Button>
-            </div>
+            {canDelete && (
+              <div className="rounded-lg border border-destructive/20 p-6">
+                <h3 className="mb-2 text-[14px] font-semibold text-destructive">
+                  {t("project.deleteProject")}
+                </h3>
+                <p className="mb-4 text-[12px] text-muted-foreground">
+                  {t("project.deleteConfirm")}
+                </p>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setDeleteOpen(true)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                  {t("project.deleteProject")}
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -270,40 +358,114 @@ export default function ProjectSettingsPage() {
                 {t("project.members")} ({members?.length ?? 0})
               </p>
               <Dialog open={addOpen} onOpenChange={setAddOpen}>
-                <Button render={<DialogTrigger />} size="sm">
-                  <UserPlus className="mr-1.5 h-3.5 w-3.5" />
-                  {t("project.addMember")}
-                </Button>
-                <DialogContent>
+                {canManage && (
+                  <Button render={<DialogTrigger />} size="sm">
+                    <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+                    {t("project.addMember")}
+                  </Button>
+                )}
+                <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
                     <DialogTitle>{t("project.addMember")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleAddMember} className="space-y-4">
                     <div>
-                      <label className="mb-1.5 block text-[13px] font-medium">{t("common.email")}</label>
+                      <label className="mb-1.5 block text-[13px] font-medium">
+                        {t("project.selectMembers")}
+                      </label>
                       <Input
-                        type="email"
-                        value={memberEmail}
-                        onChange={(e) => setMemberEmail(e.target.value)}
-                        placeholder={t("project.emailPlaceholder")}
+                        placeholder={t("common.search")}
+                        value={memberSearch}
+                        onChange={(e) => setMemberSearch(e.target.value)}
                         autoFocus
                       />
+                      <div className="mt-2 max-h-64 space-y-1 overflow-y-auto rounded-md border p-1">
+                        {eligibleWsMembers.length === 0 ? (
+                          <p className="px-2 py-4 text-center text-[12px] text-muted-foreground">
+                            {t("project.noEligibleMembers")}
+                          </p>
+                        ) : (
+                          eligibleWsMembers.map((m) => {
+                            const checked = selectedUserIds.includes(m.userId);
+                            return (
+                              <label
+                                key={m.userId}
+                                className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-muted/50"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    setSelectedUserIds((prev) =>
+                                      e.target.checked
+                                        ? [...prev, m.userId]
+                                        : prev.filter((id) => id !== m.userId),
+                                    );
+                                  }}
+                                  className="h-4 w-4 shrink-0 accent-primary"
+                                />
+                                <UserAvatar
+                                  user={m.user}
+                                  className="h-6 w-6"
+                                  fallbackClassName="text-[10px]"
+                                />
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-[13px] font-medium">
+                                    {m.user.name || m.user.email}
+                                  </span>
+                                  {m.user.name && (
+                                    <span className="block truncate text-[11px] text-muted-foreground">
+                                      {m.user.email}
+                                    </span>
+                                  )}
+                                </span>
+                              </label>
+                            );
+                          })
+                        )}
+                      </div>
+                      {selectedUserIds.length > 0 && (
+                        <p className="mt-1.5 text-[11px] text-muted-foreground">
+                          {t("project.selectedCount", {
+                            count: String(selectedUserIds.length),
+                          })}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-[13px] font-medium">{t("project.changeRole")}</label>
-                      <Select value={memberRole} onValueChange={(v) => v && setMemberRole(v as typeof memberRole)}>
+                      <label className="mb-1.5 block text-[13px] font-medium">
+                        {t("project.changeRole")}
+                      </label>
+                      <Select
+                        value={memberRole}
+                        onValueChange={(v) =>
+                          v && setMemberRole(v as typeof memberRole)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ADMIN">{t("project.roles.ADMIN")}</SelectItem>
-                          <SelectItem value="DEVELOPER">{t("project.roles.DEVELOPER")}</SelectItem>
-                          <SelectItem value="VIEWER">{t("project.roles.VIEWER")}</SelectItem>
+                          <SelectItem value="ADMIN">
+                            {t("project.roles.ADMIN")}
+                          </SelectItem>
+                          <SelectItem value="DEVELOPER">
+                            {t("project.roles.DEVELOPER")}
+                          </SelectItem>
+                          <SelectItem value="VIEWER">
+                            {t("project.roles.VIEWER")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button type="submit" className="w-full" disabled={isAddingMember || !memberEmail.trim()}>
-                      {isAddingMember ? t("common.loading") : t("project.addMember")}
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isAddingMember || selectedUserIds.length === 0}
+                    >
+                      {isAddingMember
+                        ? t("common.loading")
+                        : t("project.addMember")}
                     </Button>
                   </form>
                 </DialogContent>
@@ -332,7 +494,7 @@ export default function ProjectSettingsPage() {
                     {t(`project.roles.${member.role}` as MessageKey)}
                   </Badge>
 
-                  {member.role !== "LEAD" && member.userId !== user?.id && (
+                  {canManage && member.role !== "LEAD" && member.userId !== user?.id && (
                     <div className="flex items-center gap-1">
                       <Select
                         value={member.role}
@@ -365,6 +527,29 @@ export default function ProjectSettingsPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t("project.deleteProject")}
+        description={t("project.deleteConfirm")}
+        confirmLabel={t("project.deleteProject")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        loading={isDeleting}
+        onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={!!memberToRemove}
+        onOpenChange={(open) => !open && setMemberToRemove(null)}
+        title={t("project.removeMember")}
+        description={t("project.removeMemberConfirm")}
+        confirmLabel={t("project.removeMember")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={confirmRemoveMember}
+      />
     </div>
   );
 }

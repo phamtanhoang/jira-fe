@@ -63,6 +63,19 @@ export const projectsApi = {
       )
       .then((r) => r.data),
 
+  bulkAddMembers: (
+    id: string,
+    data: { userIds: string[]; role?: "ADMIN" | "DEVELOPER" | "VIEWER" },
+  ) =>
+    api
+      .post<{
+        message: string;
+        added: number;
+        skipped: number;
+        members: ProjectMember[];
+      }>(`${ENDPOINTS.projects.members(id)}/bulk`, data)
+      .then((r) => r.data),
+
   updateMember: (id: string, memberId: string, data: UpdateProjectMemberPayload) =>
     api
       .patch<{ message: string; member: ProjectMember }>(

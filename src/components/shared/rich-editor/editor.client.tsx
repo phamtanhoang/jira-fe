@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -20,6 +21,15 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RICH_EDITOR } from "@/lib/constants/ui";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export type RichEditorProps = {
   content?: string;
@@ -40,6 +50,9 @@ export default function RichEditor({
   className,
   autoFocus = false,
 }: RichEditorProps) {
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -179,8 +192,8 @@ export default function RichEditor({
               <ToolbarSep />
               <ToolbarButton
                 onClick={() => {
-                  const url = window.prompt("Image URL:");
-                  if (url) editor.chain().focus().setImage({ src: url }).run();
+                  setImageUrl("");
+                  setImageDialogOpen(true);
                 }}
                 title="Insert Image"
               >
@@ -223,6 +236,45 @@ export default function RichEditor({
 
       {/* Editor */}
       <EditorContent editor={editor} />
+
+      <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Insert image</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const url = imageUrl.trim();
+              if (url) {
+                editor.chain().focus().setImage({ src: url }).run();
+              }
+              setImageDialogOpen(false);
+            }}
+            className="space-y-3"
+          >
+            <Input
+              type="url"
+              placeholder="https://..."
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              autoFocus
+            />
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setImageDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!imageUrl.trim()}>
+                Insert
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

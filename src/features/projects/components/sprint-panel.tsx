@@ -15,6 +15,7 @@ import {
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -82,11 +83,12 @@ export function SprintPanel({
     setEditing(false);
   }
 
-  function handleDelete() {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  function confirmDelete() {
     if (!onDeleteSprint) return;
-    if (window.confirm(t("sprint.deleteSprintConfirm"))) {
-      onDeleteSprint(sprint.id);
-    }
+    onDeleteSprint(sprint.id);
+    setDeleteOpen(false);
   }
 
   function startEditing() {
@@ -203,7 +205,7 @@ export function SprintPanel({
                   </DropdownMenuItem>
                 )}
                 {onDeleteSprint && sprint.status === "PLANNING" && (
-                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                  <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-destructive">
                     <Trash2 className="mr-2 h-3.5 w-3.5" />
                     {t("sprint.deleteSprint")}
                   </DropdownMenuItem>
@@ -298,6 +300,17 @@ export function SprintPanel({
           </div>
         )
       )}
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t("sprint.deleteSprint")}
+        description={t("sprint.deleteSprintConfirm")}
+        confirmLabel={t("sprint.deleteSprint")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

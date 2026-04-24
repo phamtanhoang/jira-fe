@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Workspace } from "@/features/workspaces/types";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,19 +11,28 @@ import {
   LayoutGrid,
   ChevronRight,
   Rocket,
+  Settings,
+  Trash2,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
-import { useWorkspace } from "@/features/workspaces/hooks";
+import {
+  useWorkspace,
+  useUpdateWorkspace,
+  useDeleteWorkspace,
+} from "@/features/workspaces/hooks";
 import { useProjects, useCreateProject } from "@/features/projects/hooks";
 import { AddMemberDialog } from "@/features/workspaces/components/add-member-dialog";
 import { MembersList } from "@/features/workspaces/components/members-list";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -54,11 +64,15 @@ export default function WorkspaceDetailPage() {
   const { data: workspace, isLoading: wsLoading } = useWorkspace(workspaceId);
   const { data: projects, isLoading: projLoading } = useProjects(workspaceId);
   const { mutate: createProject, isPending } = useCreateProject();
+  const { mutate: updateWorkspace, isPending: isUpdatingWs } = useUpdateWorkspace();
+  const { mutate: deleteWorkspace, isPending: isDeletingWs } = useDeleteWorkspace();
 
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectKey, setProjectKey] = useState("");
   const [projectType, setProjectType] = useState<"SCRUM" | "KANBAN">("SCRUM");
+
+  const [deleteWsOpen, setDeleteWsOpen] = useState(false);
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -106,6 +120,8 @@ export default function WorkspaceDetailPage() {
   )?.role;
   const canManageMembers =
     currentUserRole === "OWNER" || currentUserRole === "ADMIN";
+  const canEditWorkspace = canManageMembers;
+  const canDeleteWorkspace = currentUserRole === "OWNER";
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-8">
@@ -148,6 +164,12 @@ export default function WorkspaceDetailPage() {
                 </Badge>
               ) : null}
             </TabsTrigger>
+            {canEditWorkspace && (
+              <TabsTrigger value="settings">
+                <Settings className="mr-1.5 h-4 w-4" />
+                {t("workspace.settings")}
+              </TabsTrigger>
+            )}
           </TabsList>
         </div>
 
@@ -315,7 +337,125 @@ export default function WorkspaceDetailPage() {
             </div>
           )}
         </TabsContent>
+
+        {/* Settings Tab */}
+        {canEditWorkspace && workspace && (
+          <TabsContent value="settings">
+            <WorkspaceSettingsForm
+              key={workspace.id}
+              workspace={workspace}
+              isUpdating={isUpdatingWs}
+              isDeleting={isDeletingWs}
+              canDelete={canDeleteWorkspace}
+              onSave={(data) => updateWorkspace({ id: workspaceId, data })}
+              onDeleteClick={() => setDeleteWsOpen(true)}
+            />
+          </TabsContent>
+        )}
       </Tabs>
+
+      <ConfirmDialog
+        open={deleteWsOpen}
+        onOpenChange={setDeleteWsOpen}
+        title={t("workspace.deleteWorkspace")}
+        description={t("workspace.deleteConfirm")}
+        confirmLabel={t("workspace.deleteWorkspace")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        loading={isDeletingWs}
+        onConfirm={() => deleteWorkspace(workspaceId)}
+      />
+    </div>
+  );
+}
+
+function WorkspaceSettingsForm({
+  workspace,
+  isUpdating,
+  isDeleting,
+  canDelete,
+  onSave,
+  onDeleteClick,
+}: {
+  workspace: Workspace;
+  isUpdating: boolean;
+  isDeleting: boolean;
+  canDelete: boolean;
+  onSave: (data: { name: string; description?: string }) => void;
+  onDeleteClick: () => void;
+}) {
+  const { t } = useAppStore();
+  // Remounted via parent `key={workspace.id}` whenever the workspace changes,
+  // so `useState` initial values seed from props and we don't need the
+  // setState-in-effect pattern the React compiler forbids.
+  const [name, setName] = useState(workspace.name);
+  const [description, setDescription] = useState(workspace.description ?? "");
+
+  const dirty =
+    name !== workspace.name || description !== (workspace.description ?? "");
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-lg border p-6">
+        <h3 className="mb-4 text-[14px] font-semibold">
+          {t("workspace.general")}
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-[13px] font-medium">
+              {t("common.name")}
+            </label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t("workspace.namePlaceholder")}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[13px] font-medium">
+              {t("common.description")}
+            </label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="text-[13px]"
+            />
+          </div>
+        </div>
+        <Separator className="my-5" />
+        <Button
+          onClick={() =>
+            onSave({
+              name: name.trim(),
+              description: description.trim() || undefined,
+            })
+          }
+          disabled={isUpdating || !name.trim() || !dirty}
+        >
+          {isUpdating ? t("common.loading") : t("common.save")}
+        </Button>
+      </div>
+
+      {canDelete && (
+        <div className="rounded-lg border border-destructive/20 p-6">
+          <h3 className="mb-2 text-[14px] font-semibold text-destructive">
+            {t("workspace.deleteWorkspace")}
+          </h3>
+          <p className="mb-4 text-[12px] text-muted-foreground">
+            {t("workspace.deleteConfirm")}
+          </p>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onDeleteClick}
+            disabled={isDeleting}
+          >
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+            {t("workspace.deleteWorkspace")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

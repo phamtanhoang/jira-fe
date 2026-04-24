@@ -32,6 +32,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -460,6 +461,7 @@ function SessionsPanel({
   const { data, isLoading } = useUserSessions(userId);
   const revoke = useRevokeSession();
   const revokeAll = useRevokeAllSessions();
+  const [revokeAllOpen, setRevokeAllOpen] = useState(false);
 
   const sessions = data?.data ?? [];
 
@@ -474,15 +476,7 @@ function SessionsPanel({
           <Button
             variant="outline"
             size="xs"
-            onClick={() => {
-              if (
-                window.confirm(
-                  t("admin.sessions.revokeAllConfirm", { email: userEmail }),
-                )
-              ) {
-                revokeAll.mutate(userId);
-              }
-            }}
+            onClick={() => setRevokeAllOpen(true)}
             disabled={revokeAll.isPending}
           >
             {t("admin.sessions.revokeAll")}
@@ -532,6 +526,25 @@ function SessionsPanel({
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={revokeAllOpen}
+        onOpenChange={setRevokeAllOpen}
+        title={t("admin.sessions.revokeAll")}
+        description={t("admin.sessions.revokeAllConfirm", { email: userEmail })}
+        confirmLabel={t("admin.sessions.revokeAll")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        loading={revokeAll.isPending}
+        onConfirm={() =>
+          new Promise<void>((resolve, reject) =>
+            revokeAll.mutate(userId, {
+              onSuccess: () => resolve(),
+              onError: (err) => reject(err),
+            }),
+          )
+        }
+      />
     </div>
   );
 }
