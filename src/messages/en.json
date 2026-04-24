@@ -784,7 +784,22 @@
     "passwordChanged": "Password changed.",
     "changeAvatar": "Change avatar",
     "avatarHint": "Click the avatar to change it (JPG/PNG/GIF/WEBP, up to 2MB).",
-    "emailImmutable": "Email cannot be changed."
+    "emailImmutable": "Email cannot be changed.",
+    "sessions": {
+      "title": "Signed-in devices",
+      "description": "Sessions currently active on your account. Sign out any device that isn't yours.",
+      "thisDevice": "This device",
+      "signedIn": "Signed in {date}",
+      "lastUsed": "Last active {date}",
+      "signOut": "Sign out",
+      "signOutConfirm": "Sign out this device? It will need to log in again.",
+      "signOutOthers": "Sign out other devices",
+      "signOutOthersConfirm": "Sign out every other device and keep this one active?",
+      "signOutAll": "Sign out everywhere",
+      "signOutAllConfirm": "This signs out every device including this one. You'll need to sign in again.",
+      "empty": "No active sessions",
+      "emptyDesc": "Only the current session is active."
+    }
   },
   "meta": {
     "signInTitle": "Sign In",

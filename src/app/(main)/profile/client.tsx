@@ -17,6 +17,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { SessionsPanel } from "@/features/auth/components/sessions-panel";
 
 const ALLOWED_AVATAR_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
@@ -203,6 +204,8 @@ export default function ProfilePage() {
           </form>
         </CardContent>
       </Card>
+
+      <SessionsPanel />
     </div>
   );
 }

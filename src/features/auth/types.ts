@@ -33,3 +33,13 @@ export type ResetPasswordPayload = {
   token: string;
   newPassword: string;
 };
+
+export type SessionRow = {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  lastUsedAt: string;
+  userAgent: string | null;
+  ip: string | null;
+  isCurrent: boolean;
+};

@@ -20,6 +20,10 @@ const AUTH_ENDPOINTS = {
   logOut: `${AUTH_BASE}/logout`,
   refresh: `${AUTH_BASE}/refresh`,
   me: `${AUTH_BASE}/me`,
+  sessions: `${AUTH_BASE}/sessions`,
+  session: (sessionId: string) => `${AUTH_BASE}/sessions/${sessionId}`,
+  sessionsRevokeOthers: `${AUTH_BASE}/sessions/revoke-others`,
+  sessionsRevokeAll: `${AUTH_BASE}/sessions/revoke-all`,
 } as const;
 
 const SETTINGS_ENDPOINTS = {

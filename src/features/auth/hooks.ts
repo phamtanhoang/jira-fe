@@ -203,3 +203,61 @@ export function useLogout() {
     },
   });
 }
+
+// ─── Sessions (my devices) ──────────────────────────────
+export function useMySessions() {
+  return useQuery({
+    queryKey: ["auth", "sessions"],
+    queryFn: () => authApi.listSessions(),
+  });
+}
+
+export function useRevokeMySession() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (sessionId: string) => authApi.revokeSession(sessionId),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      if (result.wasCurrent) {
+        // Rare path: user revoked the session they're currently on.
+        document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
+        document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+        queryClient.clear();
+        router.push(ROUTES.SIGN_IN);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["auth", "sessions"] });
+      }
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRevokeOtherSessions() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.revokeOtherSessions(),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: ["auth", "sessions"] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRevokeAllMySessions() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  return useMutation({
+    mutationFn: () => authApi.revokeAllSessions(),
+    onSuccess: () => {
+      showMessage("LOGOUT_SUCCESS");
+      document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
+      document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+      queryClient.clear();
+      router.push(ROUTES.SIGN_IN);
+    },
+    onError: handleApiError,
+  });
+}

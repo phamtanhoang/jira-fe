@@ -784,7 +784,22 @@
     "passwordChanged": "Đã đổi mật khẩu.",
     "changeAvatar": "Đổi ảnh đại diện",
     "avatarHint": "Nhấn vào ảnh để đổi (JPG/PNG/GIF/WEBP, tối đa 2MB).",
-    "emailImmutable": "Email không thể thay đổi."
+    "emailImmutable": "Email không thể thay đổi.",
+    "sessions": {
+      "title": "Thiết bị đang đăng nhập",
+      "description": "Các phiên đăng nhập đang hoạt động của tài khoản. Đăng xuất bất kỳ thiết bị nào không phải của bạn.",
+      "thisDevice": "Thiết bị hiện tại",
+      "signedIn": "Đăng nhập {date}",
+      "lastUsed": "Hoạt động lần cuối {date}",
+      "signOut": "Đăng xuất",
+      "signOutConfirm": "Đăng xuất thiết bị này? Thiết bị sẽ yêu cầu đăng nhập lại.",
+      "signOutOthers": "Đăng xuất thiết bị khác",
+      "signOutOthersConfirm": "Đăng xuất tất cả thiết bị khác, giữ phiên hiện tại?",
+      "signOutAll": "Đăng xuất tất cả",
+      "signOutAllConfirm": "Đăng xuất mọi thiết bị kể cả thiết bị này. Bạn sẽ cần đăng nhập lại.",
+      "empty": "Không có phiên nào",
+      "emptyDesc": "Chỉ có phiên hiện tại đang hoạt động."
+    }
   },
   "meta": {
     "signInTitle": "Đăng nhập",

@@ -7,6 +7,7 @@ import type {
   VerifyEmailPayload,
   ForgotPasswordPayload,
   ResetPasswordPayload,
+  SessionRow,
 } from "./types";
 
 type ApiResponse = { message?: string; otpExpiresIn?: number };
@@ -64,4 +65,30 @@ export const authApi = {
 
   resetPassword: (data: ResetPasswordPayload) =>
     api.post<ApiResponse>(ENDPOINTS.auth.resetPassword, data).then((r) => r.data),
+
+  // ─── Sessions (my devices) ───────────────────────────
+
+  listSessions: () =>
+    api.get<SessionRow[]>(ENDPOINTS.auth.sessions).then((r) => r.data),
+
+  revokeSession: (sessionId: string) =>
+    api
+      .delete<{ message: string; wasCurrent: boolean }>(
+        ENDPOINTS.auth.session(sessionId),
+      )
+      .then((r) => r.data),
+
+  revokeOtherSessions: () =>
+    api
+      .post<{ message: string; count: number }>(
+        ENDPOINTS.auth.sessionsRevokeOthers,
+      )
+      .then((r) => r.data),
+
+  revokeAllSessions: () =>
+    api
+      .post<{ message: string; count: number }>(
+        ENDPOINTS.auth.sessionsRevokeAll,
+      )
+      .then((r) => r.data),
 };
