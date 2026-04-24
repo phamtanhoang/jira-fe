@@ -51,7 +51,7 @@
     "exit": "Quay lại ứng dụng",
     "nav": {
       "overview": "Tổng quan",
-      "logs": "Nhật ký request",
+      "logs": "Nhật ký hệ thống",
       "settings": "Cài đặt",
       "users": "Người dùng",
       "flags": "Feature Flag",
@@ -398,9 +398,7 @@
         "emailPlaceholder": "Email user…",
         "level": "Mức độ",
         "method": "Method",
-        "statusCode": "Status",
-        "hideMine": "Ẩn hoạt động của tôi",
-        "errorsOnly": "Chỉ lỗi"
+        "statusCode": "Status"
       },
       "detail": {
         "title": "Chi tiết log",

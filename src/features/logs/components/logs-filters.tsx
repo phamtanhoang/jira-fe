@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -9,8 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCurrentUser } from "@/features/auth/hooks";
-import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import type { LogLevel, LogsFilters } from "../types";
 
@@ -25,25 +23,8 @@ export function LogsFiltersBar({
   onChange: (next: LogsFilters) => void;
 }) {
   const { t } = useAppStore();
-  const { user } = useCurrentUser();
   const [search, setSearch] = useState(filters.search ?? "");
   const [email, setEmail] = useState(filters.userEmail ?? "");
-
-  const hideMine = filters.excludeUserId === user?.id;
-  const errorsOnly = filters.errorsOnly === true;
-
-  // Default "Hide my activity" ON once we know the admin's own ID — they
-  // rarely want to see their own reads when investigating an incident.
-  useEffect(() => {
-    if (
-      user?.id &&
-      filters.excludeUserId === undefined &&
-      filters.errorsOnly === undefined
-    ) {
-      onChange({ ...filters, excludeUserId: user.id, page: 1 });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -120,55 +101,6 @@ export function LogsFiltersBar({
           })
         }
       />
-      <FilterPill
-        active={hideMine}
-        onToggle={() =>
-          onChange({
-            ...filters,
-            excludeUserId: !hideMine && user?.id ? user.id : undefined,
-            page: 1,
-          })
-        }
-      >
-        {t("admin.logs.filters.hideMine")}
-      </FilterPill>
-      <FilterPill
-        active={errorsOnly}
-        onToggle={() =>
-          onChange({
-            ...filters,
-            errorsOnly: !errorsOnly ? true : undefined,
-            page: 1,
-          })
-        }
-      >
-        {t("admin.logs.filters.errorsOnly")}
-      </FilterPill>
     </div>
-  );
-}
-
-function FilterPill({
-  active,
-  onToggle,
-  children,
-}: {
-  active: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={cn(
-        "h-8 rounded-full border px-3 text-[12px] font-medium transition-colors",
-        active
-          ? "border-primary/50 bg-primary/10 text-primary"
-          : "border-border bg-muted/40 text-muted-foreground hover:bg-muted",
-      )}
-    >
-      {children}
-    </button>
   );
 }

@@ -51,7 +51,7 @@
     "exit": "Back to app",
     "nav": {
       "overview": "Overview",
-      "logs": "Request Logs",
+      "logs": "System Logs",
       "settings": "Settings",
       "users": "Users",
       "flags": "Feature Flags",
@@ -398,9 +398,7 @@
         "emailPlaceholder": "User email…",
         "level": "Level",
         "method": "Method",
-        "statusCode": "Status",
-        "hideMine": "Hide my activity",
-        "errorsOnly": "Errors only"
+        "statusCode": "Status"
       },
       "detail": {
         "title": "Log detail",
