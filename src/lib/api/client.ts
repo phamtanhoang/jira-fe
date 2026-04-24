@@ -1,4 +1,9 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
 import { ROUTES, ENDPOINTS, COOKIE_AUTH, COOKIE_ROLE } from "@/lib/constants";
 import { pushBreadcrumb, reportError } from "@/lib/logging";
 import { handleApiError } from "@/lib/utils";
@@ -20,6 +25,58 @@ export const api = axios.create({
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
+
+// ─── In-flight GET dedupe ───────────────────────────────────
+//
+// When several components mount at the same time and each calls
+// `api.get("/foo")` with matching params, only one network request should
+// fire — the rest should share the same promise. React Query dedupes at
+// the query-key layer, but it doesn't cover callers that bypass it (axios
+// direct calls, one-off hooks with different keys) or the instant when
+// multiple providers mount together.
+//
+// We only dedupe GET. Other verbs are usually mutations: running them
+// twice is a correctness risk, not a perf one.
+
+const inflightGets = new Map<string, Promise<AxiosResponse<unknown>>>();
+
+function stableStringify(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value))
+    return `[${value.map(stableStringify).join(",")}]`;
+  const obj = value as Record<string, unknown>;
+  const entries = Object.keys(obj)
+    .sort()
+    .map(
+      (k) => `${JSON.stringify(k)}:${stableStringify(obj[k])}`,
+    );
+  return `{${entries.join(",")}}`;
+}
+
+function dedupeKey(url: string, config?: AxiosRequestConfig): string {
+  const params = config?.params as unknown;
+  const baseURL = config?.baseURL ?? "";
+  return `${baseURL}|${url}|${params ? stableStringify(params) : ""}`;
+}
+
+const originalGet = api.get.bind(api);
+
+api.get = function dedupedGet<T = unknown>(
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<AxiosResponse<T>> {
+  const key = dedupeKey(url, config);
+  const existing = inflightGets.get(key);
+  if (existing) {
+    return existing as Promise<AxiosResponse<T>>;
+  }
+  const promise = originalGet<T>(url, config).finally(() => {
+    inflightGets.delete(key);
+  });
+  inflightGets.set(key, promise as Promise<AxiosResponse<unknown>>);
+  return promise;
+} as typeof api.get;
 
 // ─── Send timezone header + breadcrumb ──────────────────────
 api.interceptors.request.use((config) => {

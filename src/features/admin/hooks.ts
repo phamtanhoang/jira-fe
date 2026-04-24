@@ -43,10 +43,16 @@ export function useUpdateSetting<T>(key: string) {
  * Reads the announcement via the public endpoint so non-admin users can
  * actually see the banner (the byKey endpoint is admin-only).
  */
+// Public settings probes — both are toggled rarely and read on every layout
+// mount. A long staleTime keeps them from hammering BE as users navigate.
+const PUBLIC_SETTING_STALE_MS = 5 * 60 * 1000;
+
 export function usePublicAnnouncement() {
   return useQuery({
     queryKey: ["public-announcement"],
     queryFn: () => getPublicAnnouncement<AnnouncementValue>(),
+    staleTime: PUBLIC_SETTING_STALE_MS,
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -54,6 +60,8 @@ export function usePublicMaintenance() {
   return useQuery({
     queryKey: ["public-maintenance"],
     queryFn: () => getPublicMaintenance<MaintenanceValue>(),
+    staleTime: PUBLIC_SETTING_STALE_MS,
+    refetchOnWindowFocus: false,
   });
 }
 

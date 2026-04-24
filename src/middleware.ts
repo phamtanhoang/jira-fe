@@ -25,14 +25,18 @@ const MAINTENANCE_ALLOWLIST = [
   ROUTES.RESET_PASSWORD,
 ];
 
+// 5-minute edge cache. Every non-admin navigation passes through this
+// middleware, so a short revalidate means BE gets hit once per region per
+// cache miss. Maintenance is toggled rarely — a few-minute lag before users
+// see the maintenance page is an acceptable trade for ~10x fewer BE calls.
+const MAINTENANCE_REVALIDATE_SEC = 300;
+
 async function fetchMaintenance(): Promise<MaintenanceValue | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return null;
     const res = await fetch(`${apiUrl}/settings/app-maintenance`, {
-      // Edge fetch — keep it fast and cheap; 30s is short enough to react
-      // quickly to admin toggling the flag, long enough to not hammer BE.
-      next: { revalidate: 30 },
+      next: { revalidate: MAINTENANCE_REVALIDATE_SEC },
     });
     if (!res.ok) return null;
     return (await res.json()) as MaintenanceValue | null;
