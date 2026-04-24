@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Search, X, Filter } from "lucide-react";
 import { ISSUE_TYPES, PRIORITIES } from "@/lib/constants/issue-config";
-import { getInitials, toggleArrayItem } from "@/lib/utils";
+import { toggleArrayItem } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import type { UserPreview } from "../types";
 
 export type BoardFilters = {
@@ -89,11 +89,11 @@ export function BoardFilterBar({
               }`}
               title={m.name ?? m.email}
             >
-              <Avatar className="h-full w-full">
-                <AvatarFallback className="text-[8px]">
-                  {getInitials(m.name)}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                user={m}
+                className="h-full w-full"
+                fallbackClassName="text-[8px]"
+              />
             </button>
           ))}
         </div>

@@ -4,14 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import { Pencil, ChevronDown, ChevronRight, Settings } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
 import type { MessageKey } from "@/lib/config/i18n";
-import { getInitials, formatDate, formatDateShort } from "@/lib/utils";
+import { formatDate, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useBoard, useMoveIssue, useIssues } from "../hooks";
 import { WorklogSection } from "./worklog-section";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   Select,
   SelectContent,
@@ -264,11 +264,11 @@ export function IssueDetailSidebar({
           displayValue={
             issue.assignee ? (
               <span className="flex items-center gap-2">
-                <Avatar className="h-5 w-5">
-                  <AvatarFallback className="text-[8px]">
-                    {getInitials(issue.assignee.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  user={issue.assignee}
+                  className="h-5 w-5"
+                  fallbackClassName="text-[8px]"
+                />
                 {issue.assignee.name || issue.assignee.email}
               </span>
             ) : (
@@ -285,11 +285,11 @@ export function IssueDetailSidebar({
               <SelectTrigger className="h-8 w-full text-[12px]">
                 {issue.assignee ? (
                   <span className="flex items-center gap-2">
-                    <Avatar className="h-4 w-4">
-                      <AvatarFallback className="text-[8px]">
-                        {getInitials(issue.assignee.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      user={issue.assignee}
+                      className="h-4 w-4"
+                      fallbackClassName="text-[8px]"
+                    />
                     {issue.assignee.name || issue.assignee.email}
                   </span>
                 ) : (
@@ -301,11 +301,11 @@ export function IssueDetailSidebar({
                 {members.map((m) => (
                   <SelectItem key={m.user.id} value={m.user.id}>
                     <span className="flex items-center gap-2">
-                      <Avatar className="h-4 w-4">
-                        <AvatarFallback className="text-[8px]">
-                          {getInitials(m.user.name)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar
+                        user={m.user}
+                        className="h-4 w-4"
+                        fallbackClassName="text-[8px]"
+                      />
                       {m.user.name || m.user.email}
                     </span>
                   </SelectItem>
@@ -319,11 +319,11 @@ export function IssueDetailSidebar({
         <DetailRow label={t("issue.reporter")}>
           {issue.reporter && (
             <div className="flex items-center gap-2 px-2 py-1">
-              <Avatar className="h-5 w-5">
-                <AvatarFallback className="text-[9px]">
-                  {getInitials(issue.reporter.name)}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                user={issue.reporter}
+                className="h-5 w-5"
+                fallbackClassName="text-[9px]"
+              />
               <span className="text-[12px]">{issue.reporter.name}</span>
             </div>
           )}

@@ -258,11 +258,13 @@ export function AppInfoForm() {
 }
 
 function LogoPreview({ url }: { url?: string | null }) {
-  const [errored, setErrored] = useState(false);
-  useEffect(() => {
-    setErrored(false);
-  }, [url]);
+  // Remount on url change so internal error state resets naturally — avoids
+  // the `setState inside useEffect` pattern the React compiler forbids.
+  return <LogoPreviewInner key={url ?? ""} url={url} />;
+}
 
+function LogoPreviewInner({ url }: { url?: string | null }) {
+  const [errored, setErrored] = useState(false);
   const showImg = !!url && !errored;
   return (
     <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted/40">

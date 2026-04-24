@@ -10,14 +10,13 @@ import {
   Sun,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
-import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useLogout } from "@/features/auth/hooks";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { CommandPalette } from "@/components/shared/command-palette";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,8 +36,6 @@ export function Header({
   const { t } = useAppStore();
   const { user } = useCurrentUser();
   const { mutate: logout } = useLogout();
-
-  const initials = getInitials(user?.name, user?.email);
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b bg-background px-4">
@@ -87,11 +84,12 @@ export function Header({
             size="xs"
             className="gap-2 px-1.5"
           >
-            <Avatar className="h-6 w-6 rounded-md">
-              <AvatarFallback className="rounded-md bg-primary/10 text-[10px] font-semibold text-primary">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              user={user}
+              className="h-6 w-6 rounded-md"
+              fallbackClassName="rounded-md bg-primary/10 text-[10px] font-semibold text-primary"
+              plain
+            />
             <span className="max-w-24 truncate text-[12px] font-medium">
               {user?.name}
             </span>

@@ -1,7 +1,7 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getInitials, formatDateTime } from "@/lib/utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
+import { formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useActivity } from "../hooks";
@@ -62,11 +62,11 @@ export function ActivityFeed({ issueId }: { issueId: string }) {
 
         return (
           <div key={a.id} className="flex gap-2.5">
-            <Avatar className="mt-0.5 h-6 w-6 shrink-0">
-              <AvatarFallback className="text-[9px]">
-                {getInitials(a.user.name)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              user={a.user}
+              className="mt-0.5 h-6 w-6 shrink-0"
+              fallbackClassName="text-[9px]"
+            />
             <div className="min-w-0 flex-1">
               <p className="text-[12px]">
                 <span className="font-semibold">{a.user.name}</span>{" "}

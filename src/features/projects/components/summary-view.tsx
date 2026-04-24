@@ -8,13 +8,12 @@ import {
   Clock,
   CheckSquare,
 } from "lucide-react";
-import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import type { MessageKey } from "@/lib/config/i18n";
-import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { BurndownChart } from "./burndown-chart";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import type { Board, Issue, ProjectMember } from "../types";
 
@@ -239,11 +238,11 @@ export function SummaryView({ board, allIssues, members }: Props) {
                 const assigneeStats = stats.byAssignee[m.userId];
                 return (
                   <div key={m.id} className="flex items-center gap-2.5">
-                    <Avatar className="h-6 w-6 shrink-0">
-                      <AvatarFallback className={`${AVATAR_GRADIENT} text-[9px]`}>
-                        {getInitials(m.user.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      user={m.user}
+                      className="h-6 w-6 shrink-0"
+                      fallbackClassName="text-[9px]"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[12px] font-medium">{m.user.name}</p>
                       <p className="text-[10px] text-muted-foreground">{m.role}</p>

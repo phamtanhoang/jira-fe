@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Send, Pencil, Trash2, MessageSquare } from "lucide-react";
-import { getInitials, formatDateTime } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useComments, useAddComment, useUpdateComment, useDeleteComment } from "../hooks";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function IssueComments({
   issueId,
@@ -38,11 +38,11 @@ export function IssueComments({
       {/* Comment input */}
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex gap-3">
-          <Avatar className="mt-1 h-7 w-7 shrink-0">
-            <AvatarFallback className="text-[10px]">
-              {getInitials(currentUser.name)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            user={currentUser}
+            className="mt-1 h-7 w-7 shrink-0"
+            fallbackClassName="text-[10px]"
+          />
           <div className="flex-1">
             <RichEditor
               content={text}
@@ -73,11 +73,11 @@ export function IssueComments({
       <div className="space-y-4">
         {comments?.map((comment) => (
           <div key={comment.id} className="group flex gap-3">
-            <Avatar className="mt-0.5 h-7 w-7 shrink-0">
-              <AvatarFallback className="text-[10px]">
-                {getInitials(comment.author.name)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              user={comment.author}
+              className="mt-0.5 h-7 w-7 shrink-0"
+              fallbackClassName="text-[10px]"
+            />
             <div className="min-w-0 flex-1">
               <div className="mb-0.5 flex items-baseline gap-2">
                 <span className="text-[13px] font-semibold">{comment.author.name}</span>

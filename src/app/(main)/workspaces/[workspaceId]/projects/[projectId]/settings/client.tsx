@@ -32,7 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Select,
@@ -48,7 +48,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getInitials } from "@/lib/utils";
 import type { ProjectMember } from "@/features/projects/types";
 
 const ROLE_COLORS: Record<string, string> = {
@@ -317,11 +316,12 @@ export default function ProjectSettingsPage() {
                   key={member.id}
                   className="flex items-center gap-3 rounded-lg border px-4 py-3"
                 >
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-linear-to-br from-teal-400 to-cyan-500 text-[11px] font-bold text-white">
-                      {getInitials(member.user.name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    user={member.user}
+                    className="h-8 w-8"
+                    fallbackClassName="bg-linear-to-br from-teal-400 to-cyan-500 text-[11px] font-bold text-white"
+                    plain
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-medium">{member.user.name}</p>
                     <p className="text-[11px] text-muted-foreground">{member.user.email}</p>

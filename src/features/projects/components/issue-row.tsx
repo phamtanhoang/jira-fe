@@ -1,12 +1,12 @@
 "use client";
 
 import { memo } from "react";
-import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_BADGE_COLORS, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
-import { cn, getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_BADGE_COLORS } from "@/lib/constants/issue-config";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { TruncatedText } from "@/components/ui/truncated-text";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { useIsIssuePending } from "../hooks";
 import type { Issue } from "../types";
 
@@ -93,11 +93,11 @@ export const IssueRow = memo(function IssueRow({
 
       {/* Assignee */}
       {issue.assignee ? (
-        <Avatar className="h-5 w-5 shrink-0">
-          <AvatarFallback className={`${AVATAR_GRADIENT} text-[9px]`}>
-            {getInitials(issue.assignee.name)}
-          </AvatarFallback>
-        </Avatar>
+        <UserAvatar
+          user={issue.assignee}
+          className="h-5 w-5 shrink-0"
+          fallbackClassName="text-[9px]"
+        />
       ) : (
         <div className="h-5 w-5 shrink-0 rounded-full border border-dashed border-muted-foreground/30" />
       )}

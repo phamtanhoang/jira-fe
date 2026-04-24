@@ -1,9 +1,8 @@
 "use client";
 
 import { memo, useState } from "react";
-import { TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT } from "@/lib/constants/issue-config";
-import { getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsIssuePending } from "../hooks";
 import type { Issue } from "../types";
@@ -90,11 +89,11 @@ export const IssueCard = memo(function IssueCard({
           )}
           <PrioIcon className={`h-3.5 w-3.5 ${prioConf.color}`} />
           {issue.assignee ? (
-            <Avatar className="h-5 w-5">
-              <AvatarFallback className={`${AVATAR_GRADIENT} text-[9px]`}>
-                {getInitials(issue.assignee.name)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              user={issue.assignee}
+              className="h-5 w-5"
+              fallbackClassName="text-[9px]"
+            />
           ) : (
             <div className="h-5 w-5 rounded-full border border-dashed border-muted-foreground/30" />
           )}
