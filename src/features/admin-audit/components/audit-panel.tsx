@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Pagination } from "@/components/ui/pagination";
 import { Spinner } from "@/components/ui/spinner";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import {
   Select,
   SelectContent,
@@ -105,9 +106,10 @@ export function AuditPanel() {
                   >
                     <Icon className="h-3.5 w-3.5" />
                   </span>
-                  <span className="min-w-0 truncate font-medium text-[12.5px]">
-                    {describeAudit(row.action, row.payload)}
-                  </span>
+                  <TruncatedText
+                    text={describeAudit(row.action, row.payload)}
+                    className="font-medium text-[12.5px]"
+                  />
                 </span>
                 <span className="flex min-w-0 items-center gap-2">
                   <Avatar className="h-6 w-6 shrink-0">
@@ -123,14 +125,15 @@ export function AuditPanel() {
                       {getInitials(row.actor.name, row.actor.email)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate text-[12px]">
-                    {row.actor.name || row.actor.email}
-                  </span>
+                  <TruncatedText
+                    text={row.actor.name || row.actor.email}
+                    className="text-[12px]"
+                  />
                 </span>
-                <span className="truncate font-mono text-[11px] text-muted-foreground">
-                  {row.targetType ? `${row.targetType}:` : ""}
-                  {row.target ?? "—"}
-                </span>
+                <TruncatedText
+                  text={`${row.targetType ? `${row.targetType}:` : ""}${row.target ?? "—"}`}
+                  className="font-mono text-[11px] text-muted-foreground"
+                />
                 <span className="truncate text-[11px] text-muted-foreground">
                   {formatDateTime(row.createdAt)}
                 </span>
@@ -183,28 +186,32 @@ function AuditDetailSheet({
 
   return (
     <Sheet open={!!row} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-[520px] sm:max-w-[520px]">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+      <SheetContent className="w-[560px] max-w-[100vw] overflow-y-auto p-0 sm:max-w-[560px]">
+        <SheetHeader className="border-b px-6 pt-6 pb-4">
+          <SheetTitle className="flex items-center gap-3">
             <span
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-md border",
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border",
                 AUDIT_TONE_CLASS[conf.tone],
               )}
             >
               <Icon className="h-4 w-4" />
             </span>
-            <span>{conf.label}</span>
+            <span className="text-base font-semibold">{conf.label}</span>
           </SheetTitle>
-          <SheetDescription>{formatDateTime(row.createdAt)}</SheetDescription>
+          <SheetDescription className="pl-12 text-[12px]">
+            {formatDateTime(row.createdAt)}
+          </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-4 space-y-4 text-sm">
-          <DetailRow label={t("admin.audit.summary")}>{summary}</DetailRow>
+        <div className="space-y-5 px-6 py-5 text-sm">
+          <DetailRow label={t("admin.audit.summary")}>
+            <p className="leading-relaxed">{summary}</p>
+          </DetailRow>
 
           <DetailRow label={t("admin.audit.columns.actor")}>
-            <span className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
+            <span className="flex items-center gap-2.5">
+              <Avatar className="h-7 w-7">
                 {row.actor.image ? (
                   <AvatarImage src={row.actor.image} alt={row.actor.email} />
                 ) : null}
@@ -214,10 +221,17 @@ function AuditDetailSheet({
                   {getInitials(row.actor.name, row.actor.email)}
                 </AvatarFallback>
               </Avatar>
-              <span>
-                {row.actor.name
-                  ? `${row.actor.name} (${row.actor.email})`
-                  : row.actor.email}
+              <span className="min-w-0 flex-1">
+                {row.actor.name ? (
+                  <>
+                    <span className="font-medium">{row.actor.name}</span>
+                    <span className="ml-1.5 text-muted-foreground">
+                      ({row.actor.email})
+                    </span>
+                  </>
+                ) : (
+                  row.actor.email
+                )}
               </span>
             </span>
           </DetailRow>
@@ -225,15 +239,17 @@ function AuditDetailSheet({
           <DetailRow label={t("admin.audit.columns.target")}>
             {targetName || targetEmail ? (
               <span>
-                {targetName ?? targetEmail}
+                <span className="font-medium">
+                  {targetName ?? targetEmail}
+                </span>
                 {row.targetType && (
-                  <span className="ml-2 text-[11px] text-muted-foreground">
-                    ({row.targetType})
+                  <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    {row.targetType}
                   </span>
                 )}
               </span>
             ) : row.target ? (
-              <span className="font-mono text-[12px]">
+              <span className="font-mono text-[12px] break-all">
                 {row.targetType ? `${row.targetType}:` : ""}
                 {row.target}
               </span>
@@ -244,19 +260,19 @@ function AuditDetailSheet({
 
           {from !== null && to !== null && (
             <DetailRow label={t("admin.audit.change")}>
-              <span className="inline-flex items-center gap-2 rounded border bg-muted/40 px-2 py-0.5 font-mono text-[12px]">
+              <span className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-2.5 py-1 font-mono text-[12px]">
                 <span className="text-muted-foreground">{String(from)}</span>
-                <span>→</span>
+                <span aria-hidden>→</span>
                 <span className="font-semibold">{String(to)}</span>
               </span>
             </DetailRow>
           )}
 
-          <div>
-            <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("admin.audit.payload")}
             </div>
-            <pre className="max-h-80 overflow-auto rounded-md border bg-muted/30 p-3 text-[11px]">
+            <pre className="max-h-80 overflow-auto rounded-md border bg-muted/30 p-3 font-mono text-[11px] leading-relaxed">
               {JSON.stringify(row.payload ?? {}, null, 2)}
             </pre>
           </div>
@@ -274,11 +290,11 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-1.5">
       <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </div>
-      <div className="text-[13px]">{children}</div>
+      <div className="text-[13px] leading-relaxed">{children}</div>
     </div>
   );
 }

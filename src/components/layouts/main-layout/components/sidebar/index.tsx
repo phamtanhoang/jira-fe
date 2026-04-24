@@ -48,7 +48,7 @@ export function Sidebar({
             <img src={logoUrl} alt={appName} className="h-6 w-6 rounded" />
           ) : (
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-[10px] font-bold text-primary-foreground">
-              J
+              {appName?.charAt(0).toUpperCase() || "?"}
             </div>
           )}
           <span className="text-[13px] font-semibold">

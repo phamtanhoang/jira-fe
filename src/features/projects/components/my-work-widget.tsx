@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import type { Issue } from "../types";
 
 export function MyWorkWidget() {
@@ -130,9 +131,10 @@ function IssueListRow({ issue }: { issue: Issue }) {
       <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
         {issue.key}
       </span>
-      <span className="min-w-0 flex-1 truncate text-[13px] group-hover:text-primary">
-        {issue.summary}
-      </span>
+      <TruncatedText
+        text={issue.summary}
+        className="flex-1 text-[13px] group-hover:text-primary"
+      />
       <PrioIcon className={`h-3.5 w-3.5 shrink-0 ${prioConf.color}`} />
       {issue.dueDate && (
         <Badge

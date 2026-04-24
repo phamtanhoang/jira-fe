@@ -6,6 +6,7 @@ import { cn, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import { useIsIssuePending } from "../hooks";
 import type { Issue } from "../types";
 
@@ -47,9 +48,10 @@ export const IssueRow = memo(function IssueRow({
       </span>
 
       {/* Summary */}
-      <span className="min-w-0 flex-1 truncate text-[13px]">
-        {issue.summary}
-      </span>
+      <TruncatedText
+        text={issue.summary}
+        className="flex-1 text-[13px]"
+      />
 
       {/* Labels */}
       {issue.labels && issue.labels.length > 0 && (

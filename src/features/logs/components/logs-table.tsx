@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import { HTTP_STATUS_RANGE } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { formatDateTime } from "@/lib/utils";
@@ -83,13 +84,17 @@ const LogRow = memo(function LogRow({
         <Badge className={LEVEL_BADGE[log.level]}>{log.level}</Badge>
       </td>
       <td className="px-3 py-2 font-mono">{log.method}</td>
-      <td className="px-3 py-2 truncate max-w-[320px] font-mono">{log.url}</td>
+      <td className="px-3 py-2 max-w-[320px] font-mono">
+        <TruncatedText text={log.url} />
+      </td>
       <td className="px-3 py-2">
         {log.statusCode != null && (
           <Badge className={statusBadgeClass(log.statusCode)}>{log.statusCode}</Badge>
         )}
       </td>
-      <td className="px-3 py-2 truncate max-w-[180px]">{log.userEmail ?? "-"}</td>
+      <td className="px-3 py-2 max-w-[180px]">
+        <TruncatedText text={log.userEmail} fallback="-" />
+      </td>
       <td className="px-3 py-2 text-right text-muted-foreground">
         {log.durationMs != null ? `${log.durationMs}ms` : "-"}
       </td>

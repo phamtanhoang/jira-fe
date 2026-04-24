@@ -485,7 +485,8 @@
     "goodEvening": "Chào buổi tối",
     "statWorkspaces": "Không gian",
     "statProjects": "Tổng dự án",
-    "statMembers": "Tổng thành viên"
+    "statMembers": "Tổng thành viên",
+    "statMemberships": "Tổng lượt tham gia"
   },
   "workspace": {
     "title": "Không gian làm việc",

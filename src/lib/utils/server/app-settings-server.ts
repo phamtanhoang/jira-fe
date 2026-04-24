@@ -6,8 +6,12 @@ export const getAppSettingsServer = cache(
   async (): Promise<AppSettings | null> => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      // Short ISR window — branding (logo, name, description) is set by admin
+      // and needs to propagate quickly to incognito / new sessions. 30s is
+      // tight enough that post-update tabs see fresh data within one minute,
+      // loose enough to avoid hammering BE on every SSR render.
       const response = await fetch(`${apiUrl}${ENDPOINTS.settings.appInfo}`, {
-        next: { revalidate: 300 },
+        next: { revalidate: 30, tags: ["app-info"] },
       });
 
       if (!response.ok) {

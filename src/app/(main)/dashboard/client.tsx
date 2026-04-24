@@ -60,7 +60,7 @@ export default function DashboardPage() {
             color="text-purple-600 bg-purple-50 dark:bg-purple-950 dark:text-purple-400"
           />
           <StatCard
-            label={t("dashboard.statMembers")}
+            label={t("dashboard.statMemberships")}
             value={workspaces.reduce((sum, ws) => sum + (ws._count?.members ?? 0), 0)}
             icon={Users}
             color="text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400"

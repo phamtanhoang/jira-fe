@@ -17,6 +17,24 @@ import type {
   SettingRow,
 } from "./types";
 
+/**
+ * Invalidate Next.js ISR cache for a given tag so SSR-rendered branding
+ * updates propagate to new incognito / fresh sessions immediately instead of
+ * waiting for the revalidate window.
+ */
+async function bustSSRTag(tag: string) {
+  try {
+    await fetch("/ssr-revalidate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tag }),
+    });
+  } catch {
+    // Cache bust is best-effort — the revalidate window still guarantees
+    // propagation, this just shortens it.
+  }
+}
+
 export function useSetting<T>(key: string) {
   return useQuery({
     queryKey: ["settings", key],
@@ -34,6 +52,7 @@ export function useUpdateSetting<T>(key: string) {
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       queryClient.invalidateQueries({ queryKey: ["public-announcement"] });
       queryClient.invalidateQueries({ queryKey: ["public-maintenance"] });
+      if (key === SETTING_KEYS.APP_INFO) void bustSSRTag("app-info");
       showMessage("SETTINGS_UPDATED");
     },
     onError: handleApiError,
@@ -74,6 +93,7 @@ export function useUploadAppLogo() {
         queryKey: ["settings", SETTING_KEYS.APP_INFO],
       });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      void bustSSRTag("app-info");
     },
     onError: handleApiError,
   });

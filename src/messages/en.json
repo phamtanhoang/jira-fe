@@ -485,7 +485,8 @@
     "goodEvening": "Good evening",
     "statWorkspaces": "Workspaces",
     "statProjects": "Total Projects",
-    "statMembers": "Total Members"
+    "statMembers": "Total Members",
+    "statMemberships": "Total Memberships"
   },
   "workspace": {
     "title": "Workspaces",

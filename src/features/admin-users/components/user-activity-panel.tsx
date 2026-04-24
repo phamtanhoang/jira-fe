@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import { useUserActivity } from "../hooks";
 import type { UserActivityTopUser, UserActivityTopRoute } from "../types";
 
@@ -107,9 +108,10 @@ export function UserActivityPanel() {
                   key={u.userId ?? u.userEmail ?? `row-${idx}`}
                   className="flex items-center gap-3 border-b px-4 py-2 text-[12px] last:border-b-0"
                 >
-                  <span className="min-w-0 flex-1 truncate">
-                    {u.userEmail ?? "—"}
-                  </span>
+                  <TruncatedText
+                    text={u.userEmail}
+                    className="flex-1"
+                  />
                   <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full bg-primary"
@@ -156,9 +158,10 @@ export function UserActivityPanel() {
                   <span className="shrink-0 rounded bg-muted px-1.5 py-px font-mono text-[10px] text-muted-foreground">
                     {r.method}
                   </span>
-                  <span className="min-w-0 flex-1 truncate font-mono text-[11px]">
-                    {r.route ?? "—"}
-                  </span>
+                  <TruncatedText
+                    text={r.route}
+                    className="flex-1 font-mono text-[11px]"
+                  />
                   <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full bg-primary"
@@ -222,12 +225,14 @@ export function UserActivityPanel() {
                   >
                     {r.statusCode ?? "-"}
                   </span>
-                  <span className="truncate text-[12px]">
-                    {r.userEmail ?? "—"}
-                  </span>
-                  <span className="truncate font-mono text-[11px] text-muted-foreground">
-                    {r.url}
-                  </span>
+                  <TruncatedText
+                    text={r.userEmail}
+                    className="text-[12px]"
+                  />
+                  <TruncatedText
+                    text={r.url}
+                    className="font-mono text-[11px] text-muted-foreground"
+                  />
                   <span className="truncate text-[11px] text-muted-foreground">
                     {formatDateTime(r.createdAt)}
                   </span>
