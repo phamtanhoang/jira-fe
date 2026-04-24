@@ -124,6 +124,11 @@ export default function BoardPage() {
   }, [board?.columns, filters, activeSprint]);
 
   function handleMoveIssue(issueId: string, columnId: string) {
+    // No-op if the target column is the same as the current one
+    const current = board?.columns.find((col) =>
+      col.issues.some((i) => i.id === issueId),
+    );
+    if (current?.id === columnId) return;
     moveIssue({ id: issueId, columnId, position: 0 });
   }
 

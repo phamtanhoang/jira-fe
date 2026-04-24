@@ -69,6 +69,7 @@ const ISSUES_ENDPOINTS = {
   base: ISSUES_BASE,
   byId: (id: string) => `${ISSUES_BASE}/${id}`,
   byKey: (key: string) => `${ISSUES_BASE}/key/${key}`,
+  myDashboard: `${ISSUES_BASE}/me/dashboard`,
   move: (id: string) => `${ISSUES_BASE}/${id}/move`,
   labels: (id: string, labelId: string) =>
     `${ISSUES_BASE}/${id}/labels/${labelId}`,

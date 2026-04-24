@@ -1,28 +1,39 @@
 "use client";
 
-import { useState } from "react";
-import { User, Lock, Mail } from "lucide-react";
+import { useRef, useState } from "react";
+import { User, Lock, Mail, Camera } from "lucide-react";
 import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
-import { getInitials } from "@/lib/utils";
+import { getInitials, handleApiError } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useCurrentUser, useUpdateProfile, useChangePassword } from "@/features/auth/hooks";
+import {
+  useCurrentUser,
+  useUpdateProfile,
+  useChangePassword,
+  useUploadAvatar,
+} from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+
+const ALLOWED_AVATAR_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
 
 export default function ProfilePage() {
   const { t } = useAppStore();
   const { user } = useCurrentUser();
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
   const { mutate: changePassword, isPending: isChanging } = useChangePassword();
+  const { mutate: uploadAvatar, isPending: isUploadingAvatar } = useUploadAvatar();
 
   const [name, setName] = useState(user?.name ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  // Sync name when user loads
   if (user?.name && !name) setName(user.name);
 
   function handleUpdateProfile(e: React.FormEvent) {
@@ -46,6 +57,26 @@ export default function ProfilePage() {
     );
   }
 
+  function handlePickAvatar() {
+    fileRef.current?.click();
+  }
+
+  function handleAvatarSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // reset so the same file can be re-selected
+
+    if (!file) return;
+    if (!ALLOWED_AVATAR_MIMES.includes(file.type)) {
+      handleApiError({ response: { data: { message: "INVALID_IMAGE_TYPE" } } });
+      return;
+    }
+    if (file.size > MAX_AVATAR_SIZE) {
+      handleApiError({ response: { data: { message: "IMAGE_TOO_LARGE" } } });
+      return;
+    }
+    uploadAvatar(file);
+  }
+
   const initials = getInitials(user?.name, user?.email);
 
   return (
@@ -56,16 +87,42 @@ export default function ProfilePage() {
       {/* Avatar + Info */}
       <Card className="mb-6">
         <CardContent className="flex items-center gap-5 p-6">
-          <Avatar className="h-16 w-16">
-            <AvatarFallback className={`${AVATAR_GRADIENT} text-xl`}>
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <button
+            type="button"
+            onClick={handlePickAvatar}
+            disabled={isUploadingAvatar}
+            className="group relative h-16 w-16 shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={t("profile.changeAvatar")}
+          >
+            <Avatar className="h-16 w-16">
+              {user?.image ? <AvatarImage src={user.image} alt="" /> : null}
+              <AvatarFallback className={`${AVATAR_GRADIENT} text-xl`}>
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+              {isUploadingAvatar ? (
+                <Spinner className="text-white" />
+              ) : (
+                <Camera className="h-5 w-5 text-white" />
+              )}
+            </span>
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ALLOWED_AVATAR_MIMES.join(",")}
+            className="hidden"
+            onChange={handleAvatarSelected}
+          />
           <div>
             <h2 className="text-lg font-semibold">{user?.name || "User"}</h2>
             <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
               <Mail className="h-3.5 w-3.5" />
               {user?.email}
+            </p>
+            <p className="mt-1 text-[11px] text-muted-foreground/70">
+              {t("profile.avatarHint")}
             </p>
           </div>
         </CardContent>
@@ -95,7 +152,7 @@ export default function ProfilePage() {
                 className="bg-muted"
               />
               <p className="mt-1 text-[11px] text-muted-foreground">
-                Email cannot be changed.
+                {t("profile.emailImmutable")}
               </p>
             </div>
             <Button type="submit" disabled={isUpdating || !name.trim()}>
@@ -115,24 +172,21 @@ export default function ProfilePage() {
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-[13px] font-medium">{t("profile.currentPassword")}</label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
               />
             </div>
             <div>
               <label className="mb-1.5 block text-[13px] font-medium">{t("profile.newPassword")}</label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
             <div>
               <label className="mb-1.5 block text-[13px] font-medium">{t("profile.confirmNewPassword")}</label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />

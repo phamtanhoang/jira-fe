@@ -64,14 +64,14 @@ export function AdminSidebar({
       label: t("admin.nav.groupOperations"),
       items: [
         {
-          href: ROUTES.ADMIN_LOGS,
-          label: t("admin.nav.logs"),
-          icon: ScrollText,
-        },
-        {
           href: ROUTES.ADMIN_METRICS,
           label: t("admin.nav.metrics"),
           icon: Activity,
+        },
+        {
+          href: ROUTES.ADMIN_LOGS,
+          label: t("admin.nav.logs"),
+          icon: ScrollText,
         },
         {
           href: ROUTES.ADMIN_USERS,

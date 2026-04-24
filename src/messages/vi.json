@@ -9,6 +9,8 @@
     "password": "Mật khẩu",
     "passwordHint": "Mật khẩu (vd: Pass@123)",
     "confirmPassword": "Nhập lại mật khẩu",
+    "showPassword": "Hiện mật khẩu",
+    "hidePassword": "Ẩn mật khẩu",
     "name": "Họ và tên",
     "processing": "Đang xử lý...",
     "noAccount": "Chưa có tài khoản?",
@@ -401,6 +403,14 @@
       }
     }
   },
+  "errors": {
+    "somethingWentWrong": "Đã có lỗi xảy ra",
+    "mainHint": "Giao diện gặp sự cố khi hiển thị trang. Lỗi đã được báo cáo.",
+    "adminTitle": "Trang quản trị gặp sự cố",
+    "adminHint": "Một trang quản trị không hiển thị được. Hãy thử lại hoặc quay lại trang chủ.",
+    "authHint": "Không thể hiển thị trang đăng nhập/đăng ký. Vui lòng thử lại.",
+    "tryAgain": "Thử lại"
+  },
   "common": {
     "save": "Lưu",
     "cancel": "Hủy",
@@ -429,7 +439,23 @@
     "removing": "Đang xóa...",
     "actions": "Hành động",
     "role": "Vai trò",
-    "email": "Email"
+    "email": "Email",
+    "range": {
+      "range": "Khoảng",
+      "custom": "Tùy chỉnh",
+      "hoursN": "{n} giờ",
+      "daysN": "{n} ngày",
+      "hoursShort": "giờ",
+      "daysShort": "ngày"
+    }
+  },
+  "myWork": {
+    "title": "Công việc của tôi",
+    "statAssigned": "Được giao",
+    "statOverdue": "Quá hạn",
+    "statDueSoon": "Sắp tới hạn",
+    "emptyTitle": "Không có việc nào đang chờ",
+    "emptyHint": "Bạn không có issue nào được giao đang mở. Tận hưởng nhé!"
   },
   "dashboard": {
     "overview": "Tổng quan về không gian làm việc và hoạt động gần đây.",
@@ -648,6 +674,12 @@
     "LOGOUT_SUCCESS": "Đăng xuất thành công.",
     "FORGOT_PASSWORD_SUCCESS": "Đã gửi mã đặt lại! Vui lòng kiểm tra email.",
     "RESET_PASSWORD_SUCCESS": "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.",
+    "PROFILE_UPDATED": "Đã cập nhật hồ sơ.",
+    "PASSWORD_CHANGED": "Đổi mật khẩu thành công.",
+    "AVATAR_UPLOADED": "Đã cập nhật ảnh đại diện.",
+    "INVALID_CURRENT_PASSWORD": "Mật khẩu hiện tại không đúng.",
+    "INVALID_IMAGE_TYPE": "Định dạng ảnh không hỗ trợ (chỉ JPG/PNG/GIF/WEBP).",
+    "IMAGE_TOO_LARGE": "Ảnh vượt quá 2MB, vui lòng chọn ảnh nhỏ hơn.",
     "SETTINGS_UPDATED": "Đã cập nhật cài đặt.",
     "USER_ROLE_UPDATED": "Đã cập nhật vai trò người dùng.",
     "USER_DELETED": "Đã xóa người dùng.",
@@ -721,7 +753,10 @@
     "confirmNewPassword": "Nhập lại mật khẩu mới",
     "updateProfile": "Cập nhật hồ sơ",
     "profileUpdated": "Đã cập nhật hồ sơ.",
-    "passwordChanged": "Đã đổi mật khẩu."
+    "passwordChanged": "Đã đổi mật khẩu.",
+    "changeAvatar": "Đổi ảnh đại diện",
+    "avatarHint": "Nhấn vào ảnh để đổi (JPG/PNG/GIF/WEBP, tối đa 2MB).",
+    "emailImmutable": "Email không thể thay đổi."
   },
   "meta": {
     "signInTitle": "Đăng nhập",

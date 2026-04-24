@@ -14,6 +14,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useWorkspaces } from "@/features/workspaces/hooks";
 import { useCurrentUser } from "@/features/auth/hooks";
+import { MyWorkWidget } from "@/features/projects/components/my-work-widget";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -66,6 +67,14 @@ export default function DashboardPage() {
           />
         </div>
       )}
+
+      {/* My Work */}
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="text-base font-semibold">{t("myWork.title")}</h2>
+      </div>
+      <div className="mb-10">
+        <MyWorkWidget />
+      </div>
 
       {/* Workspaces */}
       <div className="mb-5 flex items-center justify-between">

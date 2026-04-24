@@ -140,7 +140,22 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { name?: string }) => authApi.updateProfile(data),
+    mutationFn: (data: { name?: string; image?: string | null }) =>
+      authApi.updateProfile(data),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.setQueryData(["auth", "me"], result.user);
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Upload Avatar ──────────────────────────────────────
+export function useUploadAvatar() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) => authApi.uploadAvatar(file),
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.setQueryData(["auth", "me"], result.user);

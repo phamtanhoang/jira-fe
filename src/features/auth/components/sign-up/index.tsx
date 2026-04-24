@@ -9,6 +9,7 @@ import { registerFormSchema } from "@/features/auth/schemas";
 import { useRegister } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 type RegisterForm = z.infer<typeof registerFormSchema>;
@@ -74,7 +75,7 @@ export function SignUpForm() {
               <FormItem>
                 <FormLabel>{t("auth.password")}</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder={t("auth.passwordHint")} {...field} />
+                  <PasswordInput placeholder={t("auth.passwordHint")} {...field} />
                 </FormControl>
                 <FormMessage renderMessage={te} />
               </FormItem>
@@ -88,7 +89,7 @@ export function SignUpForm() {
               <FormItem>
                 <FormLabel>{t("auth.confirmPassword")}</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage renderMessage={te} />
               </FormItem>

@@ -30,11 +30,23 @@ export const authApi = {
   me: () =>
     api.get<AuthUser>(ENDPOINTS.auth.me).then((r) => r.data),
 
-  updateProfile: (data: { name?: string }) =>
+  updateProfile: (data: { name?: string; image?: string | null }) =>
     api.patch<{ message: string; user: AuthUser }>(ENDPOINTS.auth.me, data).then((r) => r.data),
 
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post<{ message: string }>(`${ENDPOINTS.auth.auth}/change-password`, data).then((r) => r.data),
+
+  uploadAvatar: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return api
+      .post<{ message: string; user: AuthUser }>(
+        `${ENDPOINTS.auth.auth}/avatar`,
+        form,
+        { headers: { "Content-Type": "multipart/form-data" } },
+      )
+      .then((r) => r.data);
+  },
 
   forgotPassword: (data: ForgotPasswordPayload) =>
     api.post<ApiResponse>(ENDPOINTS.auth.forgotPassword, data).then((r) => r.data),

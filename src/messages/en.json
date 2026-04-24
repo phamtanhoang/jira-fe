@@ -9,6 +9,8 @@
     "password": "Password",
     "passwordHint": "Password (e.g. Pass@123)",
     "confirmPassword": "Confirm password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "name": "Full name",
     "processing": "Processing...",
     "noAccount": "Don't have an account?",
@@ -401,6 +403,14 @@
       }
     }
   },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "mainHint": "The UI crashed while rendering this page. The error has been reported.",
+    "adminTitle": "Admin page crashed",
+    "adminHint": "An admin page failed to render. Try again or return to the home page.",
+    "authHint": "Could not render the sign-in / sign-up page. Please try again.",
+    "tryAgain": "Try again"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -429,7 +439,23 @@
     "removing": "Removing...",
     "actions": "Actions",
     "role": "Role",
-    "email": "Email"
+    "email": "Email",
+    "range": {
+      "range": "Range",
+      "custom": "Custom",
+      "hoursN": "{n}h",
+      "daysN": "{n}d",
+      "hoursShort": "hours",
+      "daysShort": "days"
+    }
+  },
+  "myWork": {
+    "title": "My work",
+    "statAssigned": "Assigned",
+    "statOverdue": "Overdue",
+    "statDueSoon": "Due soon",
+    "emptyTitle": "You're all caught up",
+    "emptyHint": "No open issues are assigned to you right now."
   },
   "dashboard": {
     "overview": "Here's an overview of your workspaces and recent activity.",
@@ -648,6 +674,12 @@
     "LOGOUT_SUCCESS": "Logged out successfully.",
     "FORGOT_PASSWORD_SUCCESS": "Reset code sent! Please check your email.",
     "RESET_PASSWORD_SUCCESS": "Password reset successfully! Please sign in.",
+    "PROFILE_UPDATED": "Profile updated.",
+    "PASSWORD_CHANGED": "Password changed.",
+    "AVATAR_UPLOADED": "Avatar updated.",
+    "INVALID_CURRENT_PASSWORD": "Current password is incorrect.",
+    "INVALID_IMAGE_TYPE": "Unsupported image format (JPG/PNG/GIF/WEBP only).",
+    "IMAGE_TOO_LARGE": "Image is larger than 2MB, please pick a smaller file.",
     "SETTINGS_UPDATED": "Settings updated.",
     "USER_ROLE_UPDATED": "User role updated.",
     "USER_DELETED": "User deleted.",
@@ -721,7 +753,10 @@
     "confirmNewPassword": "Confirm new password",
     "updateProfile": "Update profile",
     "profileUpdated": "Profile updated.",
-    "passwordChanged": "Password changed."
+    "passwordChanged": "Password changed.",
+    "changeAvatar": "Change avatar",
+    "avatarHint": "Click the avatar to change it (JPG/PNG/GIF/WEBP, up to 2MB).",
+    "emailImmutable": "Email cannot be changed."
   },
   "meta": {
     "signInTitle": "Sign In",

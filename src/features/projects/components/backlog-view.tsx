@@ -12,7 +12,7 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Plus, ChevronDown, ChevronRight, Inbox, GripVertical, Square, CheckSquare2 } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, Inbox, Square, CheckSquare2 } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,10 +45,16 @@ function DraggableIssueRow({
   return (
     <div
       ref={setNodeRef}
-      className={`group/row flex items-center ${isDragging ? "opacity-30" : ""} ${selected ? "bg-primary/5" : ""}`}
+      {...listeners}
+      {...attributes}
+      className={`group/row flex items-center touch-none select-none cursor-grab active:cursor-grabbing ${
+        isDragging ? "opacity-30" : ""
+      } ${selected ? "bg-primary/5" : ""}`}
     >
       {onToggleSelect && (
         <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); onToggleSelect(issue.id, e.shiftKey); }}
           className={`shrink-0 px-1 py-2 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover/row:opacity-100"}`}
         >
@@ -59,13 +65,6 @@ function DraggableIssueRow({
           )}
         </button>
       )}
-      <button
-        {...listeners}
-        {...attributes}
-        className="shrink-0 cursor-grab px-1 py-2 text-muted-foreground/40 hover:text-muted-foreground active:cursor-grabbing"
-      >
-        <GripVertical className="h-3.5 w-3.5" />
-      </button>
       <div className="min-w-0 flex-1">
         <IssueRow issue={issue} onClick={onClick} />
       </div>
@@ -78,7 +77,6 @@ function DraggableIssueRow({
 function DragOverlayContent({ issue }: { issue: Issue }) {
   return (
     <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 shadow-lg">
-      <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
       <span className="text-[12px] font-medium text-muted-foreground">{issue.key}</span>
       <span className="truncate text-[12px]">{issue.summary}</span>
     </div>
@@ -183,8 +181,9 @@ export function BacklogView({
     setLastSelectedId(id);
   }
 
+  // Press-and-hold to drag. Short tap falls through to the row's onClick (open modal).
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { delay: 180, tolerance: 5 } }),
   );
 
   // Group issues by sprint

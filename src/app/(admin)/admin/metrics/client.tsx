@@ -27,15 +27,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RangePicker } from "@/components/ui/range-picker";
 
-type SinceHours = 24 | 72 | 168;
+const METRICS_PRESETS = [24, 72, 168, 24 * 30] as const;
 
 const METHOD_COLORS: Record<string, string> = {
   GET: "#3b82f6",
@@ -47,13 +41,13 @@ const METHOD_COLORS: Record<string, string> = {
 
 export function AdminMetricsClient() {
   const { t } = useAppStore();
-  const [since, setSince] = useState<SinceHours>(24);
+  const [since, setSince] = useState<number>(24);
   const { data, isLoading } = useAdminMetrics(since);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">
             {t("admin.metrics.title")}
@@ -62,19 +56,16 @@ export function AdminMetricsClient() {
             {t("admin.metrics.description")}
           </p>
         </div>
-        <Select
-          value={String(since)}
-          onValueChange={(v) => setSince(Number(v) as SinceHours)}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="24">{t("admin.metrics.since24h")}</SelectItem>
-            <SelectItem value="72">{t("admin.metrics.since72h")}</SelectItem>
-            <SelectItem value="168">{t("admin.metrics.since168h")}</SelectItem>
-          </SelectContent>
-        </Select>
+        <RangePicker
+          value={since}
+          onChange={setSince}
+          presets={METRICS_PRESETS}
+          unit="hours"
+          min={1}
+          max={24 * 90}
+          label={t("common.range.range")}
+          compact
+        />
       </div>
 
       {/* Error trend — full width sparkline */}

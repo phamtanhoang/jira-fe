@@ -11,6 +11,7 @@ import type {
   UpdateProjectMemberPayload,
   CreateIssuePayload,
   MoveIssuePayload,
+  MyDashboard,
   CreateColumnPayload,
   UpdateColumnPayload,
   UpdateSprintPayload,
@@ -115,6 +116,11 @@ export const issuesApi = {
       .get<Issue[]>(ENDPOINTS.issues.base, {
         params: { projectId, ...filters },
       })
+      .then((r) => r.data),
+
+  myDashboard: () =>
+    api
+      .get<MyDashboard>(ENDPOINTS.issues.myDashboard)
       .then((r) => r.data),
 
   listPaginated: (projectId: string, params: { take: number; cursor?: string; sprintId?: string }) =>

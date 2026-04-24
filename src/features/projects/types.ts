@@ -167,10 +167,19 @@ export type Attachment = {
   uploadedById: string;
   fileName: string;
   fileUrl: string;
+  signedUrl?: string;
   fileSize: number;
   mimeType: string;
   createdAt: string;
   uploadedBy: UserPreview;
+};
+
+export type MyDashboard = {
+  assigned: (Issue & { project?: { id: string; key: string; name: string } })[];
+  overdue: Issue[];
+  dueSoon: Issue[];
+  recent: Issue[];
+  stats: { total: number; overdue: number; dueSoon: number };
 };
 
 export type CreateColumnPayload = {

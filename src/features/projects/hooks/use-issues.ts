@@ -1,9 +1,10 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type QueryClient } from "@tanstack/react-query";
+import { isEqual } from "lodash";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { issuesApi } from "../api";
-import type { CreateIssuePayload, MoveIssuePayload } from "../types";
+import type { Board, CreateIssuePayload, Issue, MoveIssuePayload } from "../types";
 
 export function useIssues(projectId: string, filters?: Record<string, string>) {
   return useQuery({
@@ -21,6 +22,14 @@ export function useInfiniteIssues(projectId: string, params: { take: number; spr
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: !!projectId,
+  });
+}
+
+export function useMyDashboard() {
+  return useQuery({
+    queryKey: ["issues", "me", "dashboard"],
+    queryFn: () => issuesApi.myDashboard(),
+    staleTime: 30_000,
   });
 }
 
@@ -46,37 +55,205 @@ export function useCreateIssue() {
   });
 }
 
+// ─── Helpers for optimistic cache updates ────────────────────────────────────
+
+function findIssueInCaches(queryClient: QueryClient, issueId: string): Issue | null {
+  for (const [, data] of queryClient.getQueriesData<Board>({ queryKey: ["board"] })) {
+    if (!data) continue;
+    for (const col of data.columns ?? []) {
+      const hit = col.issues?.find((i) => i.id === issueId);
+      if (hit) return hit;
+    }
+  }
+  for (const [, data] of queryClient.getQueriesData<Issue[]>({ queryKey: ["issues"] })) {
+    if (!Array.isArray(data)) continue;
+    const hit = data.find((i) => i.id === issueId);
+    if (hit) return hit;
+  }
+  for (const [, data] of queryClient.getQueriesData<{ pages: { items: Issue[] }[] }>({
+    queryKey: ["issues-infinite"],
+  })) {
+    for (const page of data?.pages ?? []) {
+      const hit = page.items?.find((i) => i.id === issueId);
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
+function patchIssueInAllCaches(
+  queryClient: QueryClient,
+  issueId: string,
+  patch: Partial<Issue>,
+) {
+  queryClient.setQueriesData<Board>({ queryKey: ["board"] }, (old) => {
+    if (!old) return old;
+    return {
+      ...old,
+      columns: old.columns.map((col) => ({
+        ...col,
+        issues: col.issues.map((i) => (i.id === issueId ? { ...i, ...patch } : i)),
+      })),
+    };
+  });
+
+  queryClient.setQueriesData<Issue[]>({ queryKey: ["issues"] }, (old) =>
+    Array.isArray(old) ? old.map((i) => (i.id === issueId ? { ...i, ...patch } : i)) : old,
+  );
+
+  queryClient.setQueriesData<{ pages: { items: Issue[] }[]; pageParams: unknown[] }>(
+    { queryKey: ["issues-infinite"] },
+    (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        pages: old.pages.map((page) => ({
+          ...page,
+          items: page.items.map((i) => (i.id === issueId ? { ...i, ...patch } : i)),
+        })),
+      };
+    },
+  );
+
+  queryClient.setQueriesData<{ issue: Issue }>({ queryKey: ["issue"] }, (old) => {
+    if (!old?.issue || old.issue.id !== issueId) return old;
+    return { ...old, issue: { ...old.issue, ...patch } };
+  });
+}
+
+function moveIssueBetweenColumnsInCache(
+  queryClient: QueryClient,
+  issueId: string,
+  targetColumnId: string,
+) {
+  queryClient.setQueriesData<Board>({ queryKey: ["board"] }, (old) => {
+    if (!old) return old;
+
+    let moved: Issue | null = null;
+    const withoutIssue = old.columns.map((col) => {
+      const filtered = col.issues.filter((i) => {
+        if (i.id === issueId) {
+          moved = i;
+          return false;
+        }
+        return true;
+      });
+      return { ...col, issues: filtered };
+    });
+    if (!moved) return old;
+
+    return {
+      ...old,
+      columns: withoutIssue.map((col) =>
+        col.id === targetColumnId
+          ? { ...col, issues: [...col.issues, { ...(moved as Issue), boardColumnId: targetColumnId }] }
+          : col,
+      ),
+    };
+  });
+}
+
+// ─── Move (board drag/drop) ──────────────────────────────────────────────────
+
 export function useMoveIssue() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, ...data }: MoveIssuePayload & { id: string }) =>
       issuesApi.move(id, data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issues", result.issue.projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issues-infinite", result.issue.projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issue"] });
-      queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
+    onMutate: async ({ id, columnId }) => {
+      await queryClient.cancelQueries({ queryKey: ["board"] });
+
+      const snapshot = queryClient.getQueriesData<Board>({ queryKey: ["board"] });
+      moveIssueBetweenColumnsInCache(queryClient, id, columnId);
+      return { snapshot };
     },
-    onError: handleApiError,
+    onError: (err, _vars, ctx) => {
+      ctx?.snapshot?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      handleApiError(err);
+    },
+    onSettled: (result) => {
+      const projectId = result?.issue.projectId;
+      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues-infinite", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issue"] });
+      if (result?.issue.id) {
+        queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
+      }
+    },
   });
 }
+
+// ─── Update (quick-edit + backlog sprint drag) ───────────────────────────────
 
 export function useUpdateIssue() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Record<string, unknown>) =>
-      issuesApi.update(id, data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issues", result.issue.projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issues-infinite", result.issue.projectId] });
+  return useMutation<
+    { issue: Issue; message: string } | null,
+    unknown,
+    { id: string } & Record<string, unknown>,
+    { snapshot: ReturnType<QueryClient["getQueriesData"]>; previous: Issue | null }
+  >({
+    mutationFn: (payload) => {
+      const { id, ...data } = payload;
+      if (Object.keys(data).length === 0) {
+        return Promise.resolve(null);
+      }
+      return issuesApi.update(id, data);
+    },
+    onMutate: async (payload) => {
+      const { id, ...data } = payload;
+
+      const previous = findIssueInCaches(queryClient, id);
+
+      // No-op guard: drop fields whose value didn't change
+      if (previous) {
+        for (const key of Object.keys(data)) {
+          if (isEqual((previous as unknown as Record<string, unknown>)[key], data[key])) {
+            delete data[key];
+          }
+        }
+      }
+
+      if (Object.keys(data).length === 0) {
+        // Nothing to do — mutate payload so mutationFn short-circuits too
+        for (const k of Object.keys(payload)) {
+          if (k !== "id") delete (payload as Record<string, unknown>)[k];
+        }
+        return { snapshot: [], previous };
+      }
+
+      await queryClient.cancelQueries({ queryKey: ["board"] });
+      await queryClient.cancelQueries({ queryKey: ["issues"] });
+      await queryClient.cancelQueries({ queryKey: ["issues-infinite"] });
+      await queryClient.cancelQueries({ queryKey: ["issue"] });
+
+      const snapshot = [
+        ...queryClient.getQueriesData({ queryKey: ["board"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues-infinite"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issue"] }),
+      ];
+
+      patchIssueInAllCaches(queryClient, id, data as Partial<Issue>);
+
+      return { snapshot, previous };
+    },
+    onError: (err, _vars, ctx) => {
+      ctx?.snapshot?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      handleApiError(err);
+    },
+    onSettled: (result) => {
+      if (!result) return;
+      const projectId = result.issue.projectId;
+      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues-infinite", projectId] });
       queryClient.invalidateQueries({ queryKey: ["issue", result.issue.key] });
       queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
     },
-    onError: handleApiError,
   });
 }
 

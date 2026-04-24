@@ -12,6 +12,7 @@ import { resetPasswordFormSchema } from "@/features/auth/schemas";
 import { useResetPassword } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 type ResetPasswordForm = z.infer<typeof resetPasswordFormSchema>;
@@ -112,7 +113,7 @@ export function ResetPasswordForm() {
               <FormItem>
                 <FormLabel>{t("auth.newPassword")}</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder={t("auth.passwordHint")} {...field} />
+                  <PasswordInput placeholder={t("auth.passwordHint")} {...field} />
                 </FormControl>
                 <FormMessage renderMessage={te} />
               </FormItem>
@@ -126,7 +127,7 @@ export function ResetPasswordForm() {
               <FormItem>
                 <FormLabel>{t("auth.confirmPassword")}</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage renderMessage={te} />
               </FormItem>

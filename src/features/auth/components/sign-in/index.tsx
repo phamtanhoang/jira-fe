@@ -9,6 +9,7 @@ import { loginSchema } from "@/features/auth/schemas";
 import { useLogin } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -55,7 +56,7 @@ export function SignInForm() {
               <FormItem>
                 <FormLabel>{t("auth.password")}</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage renderMessage={te} />
               </FormItem>

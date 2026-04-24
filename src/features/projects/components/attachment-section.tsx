@@ -141,18 +141,18 @@ export function AttachmentSection({
                   {/* Thumbnail / file icon */}
                   {isImage(att.mimeType) ? (
                     <button
-                      onClick={() => setPreview(att.fileUrl)}
+                      onClick={() => setPreview((att.signedUrl ?? att.fileUrl))}
                       className="block h-28 w-full overflow-hidden bg-muted"
                     >
                       <img
-                        src={att.fileUrl}
+                        src={(att.signedUrl ?? att.fileUrl)}
                         alt={att.fileName}
                         className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                       />
                     </button>
                   ) : (
                     <a
-                      href={att.fileUrl}
+                      href={(att.signedUrl ?? att.fileUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex h-28 w-full items-center justify-center bg-muted/50"
@@ -164,7 +164,7 @@ export function AttachmentSection({
                   {/* Info bar */}
                   <div className="px-2 py-1.5">
                     <a
-                      href={att.fileUrl}
+                      href={(att.signedUrl ?? att.fileUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block truncate text-[11px] font-medium hover:text-primary hover:underline"
@@ -179,7 +179,7 @@ export function AttachmentSection({
                   {/* Hover actions */}
                   <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <a
-                      href={att.fileUrl}
+                      href={(att.signedUrl ?? att.fileUrl)}
                       download={att.fileName}
                       className="rounded-md bg-black/50 p-1 text-white hover:bg-black/70"
                     >

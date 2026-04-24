@@ -18,8 +18,8 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { cn, toggleArrayItem } from "@/lib/utils";
 import { useAdminAnalytics, type AdminAnalytics } from "@/features/admin-users";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { RangePicker } from "@/components/ui/range-picker";
 import {
   Card,
   CardContent,
@@ -61,11 +61,6 @@ export function AdminAnalyticsClient() {
     setMetrics((prev) => toggleArrayItem(prev, m));
   }
 
-  function clampDays(raw: number) {
-    if (Number.isNaN(raw)) return 14;
-    return Math.max(1, Math.min(180, Math.round(raw)));
-  }
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -88,37 +83,15 @@ export function AdminAnalyticsClient() {
         </Button>
       </div>
 
-      {/* Day selector: presets + custom */}
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
-        <span className="mr-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          {t("admin.analytics.range")}
-        </span>
-        {PRESETS.map((p) => (
-          <Button
-            key={p}
-            size="sm"
-            variant={days === p ? "default" : "outline"}
-            onClick={() => setDays(p)}
-          >
-            {t("admin.analytics.daysN", { n: String(p) })}
-          </Button>
-        ))}
-        <span className="mx-2 h-5 w-px bg-border" />
-        <span className="text-[12px] text-muted-foreground">
-          {t("admin.analytics.custom")}
-        </span>
-        <Input
-          type="number"
-          min={1}
-          max={180}
-          className="w-20"
-          value={days}
-          onChange={(e) => setDays(clampDays(parseInt(e.target.value, 10)))}
-        />
-        <span className="text-[12px] text-muted-foreground">
-          {t("admin.analytics.daysShort")}
-        </span>
-      </div>
+      <RangePicker
+        value={days}
+        onChange={setDays}
+        presets={PRESETS}
+        unit="days"
+        min={1}
+        max={180}
+        label={t("admin.analytics.range")}
+      />
 
       {/* Metric toggles */}
       <div className="flex flex-wrap gap-1.5">
