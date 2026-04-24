@@ -52,10 +52,13 @@ export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
     mutationFn: (data: LoginPayload) => authApi.login(data),
     onSuccess: (result) => {
       document.cookie = `${COOKIE_AUTH}=1;path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
-      if (result.user.role) {
-        document.cookie = `${COOKIE_ROLE}=${result.user.role};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+      const role = result?.user?.role;
+      if (role) {
+        document.cookie = `${COOKIE_ROLE}=${role};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
       }
-      queryClient.setQueryData(["auth", "me"], result.user);
+      if (result?.user) {
+        queryClient.setQueryData(["auth", "me"], result.user);
+      }
       if (onSuccess) {
         onSuccess();
       } else {

@@ -19,10 +19,21 @@ export const authApi = {
     api.post<ApiResponse>(ENDPOINTS.auth.verifyEmail, data).then((r) => r.data),
 
   login: (data: LoginPayload) =>
-    api.post<{ user: AuthUser }>(ENDPOINTS.auth.signIn, data).then((r) => r.data),
+    api
+      .post<{
+        user: AuthUser;
+        accessToken: string;
+        refreshToken: string;
+        expiresIn: number;
+      }>(ENDPOINTS.auth.signIn, data)
+      .then((r) => r.data),
 
   refresh: () =>
-    api.post<{ user: AuthUser }>(ENDPOINTS.auth.refresh).then((r) => r.data),
+    api
+      .post<{ accessToken: string; refreshToken: string; expiresIn: number }>(
+        ENDPOINTS.auth.refresh,
+      )
+      .then((r) => r.data),
 
   logout: () =>
     api.post(ENDPOINTS.auth.logOut).then((r) => r.data),
