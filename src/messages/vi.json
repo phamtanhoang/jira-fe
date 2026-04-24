@@ -271,6 +271,8 @@
         "time": "Thời gian"
       },
       "payload": "Payload",
+      "summary": "Tóm tắt",
+      "change": "Thay đổi",
       "empty": "Không có entry nào.",
       "loadMore": "Tải thêm",
       "meta": {
@@ -359,8 +361,10 @@
       }
     },
     "logs": {
-      "title": "Nhật ký request",
-      "description": "Xem lỗi backend và frontend kèm user, payload và breadcrumbs.",
+      "title": "Nhật ký hệ thống",
+      "description": "Xem request log và audit log của quản trị trong cùng một nơi.",
+      "tabRequests": "Request",
+      "tabAudit": "Audit",
       "empty": "Không có log nào phù hợp.",
       "loadMore": "Tải thêm",
       "meta": {
@@ -381,7 +385,9 @@
         "emailPlaceholder": "Email user…",
         "level": "Mức độ",
         "method": "Method",
-        "statusCode": "Status"
+        "statusCode": "Status",
+        "hideMine": "Ẩn hoạt động của tôi",
+        "errorsOnly": "Chỉ lỗi"
       },
       "detail": {
         "title": "Chi tiết log",

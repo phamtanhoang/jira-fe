@@ -271,6 +271,8 @@
         "time": "Time"
       },
       "payload": "Payload",
+      "summary": "Summary",
+      "change": "Change",
       "empty": "No audit entries match the current filters.",
       "loadMore": "Load more",
       "meta": {
@@ -359,8 +361,10 @@
       }
     },
     "logs": {
-      "title": "Request Logs",
-      "description": "Inspect backend and frontend errors with user context, payload, and breadcrumbs.",
+      "title": "System Logs",
+      "description": "Request logs and admin audit logs in one place.",
+      "tabRequests": "Requests",
+      "tabAudit": "Audit",
       "empty": "No logs match the current filters.",
       "loadMore": "Load more",
       "meta": {
@@ -381,7 +385,9 @@
         "emailPlaceholder": "User email…",
         "level": "Level",
         "method": "Method",
-        "statusCode": "Status"
+        "statusCode": "Status",
+        "hideMine": "Hide my activity",
+        "errorsOnly": "Errors only"
       },
       "detail": {
         "title": "Log detail",

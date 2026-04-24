@@ -83,11 +83,6 @@ export function AdminSidebar({
           label: t("admin.nav.workspaces"),
           icon: Briefcase,
         },
-        {
-          href: ROUTES.ADMIN_AUDIT,
-          label: t("admin.nav.audit"),
-          icon: ScrollText,
-        },
       ],
     },
     {

@@ -34,6 +34,8 @@ export type LogsFilters = {
   method?: string;
   statusCode?: number;
   userEmail?: string;
+  excludeUserId?: string;
+  errorsOnly?: boolean;
   search?: string;
   dateFrom?: string;
   dateTo?: string;
