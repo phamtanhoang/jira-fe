@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ImageIcon, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   appInfoSchema,
@@ -121,44 +121,47 @@ export function AppInfoForm() {
                       {t("admin.settings.appInfo.logoUrl")}
                     </FormLabel>
                     <FormControl>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder={t(
-                            "admin.settings.appInfo.logoUrlPlaceholder",
-                          )}
-                          {...field}
-                        />
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            uploadLogo.mutate(file, {
-                              onSuccess: (res) => {
-                                form.setValue("logoUrl", res.logoUrl, {
-                                  shouldDirty: true,
-                                });
-                              },
-                            });
-                            e.target.value = "";
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={uploadLogo.isPending}
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          {uploadLogo.isPending ? (
-                            <Spinner className="mr-1.5 h-3.5 w-3.5" />
-                          ) : (
-                            <Upload className="mr-1.5 h-3.5 w-3.5" />
-                          )}
-                          {t("admin.settings.appInfo.uploadCta")}
-                        </Button>
+                      <div className="flex items-center gap-3">
+                        <LogoPreview url={field.value} />
+                        <div className="flex flex-1 gap-2">
+                          <Input
+                            placeholder={t(
+                              "admin.settings.appInfo.logoUrlPlaceholder",
+                            )}
+                            {...field}
+                          />
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              uploadLogo.mutate(file, {
+                                onSuccess: (res) => {
+                                  form.setValue("logoUrl", res.logoUrl, {
+                                    shouldDirty: true,
+                                  });
+                                },
+                              });
+                              e.target.value = "";
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={uploadLogo.isPending}
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            {uploadLogo.isPending ? (
+                              <Spinner className="mr-1.5 h-3.5 w-3.5" />
+                            ) : (
+                              <Upload className="mr-1.5 h-3.5 w-3.5" />
+                            )}
+                            {t("admin.settings.appInfo.uploadCta")}
+                          </Button>
+                        </div>
                       </div>
                     </FormControl>
                     <p className="text-[11px] text-muted-foreground">
@@ -251,5 +254,29 @@ export function AppInfoForm() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function LogoPreview({ url }: { url?: string | null }) {
+  const [errored, setErrored] = useState(false);
+  useEffect(() => {
+    setErrored(false);
+  }, [url]);
+
+  const showImg = !!url && !errored;
+  return (
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted/40">
+      {showImg ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt="logo"
+          className="h-full w-full object-contain"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <ImageIcon className="h-4 w-4 text-muted-foreground" />
+      )}
+    </div>
   );
 }
