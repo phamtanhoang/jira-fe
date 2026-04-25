@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { pushRecent } from "@/lib/utils";
 import {
   ChevronRight,
   Columns3,
@@ -82,6 +83,18 @@ export default function BoardPage() {
   const [newColumnName, setNewColumnName] = useState("");
 
   const activeSprint = board?.sprints.find((s) => s.status === "ACTIVE");
+
+  // Track this project in the Cmd+K "Recent" list. Re-fires on project switch.
+  useEffect(() => {
+    if (!project) return;
+    pushRecent({
+      type: "PROJECT",
+      id: project.id,
+      name: project.name,
+      key: project.key,
+      workspaceId: project.workspaceId,
+    });
+  }, [project?.id, project?.name, project?.key, project?.workspaceId]);
 
   const members: UserPreview[] = useMemo(() => {
     if (!project?.members) return [];
@@ -353,6 +366,7 @@ export default function BoardPage() {
                     filters={filters}
                     onChange={setFilters}
                     members={members}
+                    projectId={projectId}
                   />
                 </div>
                 <div className="flex flex-1 gap-3 overflow-auto p-5">
@@ -377,6 +391,7 @@ export default function BoardPage() {
               filters={filters}
               onChange={setFilters}
               members={members}
+              projectId={projectId}
             />
           </div>
           <div className="flex flex-1 gap-3 overflow-auto p-5">

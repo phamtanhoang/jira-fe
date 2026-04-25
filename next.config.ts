@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
+import { ENV } from "./src/lib/constants/env";
 
 const nextConfig: NextConfig = {
   output: "standalone",
   rewrites: async () => [
     {
       source: "/api/:path*",
-      destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+      destination: `${ENV.API_URL}/:path*`,
     },
   ],
   images: {

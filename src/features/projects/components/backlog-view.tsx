@@ -12,8 +12,9 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Plus, ChevronDown, ChevronRight, Inbox, Square, CheckSquare2 } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, Inbox, Square, CheckSquare2, Download } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { ENDPOINTS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -321,6 +322,16 @@ export function BacklogView({
             <Inbox className="h-4 w-4 text-muted-foreground" />
             <span className="text-[13px] font-semibold">{t("backlog.title")}</span>
             <Badge variant="secondary" className="text-[10px]">{backlogIssues.length}</Badge>
+            {/* Export CSV — covers the entire project, not just backlog rows. */}
+            <a
+              href={`/api${ENDPOINTS.issues.exportCsv}?projectId=${projectId}`}
+              download
+              className="ml-auto inline-flex items-center gap-1 rounded-md border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title={t("backlog.exportCsvHint")}
+            >
+              <Download className="h-3 w-3" />
+              {t("backlog.exportCsv")}
+            </a>
           </div>
 
           {backlogExpanded && (

@@ -1,7 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-
-const DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
-const IS_PROD = process.env.NODE_ENV === "production";
+import { ENV } from "@/lib/constants";
 
 /**
  * Next.js automatically calls register() once on server start.
@@ -11,20 +9,20 @@ const IS_PROD = process.env.NODE_ENV === "production";
  * `next dev` runs never send events upstream, even if a DSN is present in .env.
  */
 export function register() {
-  if (!DSN || !IS_PROD) return;
+  if (!ENV.SENTRY_DSN || !ENV.IS_PRODUCTION) return;
 
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  if (ENV.IS_NODE_RUNTIME) {
     Sentry.init({
-      dsn: DSN,
-      environment: process.env.NODE_ENV,
+      dsn: ENV.SENTRY_DSN,
+      environment: ENV.NODE_ENV,
       tracesSampleRate: 0.1,
     });
   }
 
-  if (process.env.NEXT_RUNTIME === "edge") {
+  if (ENV.IS_EDGE_RUNTIME) {
     Sentry.init({
-      dsn: DSN,
-      environment: process.env.NODE_ENV,
+      dsn: ENV.SENTRY_DSN,
+      environment: ENV.NODE_ENV,
       tracesSampleRate: 0.1,
     });
   }

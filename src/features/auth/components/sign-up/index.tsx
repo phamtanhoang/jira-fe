@@ -7,6 +7,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { ROUTES } from "@/lib/constants";
 import { registerFormSchema } from "@/features/auth/schemas";
 import { useRegister } from "@/features/auth/hooks";
+import { OAuthButtons } from "../oauth-buttons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -101,6 +102,10 @@ export function SignUpForm() {
           </Button>
         </div>
       </Form>
+
+      <div className="mt-4">
+        <OAuthButtons />
+      </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.hasAccount")}{" "}

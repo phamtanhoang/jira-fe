@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { AppProvider } from "@/components/providers/app-provider";
 import { LoggingProvider } from "@/components/providers/logging-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { ShortcutsProvider } from "@/components/providers/shortcuts-provider";
 import { type Locale, defaultLocale, locales } from "@/lib/config/i18n";
 import { COOKIE_LOCALE } from "@/lib/constants";
 import { Geist } from "next/font/google";
@@ -43,7 +44,9 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AppProvider initialLocale={locale} initialSettings={appSettings}>
             <LoggingProvider>
-              <QueryProvider>{children}</QueryProvider>
+              <QueryProvider>
+                <ShortcutsProvider>{children}</ShortcutsProvider>
+              </QueryProvider>
               <Toaster position="top-right" richColors closeButton />
             </LoggingProvider>
           </AppProvider>

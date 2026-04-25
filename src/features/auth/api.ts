@@ -91,4 +91,9 @@ export const authApi = {
         ENDPOINTS.auth.sessionsRevokeAll,
       )
       .then((r) => r.data),
+
+  oauthProviders: () =>
+    api
+      .get<{ google: boolean; github: boolean }>(ENDPOINTS.auth.oauthProviders)
+      .then((r) => r.data),
 };

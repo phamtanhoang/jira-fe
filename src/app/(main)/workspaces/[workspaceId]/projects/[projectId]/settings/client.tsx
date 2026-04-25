@@ -11,6 +11,7 @@ import {
   UserPlus,
   Shield,
   X,
+  FileText,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import type { MessageKey } from "@/lib/config/i18n";
@@ -50,6 +51,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { ProjectMember } from "@/features/projects/types";
+import { ProjectTemplates } from "@/features/issue-templates/components/project-templates";
 
 const ROLE_COLORS: Record<string, string> = {
   LEAD: "bg-purple-100 text-purple-700",
@@ -58,7 +60,7 @@ const ROLE_COLORS: Record<string, string> = {
   VIEWER: "bg-gray-100 text-gray-600",
 };
 
-const PROJECT_SETTINGS_TABS = ["general", "members"] as const;
+const PROJECT_SETTINGS_TABS = ["general", "members", "templates"] as const;
 type ProjectSettingsTab = (typeof PROJECT_SETTINGS_TABS)[number];
 
 export default function ProjectSettingsPage() {
@@ -230,6 +232,10 @@ export default function ProjectSettingsPage() {
             {members?.length ? (
               <Badge variant="secondary" className="ml-1.5 px-1.5 text-[10px]">{members.length}</Badge>
             ) : null}
+          </TabsTrigger>
+          <TabsTrigger value="templates">
+            <FileText className="mr-1.5 h-3.5 w-3.5" />
+            {t("templates.tab")}
           </TabsTrigger>
         </TabsList>
 
@@ -538,6 +544,11 @@ export default function ProjectSettingsPage() {
               ))}
             </div>
           </div>
+        </TabsContent>
+
+        {/* Templates Tab */}
+        <TabsContent value="templates">
+          <ProjectTemplates projectId={projectId} canManage={canManage} />
         </TabsContent>
       </Tabs>
 

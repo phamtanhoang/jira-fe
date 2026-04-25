@@ -14,6 +14,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useLogout } from "@/features/auth/hooks";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { CommandPalette } from "@/components/shared/command-palette";
+import { NotificationsBell } from "@/features/notifications/components/notifications-bell";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -58,6 +59,9 @@ export function Header({
 
       {/* Right */}
       <div className="flex items-center gap-1">
+        {/* Notifications */}
+        <NotificationsBell />
+
         {/* Theme toggle */}
         <Button
           variant="ghost"

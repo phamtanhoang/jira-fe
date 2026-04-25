@@ -39,6 +39,12 @@ export type RichEditorProps = {
   minimal?: boolean;
   className?: string;
   autoFocus?: boolean;
+  /**
+   * Hook for resolving a pasted/dropped file to an external URL. When supplied,
+   * the editor uploads images via this function and inserts the returned URL
+   * (e.g. attachment storage). When omitted, falls back to inline base64.
+   */
+  onUploadFile?: (file: File) => Promise<string>;
 };
 
 export default function RichEditor({
@@ -49,6 +55,7 @@ export default function RichEditor({
   minimal = false,
   className,
   autoFocus = false,
+  onUploadFile,
 }: RichEditorProps) {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
@@ -88,19 +95,29 @@ export default function RichEditor({
             event.preventDefault();
             const file = item.getAsFile();
             if (!file) return false;
-
-            const reader = new FileReader();
-            reader.onload = () => {
-              const src = reader.result as string;
-              view.dispatch(
-                view.state.tr.replaceSelectionWith(imageNode.create({ src })),
-              );
-            };
-            reader.readAsDataURL(file);
+            insertImageFromFile(view, imageNode, file, onUploadFile);
             return true;
           }
         }
         return false;
+      },
+      handleDrop: (view, event) => {
+        const dt = (event as DragEvent).dataTransfer;
+        if (!dt?.files?.length) return false;
+
+        const imageNode = view.state.schema.nodes.image;
+        if (!imageNode) return false;
+
+        const images = Array.from(dt.files).filter((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (images.length === 0) return false;
+
+        event.preventDefault();
+        for (const file of images) {
+          insertImageFromFile(view, imageNode, file, onUploadFile);
+        }
+        return true;
       },
     },
   });
@@ -277,6 +294,34 @@ export default function RichEditor({
       </Dialog>
     </div>
   );
+}
+
+// Inserts a pasted/dropped file as an <img>. If onUploadFile is provided we
+// upload first and use the returned URL; otherwise we fall back to a base64
+// data URL for editors with no upload context (e.g. settings forms).
+function insertImageFromFile(
+  view: import("@tiptap/pm/view").EditorView,
+  imageNode: import("@tiptap/pm/model").NodeType,
+  file: File,
+  onUploadFile?: (file: File) => Promise<string>,
+) {
+  if (onUploadFile) {
+    onUploadFile(file)
+      .then((src) => {
+        if (!src) return;
+        view.dispatch(view.state.tr.replaceSelectionWith(imageNode.create({ src })));
+      })
+      .catch(() => {
+        // Upload failed — surface via toast at the call site; here we no-op.
+      });
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = reader.result as string;
+    view.dispatch(view.state.tr.replaceSelectionWith(imageNode.create({ src })));
+  };
+  reader.readAsDataURL(file);
 }
 
 // ─── Toolbar helpers ──────────────────────────────────

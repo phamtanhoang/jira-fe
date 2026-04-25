@@ -24,6 +24,9 @@ const AUTH_ENDPOINTS = {
   session: (sessionId: string) => `${AUTH_BASE}/sessions/${sessionId}`,
   sessionsRevokeOthers: `${AUTH_BASE}/sessions/revoke-others`,
   sessionsRevokeAll: `${AUTH_BASE}/sessions/revoke-all`,
+  oauthProviders: `${AUTH_BASE}/oauth/providers`,
+  oauthGoogle: `${AUTH_BASE}/google`,
+  oauthGithub: `${AUTH_BASE}/github`,
 } as const;
 
 const SETTINGS_ENDPOINTS = {
@@ -74,6 +77,13 @@ const ISSUES_ENDPOINTS = {
   byId: (id: string) => `${ISSUES_BASE}/${id}`,
   byKey: (key: string) => `${ISSUES_BASE}/key/${key}`,
   myDashboard: `${ISSUES_BASE}/me/dashboard`,
+  myStarred: `${ISSUES_BASE}/me/starred`,
+  exportCsv: `${ISSUES_BASE}/export.csv`,
+  star: (id: string) => `${ISSUES_BASE}/${id}/star`,
+  watch: (id: string) => `${ISSUES_BASE}/${id}/watch`,
+  watchers: (id: string) => `${ISSUES_BASE}/${id}/watchers`,
+  links: (id: string) => `${ISSUES_BASE}/${id}/links`,
+  link: (id: string, linkId: string) => `${ISSUES_BASE}/${id}/links/${linkId}`,
   move: (id: string) => `${ISSUES_BASE}/${id}/move`,
   labels: (id: string, labelId: string) =>
     `${ISSUES_BASE}/${id}/labels/${labelId}`,
@@ -126,6 +136,27 @@ const FEATURE_FLAGS_ENDPOINTS = {
   me: `${FEATURE_FLAGS_BASE}/me`,
 } as const;
 
+const NOTIFICATIONS_BASE = "/notifications";
+const NOTIFICATIONS_ENDPOINTS = {
+  base: NOTIFICATIONS_BASE,
+  byId: (id: string) => `${NOTIFICATIONS_BASE}/${id}`,
+  read: (id: string) => `${NOTIFICATIONS_BASE}/${id}/read`,
+  readAll: `${NOTIFICATIONS_BASE}/read-all`,
+  unreadCount: `${NOTIFICATIONS_BASE}/unread-count`,
+} as const;
+
+const SAVED_FILTERS_BASE = "/saved-filters";
+const SAVED_FILTERS_ENDPOINTS = {
+  base: SAVED_FILTERS_BASE,
+  byId: (id: string) => `${SAVED_FILTERS_BASE}/${id}`,
+} as const;
+
+const ISSUE_TEMPLATES_BASE = "/issue-templates";
+const ISSUE_TEMPLATES_ENDPOINTS = {
+  base: ISSUE_TEMPLATES_BASE,
+  byId: (id: string) => `${ISSUE_TEMPLATES_BASE}/${id}`,
+} as const;
+
 const ADMIN_BASE = "/admin";
 const ADMIN_ENDPOINTS = {
   stats: `${ADMIN_BASE}/stats`,
@@ -158,4 +189,7 @@ export const ENDPOINTS = {
   users: USERS_ENDPOINTS,
   admin: ADMIN_ENDPOINTS,
   featureFlags: FEATURE_FLAGS_ENDPOINTS,
+  notifications: NOTIFICATIONS_ENDPOINTS,
+  savedFilters: SAVED_FILTERS_ENDPOINTS,
+  issueTemplates: ISSUE_TEMPLATES_ENDPOINTS,
 } as const;

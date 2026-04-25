@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, CalendarClock, CheckCircle2, Inbox } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, Inbox, Star } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import { formatDateShort, safeArray } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -30,8 +30,9 @@ export function MyWorkWidget() {
   const assigned = safeArray<Issue>(data, "assigned");
   const overdue = safeArray<Issue>(data, "overdue");
   const dueSoon = safeArray<Issue>(data, "dueSoon");
+  const starred = safeArray<Issue>(data, "starred");
 
-  if (assigned.length === 0) {
+  if (assigned.length === 0 && starred.length === 0) {
     return (
       <Card>
         <CardContent className="p-0">
@@ -70,13 +71,32 @@ export function MyWorkWidget() {
       </div>
 
       {/* Top assigned list (max 6) */}
-      <Card>
-        <CardContent className="p-0">
-          {assigned.slice(0, 6).map((issue) => (
-            <IssueListRow key={issue.id} issue={issue} />
-          ))}
-        </CardContent>
-      </Card>
+      {assigned.length > 0 && (
+        <Card>
+          <CardContent className="p-0">
+            {assigned.slice(0, 6).map((issue) => (
+              <IssueListRow key={issue.id} issue={issue} />
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Starred — only render when user has starred something */}
+      {starred.length > 0 && (
+        <div>
+          <div className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-muted-foreground">
+            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+            {t("issue.starredHeader")}
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              {starred.slice(0, 6).map((issue) => (
+                <IssueListRow key={issue.id} issue={issue} />
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,12 +11,15 @@ import {
   CheckSquare,
   Layers,
   Zap,
+  Clock,
+  X,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useWorkspaces } from "@/features/workspaces/hooks";
 import { api } from "@/lib/api";
 import { ENDPOINTS } from "@/lib/constants";
+import { useRecents, clearRecents } from "@/lib/utils";
 import type { Issue } from "@/features/projects/types";
 import type { Workspace } from "@/features/workspaces/types";
 
@@ -39,6 +42,8 @@ export function CommandPalette() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [searching, setSearching] = useState(false);
   const { data: workspaces } = useWorkspaces();
+  const recents = useRecents();
+  const showRecents = open && !query.trim() && recents.length > 0;
 
   // Keyboard shortcut: Cmd+K / Ctrl+K
   useEffect(() => {
@@ -140,9 +145,79 @@ export function CommandPalette() {
 
             {/* Results */}
             <Command.List className="max-h-80 overflow-auto p-1.5">
-              <Command.Empty className="py-8 text-center text-[13px] text-muted-foreground">
-                {t("common.noResults")}
-              </Command.Empty>
+              {!showRecents && (
+                <Command.Empty className="py-8 text-center text-[13px] text-muted-foreground">
+                  {t("common.noResults")}
+                </Command.Empty>
+              )}
+
+              {/* Recent items — shown only when query is empty */}
+              {showRecents && (
+                <Command.Group
+                  heading={
+                    <div className="flex items-center justify-between px-2.5 py-1">
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        {t("common.recent")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearRecents();
+                        }}
+                        className="flex items-center gap-1 rounded text-[10px] text-muted-foreground/70 hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" />
+                        {t("common.clear")}
+                      </button>
+                    </div>
+                  }
+                >
+                  {recents.map((item) => {
+                    if (item.type === "ISSUE") {
+                      const Icon = ISSUE_ICONS[item.issueType ?? ""] ?? CheckSquare;
+                      return (
+                        <Command.Item
+                          key={`ISSUE:${item.id}`}
+                          value={`recent-${item.id}`}
+                          onSelect={() => handleSelect(ROUTES.ISSUE(item.key))}
+                          className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors aria-selected:bg-accent"
+                        >
+                          <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          <span className="shrink-0 font-medium text-muted-foreground">
+                            {item.key}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate">
+                            {item.summary}
+                          </span>
+                          <Clock className="h-3 w-3 shrink-0 text-muted-foreground/40" />
+                        </Command.Item>
+                      );
+                    }
+                    return (
+                      <Command.Item
+                        key={`PROJECT:${item.id}`}
+                        value={`recent-${item.id}`}
+                        onSelect={() =>
+                          handleSelect(
+                            ROUTES.BOARD(item.workspaceId, item.id),
+                          )
+                        }
+                        className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors aria-selected:bg-accent"
+                      >
+                        <LayoutGrid className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <span className="shrink-0 font-medium text-muted-foreground">
+                          {item.key}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.name}
+                        </span>
+                        <Clock className="h-3 w-3 shrink-0 text-muted-foreground/40" />
+                      </Command.Item>
+                    );
+                  })}
+                </Command.Group>
+              )}
 
               {/* Issues */}
               {issues.length > 0 && (

@@ -20,6 +20,7 @@ import type {
   Activity,
   Worklog,
   Attachment,
+  UserPreview,
 } from "./types";
 
 export const projectsApi = {
@@ -257,6 +258,60 @@ export const issuesApi = {
   removeLabel: (issueId: string, labelId: string) =>
     api
       .delete(ENDPOINTS.issues.labels(issueId, labelId))
+      .then((r) => r.data),
+
+  myStarred: (projectId?: string) =>
+    api
+      .get<{ issueIds: string[] }>(ENDPOINTS.issues.myStarred, {
+        params: projectId ? { projectId } : undefined,
+      })
+      .then((r) => r.data.issueIds),
+
+  star: (issueId: string) =>
+    api
+      .post<{ message: string; starred: true }>(ENDPOINTS.issues.star(issueId))
+      .then((r) => r.data),
+
+  unstar: (issueId: string) =>
+    api
+      .delete<{ message: string; starred: false }>(
+        ENDPOINTS.issues.star(issueId),
+      )
+      .then((r) => r.data),
+
+  watch: (issueId: string) =>
+    api
+      .post<{ message: string; watching: true }>(
+        ENDPOINTS.issues.watch(issueId),
+      )
+      .then((r) => r.data),
+
+  unwatch: (issueId: string) =>
+    api
+      .delete<{ message: string; watching: false }>(
+        ENDPOINTS.issues.watch(issueId),
+      )
+      .then((r) => r.data),
+
+  getWatchers: (issueId: string) =>
+    api
+      .get<{ watchers: UserPreview[] }>(ENDPOINTS.issues.watchers(issueId))
+      .then((r) => r.data.watchers),
+
+  addLink: (
+    issueId: string,
+    data: { targetIssueId: string; type: import("./types").IssueLinkType },
+  ) =>
+    api
+      .post<{ message: string; link: import("./types").IssueLink }>(
+        ENDPOINTS.issues.links(issueId),
+        data,
+      )
+      .then((r) => r.data),
+
+  removeLink: (issueId: string, linkId: string) =>
+    api
+      .delete<{ message: string }>(ENDPOINTS.issues.link(issueId, linkId))
       .then((r) => r.data),
 };
 

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, FileText } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { onShortcutEvent, SHORTCUT_EVENTS } from "@/lib/hooks/use-shortcuts";
+import { useIssueTemplates } from "@/features/issue-templates/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +42,22 @@ export function CreateIssueDialog({
   const [storyPoints, setStoryPoints] = useState("");
 
   const { mutate: create, isPending } = useCreateIssue();
+  const { data: templates } = useIssueTemplates(open ? projectId : undefined);
+
+  // The "c" global shortcut opens this dialog from anywhere on a board page.
+  useEffect(() => {
+    return onShortcutEvent(SHORTCUT_EVENTS.OPEN_CREATE_ISSUE, () => setOpen(true));
+  }, []);
+
+  // Apply template defaults; doesn't lock the form — user can still tweak.
+  function applyTemplate(id: string) {
+    const tpl = templates?.find((x) => x.id === id);
+    if (!tpl) return;
+    setType(tpl.type);
+    if (tpl.defaultPriority) setPriority(tpl.defaultPriority);
+    if (tpl.descriptionHtml) setDescription(tpl.descriptionHtml);
+    if (!summary) setSummary(tpl.name);
+  }
 
   // Only show active/planning sprints
   const availableSprints = sprints.filter(
@@ -84,6 +102,30 @@ export function CreateIssueDialog({
           <DialogTitle>{t("issue.createIssue")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Template picker — only shows if any templates exist */}
+          {templates && templates.length > 0 && (
+            <div>
+              <label className="mb-1.5 block text-[13px] font-medium">
+                <FileText className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                {t("issue.fromTemplate")}
+              </label>
+              <Select
+                onValueChange={(v) => v && applyTemplate(v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("issue.pickTemplate")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((tpl) => (
+                    <SelectItem key={tpl.id} value={tpl.id}>
+                      {tpl.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-[13px] font-medium">{t("common.type")}</label>

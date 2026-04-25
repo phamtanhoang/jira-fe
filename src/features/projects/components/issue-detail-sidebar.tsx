@@ -6,8 +6,9 @@ import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } fro
 import type { MessageKey } from "@/lib/config/i18n";
 import { formatDate, formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useBoard, useMoveIssue, useIssues } from "../hooks";
+import { useBoard, useMoveIssue, useIssues, useWatchers, useWorklogs } from "../hooks";
 import { WorklogSection } from "./worklog-section";
+import { IssueLinksSection } from "./issue-links-section";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -350,6 +351,34 @@ export function IssueDetailSidebar({
           )}
         </EditableField>
 
+        {/* Time estimate — accepts "2h 30m" / "45m" / "1h" forms. Stored as
+            seconds; display rounds to the nearest minute. */}
+        <EditableField
+          label={t("issue.estimate")}
+          displayValue={<TimeEstimateDisplay issueId={issue.id} estimate={issue.originalEstimate} />}
+        >
+          {({ close }) => (
+            <Input
+              defaultValue={formatDuration(issue.originalEstimate)}
+              onBlur={(e) => {
+                const sec = parseDuration(e.target.value);
+                onUpdate("originalEstimate", sec == null ? null : String(sec));
+                close();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const sec = parseDuration((e.target as HTMLInputElement).value);
+                  onUpdate("originalEstimate", sec == null ? null : String(sec));
+                  close();
+                }
+              }}
+              className="h-8 w-32 text-[12px]"
+              placeholder="2h 30m"
+              autoFocus
+            />
+          )}
+        </EditableField>
+
         {/* Epic — click to edit (not for EPIC type) */}
         {issue.type !== "EPIC" && (
           <EditableField
@@ -445,6 +474,14 @@ export function IssueDetailSidebar({
 
         <Separator />
 
+        <IssueLinksSection issue={issue} />
+
+        <Separator />
+
+        <WatchersBlock issueId={issue.id} />
+
+        <Separator />
+
         <CollapsibleSection title={t("worklog.title")}>
           <WorklogSection issueId={issue.id} currentUserId={currentUserId} />
         </CollapsibleSection>
@@ -456,6 +493,108 @@ export function IssueDetailSidebar({
           <p>{t("issue.created", { date: formatDate(issue.createdAt) })}</p>
           <p>{t("issue.updated", { date: formatDate(issue.updatedAt) })}</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Display "Xh Ym" string for a seconds value; null/0 → em-dash. Pulls
+// worklog totals from the same hook the worklog section uses so a
+// progress bar appears once any time is logged.
+function TimeEstimateDisplay({
+  issueId,
+  estimate,
+}: {
+  issueId: string;
+  estimate: number | null;
+}) {
+  const { data: worklogs } = useWorklogs(issueId);
+  const spent = (worklogs ?? []).reduce(
+    (s, w) => s + (w.timeSpent ?? 0),
+    0,
+  );
+  if (!estimate && !spent) return <span>—</span>;
+  const pct = estimate ? Math.min(100, Math.round((spent / estimate) * 100)) : 0;
+  return (
+    <span className="flex flex-col">
+      <span className="text-[12px]">
+        {formatDuration(spent) || "0m"}
+        {estimate ? ` / ${formatDuration(estimate)}` : ""}
+      </span>
+      {estimate ? (
+        <span className="mt-1 h-1 w-24 overflow-hidden rounded-full bg-muted">
+          <span
+            className={`block h-full ${
+              spent > estimate ? "bg-red-500" : "bg-primary"
+            }`}
+            style={{ width: `${pct}%` }}
+          />
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+// "2h 30m" / "1h" / "45m" / "5400" (raw seconds) → seconds. Returns null
+// for empty/invalid input so the BE can clear the field.
+function parseDuration(input: string): number | null {
+  const trimmed = input.trim().toLowerCase();
+  if (!trimmed) return null;
+  // Bare number → assume seconds (advanced users)
+  if (/^\d+$/.test(trimmed)) return parseInt(trimmed) || null;
+  let total = 0;
+  const re = /(\d+)\s*([hm])/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(trimmed)) !== null) {
+    const n = parseInt(match[1]);
+    if (match[2] === "h") total += n * 3600;
+    else if (match[2] === "m") total += n * 60;
+  }
+  return total > 0 ? total : null;
+}
+
+function formatDuration(seconds: number | null | undefined): string {
+  if (!seconds) return "";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.round((seconds % 3600) / 60);
+  if (h && m) return `${h}h ${m}m`;
+  if (h) return `${h}h`;
+  return `${m}m`;
+}
+
+// Stacked avatars of users currently watching this issue. Hides itself when
+// nobody is watching to avoid an empty-looking section in the sidebar.
+function WatchersBlock({ issueId }: { issueId: string }) {
+  const { t } = useAppStore();
+  const { data: watchers } = useWatchers(issueId);
+  const list = watchers ?? [];
+  if (list.length === 0) return null;
+  const visible = list.slice(0, 6);
+  const overflow = list.length - visible.length;
+  return (
+    <div className="px-2 py-1">
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-[11px] font-medium text-muted-foreground">
+          {t("issue.watchers")}
+        </span>
+        <span className="text-[10px] text-muted-foreground/70 tabular-nums">
+          {list.length}
+        </span>
+      </div>
+      <div className="flex -space-x-1.5">
+        {visible.map((u) => (
+          <UserAvatar
+            key={u.id}
+            user={u}
+            className="h-6 w-6 ring-2 ring-background"
+            fallbackClassName="text-[9px]"
+          />
+        ))}
+        {overflow > 0 && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full border bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-background">
+            +{overflow}
+          </span>
+        )}
       </div>
     </div>
   );

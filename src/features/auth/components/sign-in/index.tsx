@@ -1,12 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { ROUTES } from "@/lib/constants";
 import { loginSchema } from "@/features/auth/schemas";
 import { useLogin } from "@/features/auth/hooks";
+import { OAuthButtons } from "../oauth-buttons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -16,8 +20,17 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export function SignInForm() {
   const { t } = useAppStore();
+  const searchParams = useSearchParams();
 
   const { mutate: login, isPending } = useLogin();
+
+  // OAuth callback redirects with `?error=...` when something fails
+  // (provider denial, missing email, etc.). Surface as a toast so the user
+  // knows why they're back at the sign-in page.
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err) toast.error(t("auth.oauthFailed"));
+  }, [searchParams, t]);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -74,6 +87,10 @@ export function SignInForm() {
           </Button>
         </div>
       </Form>
+
+      <div className="mt-4">
+        <OAuthButtons />
+      </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.noAccount")}{" "}

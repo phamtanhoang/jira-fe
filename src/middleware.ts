@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  ENV,
   ROUTES,
   PUBLIC_ROUTES,
   COOKIE_AUTH,
@@ -33,9 +34,7 @@ const MAINTENANCE_REVALIDATE_SEC = 300;
 
 async function fetchMaintenance(): Promise<MaintenanceValue | null> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) return null;
-    const res = await fetch(`${apiUrl}/settings/app-maintenance`, {
+    const res = await fetch(`${ENV.API_URL}/settings/app-maintenance`, {
       next: { revalidate: MAINTENANCE_REVALIDATE_SEC },
     });
     if (!res.ok) return null;

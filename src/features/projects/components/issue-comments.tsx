@@ -5,6 +5,7 @@ import { Send, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useComments, useAddComment, useUpdateComment, useDeleteComment } from "../hooks";
+import { issuesApi } from "../api";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -26,6 +27,12 @@ export function IssueComments({
   const [text, setText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+
+  async function uploadInlineImage(file: File): Promise<string> {
+    const r = await issuesApi.uploadAttachments(issueId, [file]);
+    const att = r.attachments?.[0];
+    return att?.signedUrl ?? att?.fileUrl ?? "";
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +57,7 @@ export function IssueComments({
               placeholder={t("issue.addComment")}
               minimal
               className="mb-2"
+              onUploadFile={uploadInlineImage}
             />
             {text && text !== "<p></p>" && (
               <Button type="submit" size="sm" disabled={commenting}>
@@ -108,6 +116,7 @@ export function IssueComments({
                     onChange={setEditDraft}
                     minimal
                     autoFocus
+                    onUploadFile={uploadInlineImage}
                   />
                   <div className="flex gap-2">
                     <Button size="xs" onClick={() => { updateComment({ commentId: comment.id, content: editDraft }); setEditingId(null); }}>

@@ -1,10 +1,11 @@
 "use client";
 
 import { memo, useState } from "react";
+import { Star } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Spinner } from "@/components/ui/spinner";
-import { useIsIssuePending } from "../hooks";
+import { useIsIssuePending, useToggleStar } from "../hooks";
 import type { Issue } from "../types";
 
 // Boards render 100+ cards. Memo avoids re-rendering all cards when one
@@ -20,6 +21,7 @@ export const IssueCard = memo(function IssueCard({
 }) {
   const [dragging, setDragging] = useState(false);
   const isPending = useIsIssuePending(issue.id);
+  const { mutate: toggleStar } = useToggleStar();
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
   const prioConf = PRIORITY_CONFIG[issue.priority] ?? PRIORITY_CONFIG.MEDIUM;
@@ -48,7 +50,30 @@ export const IssueCard = memo(function IssueCard({
           <Spinner className="h-4 w-4 text-primary" />
         </div>
       )}
-      <p className="mb-2.5 text-[13px] leading-[1.4] font-normal text-foreground">
+      {/* Star toggle — visible when starred, fades-in on hover otherwise */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleStar({ id: issue.id, starred: !issue.starredByMe });
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+        draggable={false}
+        className={`absolute right-1.5 top-1.5 z-5 rounded p-0.5 transition-opacity hover:bg-muted ${
+          issue.starredByMe ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+        aria-label={issue.starredByMe ? "Unstar" : "Star"}
+        aria-pressed={!!issue.starredByMe}
+      >
+        <Star
+          className={`h-3.5 w-3.5 ${
+            issue.starredByMe
+              ? "fill-yellow-400 text-yellow-400"
+              : "text-muted-foreground"
+          }`}
+        />
+      </button>
+      <p className="mb-2.5 pr-5 text-[13px] leading-[1.4] font-normal text-foreground">
         {issue.summary}
       </p>
 

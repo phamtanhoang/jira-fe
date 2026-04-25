@@ -12,6 +12,7 @@ export const ROUTES = {
   PROJECT_SETTINGS: (workspaceId: string, projectId: string) =>
     `/workspaces/${workspaceId}/projects/${projectId}/settings`,
   ISSUE: (key: string) => `/issues/${key}`,
+  NOTIFICATIONS: "/notifications",
   PROFILE: "/profile",
   ADMIN: "/admin",
   ADMIN_LOGS: "/admin/logs",

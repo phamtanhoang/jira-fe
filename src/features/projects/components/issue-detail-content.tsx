@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { pushRecent } from "@/lib/utils";
 import {
   Check,
   X,
@@ -13,10 +14,14 @@ import {
   Pencil,
   ChevronRight,
   Maximize2,
+  Star,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { TYPE_CONFIG } from "@/lib/constants/issue-config";
-import { useIssue, useUpdateIssue, useDeleteIssue, useProject, useComments } from "../hooks";
+import { useIssue, useUpdateIssue, useDeleteIssue, useProject, useComments, useToggleStar, useToggleWatch } from "../hooks";
+import { issuesApi } from "../api";
 import { useWorkspace } from "@/features/workspaces/hooks";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -55,12 +60,26 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
   const { data: comments } = useComments(issue?.id ?? "");
   const { mutate: updateIssue } = useUpdateIssue();
   const { mutate: deleteIssue } = useDeleteIssue(issue?.projectId ?? "");
+  const { mutate: toggleStar } = useToggleStar();
+  const { mutate: toggleWatch } = useToggleWatch();
 
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState("");
   const [editingDesc, setEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(modal ? 280 : 320);
+
+  // Track this issue in the Cmd+K "Recent" list whenever its identity loads.
+  useEffect(() => {
+    if (!issue) return;
+    pushRecent({
+      type: "ISSUE",
+      id: issue.id,
+      key: issue.key,
+      summary: issue.summary,
+      issueType: issue.type,
+    });
+  }, [issue?.id, issue?.key, issue?.summary, issue?.type]);
 
   function saveSummary() {
     if (issue && summaryDraft.trim() && summaryDraft.trim() !== issue.summary) {
@@ -83,7 +102,14 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
     const currentStr = current != null ? String(current) : null;
     if (value === currentStr) return; // No change — skip API call
     let parsed: unknown = value;
-    if (field === "storyPoints") parsed = value ? parseInt(value) : null;
+    // Number-typed fields stored as integers — sidebar passes string values.
+    if (
+      field === "storyPoints" ||
+      field === "originalEstimate" ||
+      field === "remainingEstimate"
+    ) {
+      parsed = value ? parseInt(value) : null;
+    }
     updateIssue({ id: issue.id, [field]: parsed });
   }
 
@@ -152,6 +178,41 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
         </div>
 
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => toggleStar({ id: issue.id, starred: !issue.starredByMe })}
+            title={issue.starredByMe ? t("issue.unstar") : t("issue.star")}
+            aria-pressed={!!issue.starredByMe}
+          >
+            <Star
+              className={`h-4 w-4 transition-colors ${
+                issue.starredByMe
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-muted-foreground"
+              }`}
+            />
+          </Button>
+          <Button
+            variant={issue.watchedByMe ? "secondary" : "ghost"}
+            size="xs"
+            onClick={() =>
+              toggleWatch({ id: issue.id, watching: !issue.watchedByMe })
+            }
+            title={
+              issue.watchedByMe ? t("issue.unwatch") : t("issue.watch")
+            }
+            aria-pressed={!!issue.watchedByMe}
+          >
+            {issue.watchedByMe ? (
+              <Eye className="mr-1 h-3.5 w-3.5" />
+            ) : (
+              <EyeOff className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
+            )}
+            <span className="text-[11px]">
+              {issue.watchedByMe ? t("issue.watching") : t("issue.watch")}
+            </span>
+          </Button>
           {modal && (
             <>
               <Button variant="ghost" size="icon-xs" onClick={handleExpand} title="Open full page">
@@ -216,7 +277,17 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             </h3>
             {editingDesc ? (
               <div className="space-y-2">
-                <RichEditor content={descDraft} onChange={setDescDraft} placeholder={t("issue.descPlaceholder")} autoFocus />
+                <RichEditor
+                  content={descDraft}
+                  onChange={setDescDraft}
+                  placeholder={t("issue.descPlaceholder")}
+                  autoFocus
+                  onUploadFile={async (file) => {
+                    const r = await issuesApi.uploadAttachments(issue.id, [file]);
+                    const att = r.attachments?.[0];
+                    return att?.signedUrl ?? att?.fileUrl ?? "";
+                  }}
+                />
                 <div className="flex gap-2">
                   <Button size="xs" onClick={saveDesc}>{t("common.save")}</Button>
                   <Button size="xs" variant="ghost" onClick={() => setEditingDesc(false)}>{t("common.cancel")}</Button>

@@ -335,3 +335,153 @@ export function useBulkDeleteIssues(projectId: string) {
     onError: handleApiError,
   });
 }
+
+// ─── Star / Favorite ────────────────────────────────────────────────────────
+
+const STARRED_KEY = (projectId?: string) =>
+  ["issues", "me", "starred", projectId ?? "all"] as const;
+
+export function useMyStarredIssueIds(projectId?: string) {
+  return useQuery({
+    queryKey: STARRED_KEY(projectId),
+    queryFn: () => issuesApi.myStarred(projectId),
+    staleTime: STALE_DASHBOARD_WIDGET,
+  });
+}
+
+// ─── Issue Links ────────────────────────────────────────────────────────────
+
+export function useAddIssueLink(issueKey: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      targetIssueId,
+      type,
+    }: {
+      id: string;
+      targetIssueId: string;
+      type: import("../types").IssueLinkType;
+    }) => issuesApi.addLink(id, { targetIssueId, type }),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      if (issueKey) queryClient.invalidateQueries({ queryKey: ["issue", issueKey] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRemoveIssueLink(issueKey: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, linkId }: { id: string; linkId: string }) =>
+      issuesApi.removeLink(id, linkId),
+    onSuccess: () => {
+      if (issueKey) queryClient.invalidateQueries({ queryKey: ["issue", issueKey] });
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Watch / Subscribe ──────────────────────────────────────────────────────
+
+export function useWatchers(issueId: string | undefined) {
+  return useQuery({
+    queryKey: ["watchers", issueId],
+    queryFn: () => issuesApi.getWatchers(issueId!),
+    enabled: !!issueId,
+  });
+}
+
+export function useToggleWatch() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { issueId: string; watching: boolean },
+    unknown,
+    { id: string; watching: boolean },
+    { snapshot: ReturnType<QueryClient["getQueriesData"]> }
+  >({
+    mutationFn: async ({ id, watching }) => {
+      const result = watching
+        ? await issuesApi.watch(id)
+        : await issuesApi.unwatch(id);
+      return { issueId: id, watching: result.watching };
+    },
+    onMutate: async ({ id, watching }) => {
+      const snapshot = [
+        ...queryClient.getQueriesData({ queryKey: ["board"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issue"] }),
+      ];
+      patchIssueInAllCaches(queryClient, id, { watchedByMe: watching });
+      return { snapshot };
+    },
+    onError: (err, _vars, ctx) => {
+      ctx?.snapshot?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      handleApiError(err);
+    },
+    onSettled: (result) => {
+      if (!result?.issueId) return;
+      queryClient.invalidateQueries({ queryKey: ["watchers", result.issueId] });
+    },
+  });
+}
+
+// ─── Star / Favorite ────────────────────────────────────────────────────────
+
+// One mutation that handles both star + unstar with optimistic update of
+// `starredByMe` everywhere the issue lives in the cache, plus the cached
+// starred-id list.
+export function useToggleStar() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { issueId: string; starred: boolean },
+    unknown,
+    { id: string; starred: boolean },
+    { snapshot: ReturnType<QueryClient["getQueriesData"]> }
+  >({
+    mutationFn: async ({ id, starred }) => {
+      const result = starred
+        ? await issuesApi.star(id)
+        : await issuesApi.unstar(id);
+      return { issueId: id, starred: result.starred };
+    },
+    onMutate: async ({ id, starred }) => {
+      await queryClient.cancelQueries({ queryKey: ["issues", "me", "starred"] });
+
+      const snapshot = [
+        ...queryClient.getQueriesData({ queryKey: ["board"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues-infinite"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issue"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues", "me", "starred"] }),
+        ...queryClient.getQueriesData({ queryKey: ["issues", "me", "dashboard"] }),
+      ];
+
+      patchIssueInAllCaches(queryClient, id, { starredByMe: starred });
+
+      // Patch the starred-id list caches so the dashboard widget + filled
+      // icons flip without waiting for refetch.
+      queryClient.setQueriesData<string[]>(
+        { queryKey: ["issues", "me", "starred"] },
+        (old) => {
+          if (!Array.isArray(old)) return old;
+          if (starred) return old.includes(id) ? old : [...old, id];
+          return old.filter((x) => x !== id);
+        },
+      );
+
+      return { snapshot };
+    },
+    onError: (err, _vars, ctx) => {
+      ctx?.snapshot?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      handleApiError(err);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["issues", "me", "starred"] });
+      queryClient.invalidateQueries({ queryKey: ["issues", "me", "dashboard"] });
+    },
+  });
+}

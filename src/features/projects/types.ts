@@ -85,6 +85,10 @@ export type Issue = {
   boardColumnId: string | null;
   position: number;
   storyPoints: number | null;
+  /** Original estimate, in seconds. Null if never set. */
+  originalEstimate: number | null;
+  /** Remaining estimate, in seconds. Defaults to originalEstimate when first set. */
+  remainingEstimate: number | null;
   dueDate: string | null;
   startDate: string | null;
   completedAt: string | null;
@@ -99,6 +103,62 @@ export type Issue = {
   labels?: { label: Label }[];
   children?: { id: string; key: string; summary: string; boardColumn?: { id: string; name: string; category: string } | null; assignee?: { id: string; name: string | null } | null }[];
   _count?: { children: number; comments: number; attachments: number };
+  /** Set on responses for the currently-authenticated user. Single-issue + dashboard endpoints populate it; board/list endpoints also populate it via `withUserMeta`. */
+  starredByMe?: boolean;
+  /** Same shape as `starredByMe` — true when the current user is in IssueWatcher. */
+  watchedByMe?: boolean;
+  outboundLinks?: IssueLink[];
+  inboundLinks?: IssueLink[];
+};
+
+export type IssueLinkType =
+  | "BLOCKS"
+  | "RELATES"
+  | "DUPLICATES"
+  | "CLONED_FROM";
+
+export type IssueLinkPeer = {
+  id: string;
+  key: string;
+  summary: string;
+  type: Issue["type"];
+  boardColumn?: { id: string; name: string; category: string } | null;
+};
+
+export type IssueLink = {
+  id: string;
+  sourceIssueId: string;
+  targetIssueId: string;
+  type: IssueLinkType;
+  createdAt: string;
+  /** Present on `outboundLinks` rows */
+  target?: IssueLinkPeer;
+  /** Present on `inboundLinks` rows */
+  source?: IssueLinkPeer;
+};
+
+export type SavedFilter = {
+  id: string;
+  projectId: string;
+  ownerId: string;
+  name: string;
+  payload: Record<string, unknown>;
+  shared: boolean;
+  createdAt: string;
+  updatedAt: string;
+  owner: UserPreview;
+};
+
+export type IssueTemplate = {
+  id: string;
+  projectId: string;
+  name: string;
+  type: Issue["type"];
+  descriptionHtml: string | null;
+  defaultPriority: Issue["priority"] | null;
+  defaultLabels: string[];
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Label = {
@@ -182,7 +242,8 @@ export type MyDashboard = {
   overdue: Issue[];
   dueSoon: Issue[];
   recent: Issue[];
-  stats: { total: number; overdue: number; dueSoon: number };
+  starred: (Issue & { project?: { id: string; key: string; name: string } })[];
+  stats: { total: number; overdue: number; dueSoon: number; starred: number };
 };
 
 export type CreateColumnPayload = {
