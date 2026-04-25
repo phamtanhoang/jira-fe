@@ -14,9 +14,10 @@ import { useLogs } from "@/features/logs/hooks";
 import type { LogsFilters } from "@/features/logs/types";
 import { AuditPanel } from "@/features/admin-audit/components/audit-panel";
 import { UserActivityPanel } from "@/features/admin-users/components/user-activity-panel";
+import { MailLogsPanel } from "@/features/mail-logs/components/mail-logs-panel";
 import { useAppStore } from "@/lib/stores/use-app-store";
 
-type TabValue = "requests" | "audit" | "activity";
+type TabValue = "requests" | "audit" | "activity" | "mail";
 
 export function AdminLogsClient() {
   const { t } = useAppStore();
@@ -24,15 +25,17 @@ export function AdminLogsClient() {
   const searchParams = useSearchParams();
 
   const initialTab: TabValue = ((): TabValue => {
-    const t = searchParams.get("tab");
-    if (t === "audit" || t === "activity") return t;
+    const tab = searchParams.get("tab");
+    if (tab === "audit" || tab === "activity" || tab === "mail") return tab;
     return "requests";
   })();
   const [tab, setTab] = useState<TabValue>(initialTab);
 
   function handleTabChange(next: string) {
     const value: TabValue =
-      next === "audit" || next === "activity" ? next : "requests";
+      next === "audit" || next === "activity" || next === "mail"
+        ? next
+        : "requests";
     setTab(value);
     const params = new URLSearchParams(searchParams.toString());
     if (value === "requests") params.delete("tab");
@@ -60,6 +63,7 @@ export function AdminLogsClient() {
           <TabsTrigger value="activity">
             {t("admin.logs.tabActivity")}
           </TabsTrigger>
+          <TabsTrigger value="mail">{t("admin.logs.tabMail")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="requests" className="mt-4">
@@ -72,6 +76,10 @@ export function AdminLogsClient() {
 
         <TabsContent value="activity" className="mt-4">
           <UserActivityPanel />
+        </TabsContent>
+
+        <TabsContent value="mail" className="mt-4">
+          <MailLogsPanel />
         </TabsContent>
       </Tabs>
     </div>

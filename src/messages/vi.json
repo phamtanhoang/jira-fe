@@ -280,6 +280,34 @@
         "desc": "Lịch sử hành động admin"
       }
     },
+    "mail": {
+      "title": "Nhật ký email",
+      "description": "Mọi lần Resend được gọi: thành công + thất bại + lý do.",
+      "statSent24h": "Đã gửi (24h)",
+      "statFailed24h": "Thất bại (24h)",
+      "sendTest": "Gửi email thử",
+      "sendTestDesc": "Gửi email thử để kiểm tra cấu hình Resend + địa chỉ FROM.",
+      "allStatuses": "Tất cả trạng thái",
+      "allTypes": "Tất cả loại",
+      "statusSent": "Đã gửi",
+      "statusFailed": "Thất bại",
+      "searchRecipient": "Tìm theo địa chỉ nhận",
+      "empty": "Chưa có email nào",
+      "emptyDesc": "Khi user đăng ký hoặc forgot-password, log sẽ xuất hiện ở đây.",
+      "from": "Gửi từ",
+      "providerId": "Mã message Resend",
+      "error": "Lỗi",
+      "columns": {
+        "status": "Trạng thái",
+        "type": "Loại",
+        "recipient": "Người nhận",
+        "subject": "Tiêu đề",
+        "time": "Thời gian"
+      },
+      "detail": {
+        "title": "Chi tiết email"
+      }
+    },
     "userActivity": {
       "description": "Tổng hợp từ request log — user thực sự dùng gì trong app (đã loại traffic từ trang admin).",
       "totalRequests": "Tổng request",
@@ -365,7 +393,27 @@
       "appEmail": {
         "email": "Địa chỉ email FROM",
         "emailPlaceholder": "noreply@example.com",
-        "emailHint": "Email đi (OTP, reset mật khẩu) sẽ gửi từ địa chỉ này."
+        "emailHint": "Email đi (OTP, reset mật khẩu) sẽ gửi từ địa chỉ này.",
+        "description": "Cấu hình cách app gửi email — qua Resend hoặc SMTP của bạn.",
+        "provider": "Nhà cung cấp",
+        "providerResend": "Resend (mặc định)",
+        "providerResendHint": "Dùng Resend API key cấu hình ở env. Domain FROM phải verify trên Resend.",
+        "providerSmtp": "SMTP (email của bạn)",
+        "providerSmtpHint": "Gửi qua SMTP của bạn (Gmail, Outlook, custom domain). Yêu cầu mật khẩu ứng dụng (app password) chứ không phải mật khẩu thường.",
+        "fromEmail": "Email FROM",
+        "fromName": "Tên hiển thị",
+        "fromNamePlaceholder": "VD: Jira Clone",
+        "smtp": "Cấu hình SMTP",
+        "smtpHint": "Thông tin máy chủ SMTP. Mật khẩu được lưu trong DB và không bao giờ trả lại cho trình duyệt.",
+        "host": "Host",
+        "port": "Port",
+        "secure": "Secure (SSL/TLS — bật cho cổng 465, tắt cho 587)",
+        "user": "Username",
+        "password": "Password / App password",
+        "passwordKept": "•••••• (giữ nguyên)",
+        "passwordHint": "Với Gmail nên dùng App Password (Bảo mật → Mật khẩu ứng dụng). Để trống nếu muốn giữ mật khẩu cũ.",
+        "configured": "Cấu hình email đã đầy đủ. Có thể gửi email thử để kiểm tra.",
+        "missingTitle": "Thiếu trường cấu hình — email sẽ không gửi được:"
       },
       "meta": {
         "title": "Cài đặt ứng dụng",
@@ -378,6 +426,7 @@
       "tabRequests": "Request",
       "tabAudit": "Audit",
       "tabActivity": "Hoạt động user",
+      "tabMail": "Email",
       "empty": "Không có log nào phù hợp.",
       "loadMore": "Tải thêm",
       "meta": {

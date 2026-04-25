@@ -135,6 +135,11 @@ const ADMIN_ENDPOINTS = {
   workspaces: `${ADMIN_BASE}/workspaces`,
   workspaceById: (id: string) => `${ADMIN_BASE}/workspaces/${id}`,
   audit: `${ADMIN_BASE}/audit`,
+  mailLogs: `${ADMIN_BASE}/mail-logs`,
+  mailLogById: (id: string) => `${ADMIN_BASE}/mail-logs/${id}`,
+  mailLogStats: `${ADMIN_BASE}/mail-logs/stats`,
+  mailLogConfig: `${ADMIN_BASE}/mail-logs/config-status`,
+  mailTest: `${ADMIN_BASE}/mail-logs/test`,
 } as const;
 
 export const ENDPOINTS = {

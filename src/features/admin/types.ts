@@ -2,8 +2,31 @@ import type { AppSettings } from "@/lib/types";
 
 export type AppInfoValue = AppSettings;
 
+export type MailProvider = "resend" | "smtp";
+
 export type AppEmailValue = {
-  email: string;
+  provider?: MailProvider;
+  fromEmail?: string;
+  fromName?: string;
+  smtp?: {
+    host?: string;
+    port?: number;
+    secure?: boolean;
+    user?: string;
+    /** Sentinel `__keep__` means "preserve existing on save". */
+    password?: string;
+  };
+  /** Legacy single field — kept for backward compat with old saved values. */
+  email?: string;
+};
+
+export const SMTP_PASSWORD_PLACEHOLDER = "__keep__";
+
+export type MailConfigStatus = {
+  configured: boolean;
+  provider: MailProvider;
+  fromEmail: string | null;
+  missing: string[];
 };
 
 export const SETTING_KEYS = {

@@ -58,33 +58,80 @@ describe("appInfoSchema", () => {
 });
 
 describe("appEmailSchema", () => {
-  it("accepts a valid email", () => {
+  it("accepts a valid Resend config", () => {
     expect(
-      appEmailSchema.safeParse({ email: "noreply@example.com" }).success,
+      appEmailSchema.safeParse({
+        provider: "resend",
+        fromEmail: "noreply@example.com",
+      }).success,
     ).toBe(true);
   });
 
-  it("rejects empty email with EMAIL_REQUIRED", () => {
-    const r = appEmailSchema.safeParse({ email: "" });
+  it("rejects empty fromEmail with EMAIL_REQUIRED", () => {
+    const r = appEmailSchema.safeParse({ provider: "resend", fromEmail: "" });
     expect(r.success).toBe(false);
     if (!r.success) {
-      expect(r.error.issues[0].message).toBe("EMAIL_REQUIRED");
+      expect(r.error.issues.some((i) => i.message === "EMAIL_REQUIRED")).toBe(
+        true,
+      );
     }
   });
 
-  it("rejects invalid email format with EMAIL_INVALID", () => {
-    const r = appEmailSchema.safeParse({ email: "not-an-email" });
+  it("rejects invalid fromEmail with EMAIL_INVALID", () => {
+    const r = appEmailSchema.safeParse({
+      provider: "resend",
+      fromEmail: "not-an-email",
+    });
     expect(r.success).toBe(false);
     if (!r.success) {
-      expect(
-        r.error.issues.some((i) => i.message === "EMAIL_INVALID"),
-      ).toBe(true);
+      expect(r.error.issues.some((i) => i.message === "EMAIL_INVALID")).toBe(
+        true,
+      );
     }
   });
 
-  it("trims whitespace on email", () => {
-    const r = appEmailSchema.safeParse({ email: "  ok@x.co  " });
+  it("trims whitespace on fromEmail", () => {
+    const r = appEmailSchema.safeParse({
+      provider: "resend",
+      fromEmail: "  ok@x.co  ",
+    });
     expect(r.success).toBe(true);
-    if (r.success) expect(r.data.email).toBe("ok@x.co");
+    if (r.success) expect(r.data.fromEmail).toBe("ok@x.co");
+  });
+
+  it("requires every SMTP field when provider=smtp", () => {
+    const r = appEmailSchema.safeParse({
+      provider: "smtp",
+      fromEmail: "ok@x.co",
+      smtp: { secure: false },
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const missing = r.error.issues
+        .filter((i) => i.message === "SMTP_FIELD_REQUIRED")
+        .map((i) => i.path.join("."))
+        .sort();
+      expect(missing).toEqual([
+        "smtp.host",
+        "smtp.password",
+        "smtp.port",
+        "smtp.user",
+      ]);
+    }
+  });
+
+  it("accepts a complete SMTP config", () => {
+    const r = appEmailSchema.safeParse({
+      provider: "smtp",
+      fromEmail: "you@x.co",
+      smtp: {
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        user: "you@gmail.com",
+        password: "app-pw",
+      },
+    });
+    expect(r.success).toBe(true);
   });
 });

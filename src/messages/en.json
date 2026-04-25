@@ -280,6 +280,34 @@
         "desc": "Administrator action history"
       }
     },
+    "mail": {
+      "title": "Mail logs",
+      "description": "Every Resend send attempt: successes, failures, and the reason why.",
+      "statSent24h": "Sent (24h)",
+      "statFailed24h": "Failed (24h)",
+      "sendTest": "Send test email",
+      "sendTestDesc": "Send a quick test email to verify the Resend integration and FROM address.",
+      "allStatuses": "All statuses",
+      "allTypes": "All types",
+      "statusSent": "Sent",
+      "statusFailed": "Failed",
+      "searchRecipient": "Search by recipient",
+      "empty": "No mail yet",
+      "emptyDesc": "Logs appear here as users sign up or use forgot-password.",
+      "from": "From",
+      "providerId": "Resend message id",
+      "error": "Error",
+      "columns": {
+        "status": "Status",
+        "type": "Type",
+        "recipient": "Recipient",
+        "subject": "Subject",
+        "time": "Time"
+      },
+      "detail": {
+        "title": "Mail detail"
+      }
+    },
     "userActivity": {
       "description": "Aggregated from request logs — what users actually do in the app (admin traffic excluded).",
       "totalRequests": "Total requests",
@@ -365,7 +393,27 @@
       "appEmail": {
         "email": "FROM email address",
         "emailPlaceholder": "noreply@example.com",
-        "emailHint": "Outbound mail (OTP, password reset) will be sent from this address."
+        "emailHint": "Outbound mail (OTP, password reset) will be sent from this address.",
+        "description": "Configure how the app sends email — via Resend or your own SMTP.",
+        "provider": "Provider",
+        "providerResend": "Resend (default)",
+        "providerResendHint": "Uses the Resend API key from env. The FROM domain must be verified on Resend.",
+        "providerSmtp": "SMTP (your own mail)",
+        "providerSmtpHint": "Send through your own SMTP (Gmail, Outlook, custom domain). Requires an app password, not your regular password.",
+        "fromEmail": "FROM email",
+        "fromName": "Display name",
+        "fromNamePlaceholder": "e.g. Jira Clone",
+        "smtp": "SMTP settings",
+        "smtpHint": "Mail server credentials. The password is stored in DB and never returned to the browser.",
+        "host": "Host",
+        "port": "Port",
+        "secure": "Secure (SSL/TLS — on for port 465, off for 587)",
+        "user": "Username",
+        "password": "Password / app password",
+        "passwordKept": "•••••• (kept)",
+        "passwordHint": "For Gmail use an App Password (2FA → Security → App passwords). Leave blank to keep the existing password.",
+        "configured": "Mail configuration looks complete. Send a test email to verify.",
+        "missingTitle": "Missing config fields — outbound mail will fail:"
       },
       "meta": {
         "title": "App Settings",
@@ -378,6 +426,7 @@
       "tabRequests": "Requests",
       "tabAudit": "Audit",
       "tabActivity": "User activity",
+      "tabMail": "Email",
       "empty": "No logs match the current filters.",
       "loadMore": "Load more",
       "meta": {
