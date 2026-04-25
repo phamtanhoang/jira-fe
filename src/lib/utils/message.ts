@@ -24,6 +24,7 @@ const SUCCESS_KEYS: Set<string> = new Set([
   "FLAG_CREATED",
   "FLAG_UPDATED",
   "FLAG_DELETED",
+  "MAIL_TEST_SENT",
 ]);
 
 function translate(key: string): string {
