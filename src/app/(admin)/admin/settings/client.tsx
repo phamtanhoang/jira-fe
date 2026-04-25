@@ -2,12 +2,17 @@
 
 import { Info, Mail } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppInfoForm } from "./app-info-form";
 import { AppEmailForm } from "./app-email-form";
 
+const TABS = ["app-info", "app-email"] as const;
+type Tab = (typeof TABS)[number];
+
 export function AdminSettingsClient() {
   const { t } = useAppStore();
+  const [tab, setTab] = useUrlTab<Tab>(TABS, "app-info");
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
@@ -20,7 +25,7 @@ export function AdminSettingsClient() {
         </p>
       </div>
 
-      <Tabs defaultValue="app-info">
+      <Tabs value={tab} onValueChange={(v) => v && setTab(v as Tab)}>
         <TabsList>
           <TabsTrigger value="app-info">
             <Info className="mr-1.5 h-3.5 w-3.5" />

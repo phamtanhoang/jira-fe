@@ -85,17 +85,17 @@ export function useAdminAnalytics(days: number) {
   });
 }
 
-export function useAdminMetrics(sinceHours: number) {
+export function useAdminMetrics(sinceHours: number, take = 10) {
   return useQuery({
-    queryKey: ["admin-metrics", sinceHours],
-    queryFn: () => fetchAdminMetrics(sinceHours),
+    queryKey: ["admin-metrics", sinceHours, take],
+    queryFn: () => fetchAdminMetrics(sinceHours, take),
   });
 }
 
-export function useUserActivity(sinceHours: number) {
+export function useUserActivity(sinceHours: number, take = 30) {
   return useQuery({
-    queryKey: ["admin-user-activity", sinceHours],
-    queryFn: () => fetchUserActivity(sinceHours),
+    queryKey: ["admin-user-activity", sinceHours, take],
+    queryFn: () => fetchUserActivity(sinceHours, take),
   });
 }
 

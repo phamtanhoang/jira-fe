@@ -25,6 +25,10 @@ const SUCCESS_KEYS: Set<string> = new Set([
   "FLAG_UPDATED",
   "FLAG_DELETED",
   "MAIL_TEST_SENT",
+  // Legacy key from BE before the rename — kept so the toast stays "success"
+  // green during the rolling deploy window. Safe to drop once every BE is on
+  // the new build.
+  "MAIL_RETRIED",
 ]);
 
 function translate(key: string): string {

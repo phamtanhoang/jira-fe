@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Pagination } from "@/components/ui/pagination";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,33 +14,15 @@ import type { LogsFilters } from "@/features/logs/types";
 import { AuditPanel } from "@/features/admin-audit/components/audit-panel";
 import { UserActivityPanel } from "@/features/admin-users/components/user-activity-panel";
 import { MailLogsPanel } from "@/features/mail-logs/components/mail-logs-panel";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { useAppStore } from "@/lib/stores/use-app-store";
 
-type TabValue = "requests" | "audit" | "activity" | "mail";
+const TAB_VALUES = ["requests", "audit", "activity", "mail"] as const;
+type TabValue = (typeof TAB_VALUES)[number];
 
 export function AdminLogsClient() {
   const { t } = useAppStore();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const initialTab: TabValue = ((): TabValue => {
-    const tab = searchParams.get("tab");
-    if (tab === "audit" || tab === "activity" || tab === "mail") return tab;
-    return "requests";
-  })();
-  const [tab, setTab] = useState<TabValue>(initialTab);
-
-  function handleTabChange(next: string) {
-    const value: TabValue =
-      next === "audit" || next === "activity" || next === "mail"
-        ? next
-        : "requests";
-    setTab(value);
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === "requests") params.delete("tab");
-    else params.set("tab", value);
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }
+  const [tab, setTab] = useUrlTab<TabValue>(TAB_VALUES, "requests");
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
@@ -54,7 +35,7 @@ export function AdminLogsClient() {
         </p>
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => handleTabChange(v as string)}>
+      <Tabs value={tab} onValueChange={(v) => v && setTab(v as TabValue)}>
         <TabsList>
           <TabsTrigger value="requests">
             {t("admin.logs.tabRequests")}

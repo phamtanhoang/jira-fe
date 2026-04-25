@@ -33,6 +33,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
+
+const WS_TABS = ["projects", "members", "settings"] as const;
+type WsTab = (typeof WS_TABS)[number];
 import {
   Dialog,
   DialogContent,
@@ -73,6 +77,7 @@ export default function WorkspaceDetailPage() {
   const [projectType, setProjectType] = useState<"SCRUM" | "KANBAN">("SCRUM");
 
   const [deleteWsOpen, setDeleteWsOpen] = useState(false);
+  const [tab, setTab] = useUrlTab<WsTab>(WS_TABS, "projects");
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -143,7 +148,7 @@ export default function WorkspaceDetailPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="projects">
+      <Tabs value={tab} onValueChange={(v) => v && setTab(v as WsTab)}>
         <div className="mb-6 flex items-center justify-between">
           <TabsList variant="line">
             <TabsTrigger value="projects">

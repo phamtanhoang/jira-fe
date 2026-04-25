@@ -164,7 +164,7 @@ export default function ProfilePage() {
       </Card>
 
       {/* Change password */}
-      <Card>
+      <Card className="mb-6">
         <CardContent className="p-6">
           <h3 className="mb-4 flex items-center gap-2 text-[14px] font-semibold">
             <Lock className="h-4 w-4" />

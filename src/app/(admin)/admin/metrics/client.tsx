@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -18,6 +19,7 @@ import { cn, formatDateTime } from "@/lib/utils";
 import { useAdminMetrics } from "@/features/admin-users";
 import { LogDetailSheet } from "@/features/logs/components";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TruncatedText } from "@/components/ui/truncated-text";
@@ -31,6 +33,8 @@ import {
 import { RangePicker } from "@/components/ui/range-picker";
 
 const METRICS_PRESETS = [24, 72, 168, 24 * 30] as const;
+const METRICS_PAGE_STEP = 10;
+const METRICS_PAGE_MAX = 100;
 
 const METHOD_COLORS: Record<string, string> = {
   GET: "#3b82f6",
@@ -43,8 +47,18 @@ const METHOD_COLORS: Record<string, string> = {
 export function AdminMetricsClient() {
   const { t } = useAppStore();
   const [since, setSince] = useState<number>(24);
-  const { data, isLoading } = useAdminMetrics(since);
+  const [take, setTake] = useState<number>(METRICS_PAGE_STEP);
+  const { data, isLoading, isFetching } = useAdminMetrics(since, take);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  function handleSinceChange(next: number) {
+    setSince(next);
+    setTake(METRICS_PAGE_STEP);
+  }
+
+  function loadMore() {
+    setTake((prev) => Math.min(prev + METRICS_PAGE_STEP, METRICS_PAGE_MAX));
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -59,7 +73,7 @@ export function AdminMetricsClient() {
         </div>
         <RangePicker
           value={since}
-          onChange={setSince}
+          onChange={handleSinceChange}
           presets={METRICS_PRESETS}
           unit="hours"
           min={1}
@@ -191,6 +205,24 @@ export function AdminMetricsClient() {
               );
             })
           )}
+          {(data?.topRoutes?.length ?? 0) >= take &&
+            take < METRICS_PAGE_MAX && (
+              <div className="flex items-center justify-center border-t bg-muted/20 px-4 py-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadMore}
+                  disabled={isFetching}
+                >
+                  {isFetching ? (
+                    <Spinner className="mr-1.5 h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronDown className="mr-1.5 h-3.5 w-3.5" />
+                  )}
+                  {t("common.loadMore")}
+                </Button>
+              </div>
+            )}
         </CardContent>
       </Card>
 
@@ -344,6 +376,24 @@ export function AdminMetricsClient() {
               </button>
             ))
           )}
+          {(data?.slowestRequests?.length ?? 0) >= take &&
+            take < METRICS_PAGE_MAX && (
+              <div className="flex items-center justify-center border-t bg-muted/20 px-4 py-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadMore}
+                  disabled={isFetching}
+                >
+                  {isFetching ? (
+                    <Spinner className="mr-1.5 h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronDown className="mr-1.5 h-3.5 w-3.5" />
+                  )}
+                  {t("common.loadMore")}
+                </Button>
+              </div>
+            )}
         </CardContent>
       </Card>
 

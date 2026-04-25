@@ -1,23 +1,18 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
 import { Megaphone, Wrench } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnnouncementFormPanel } from "./announcement-form";
 import { MaintenanceFormPanel } from "./maintenance-form";
 
-type Tab = "announcement" | "maintenance";
-const TABS: readonly Tab[] = ["announcement", "maintenance"];
+const TABS = ["announcement", "maintenance"] as const;
+type Tab = (typeof TABS)[number];
 
 export function AdminSiteNoticesClient() {
   const { t } = useAppStore();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const rawTab = searchParams.get("tab") ?? "announcement";
-  const activeTab: Tab = TABS.includes(rawTab as Tab)
-    ? (rawTab as Tab)
-    : "announcement";
+  const [activeTab, setActiveTab] = useUrlTab<Tab>(TABS, "announcement");
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
@@ -32,9 +27,7 @@ export function AdminSiteNoticesClient() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) =>
-          router.replace(`?tab=${v}`, { scroll: false })
-        }
+        onValueChange={(v) => v && setActiveTab(v as Tab)}
       >
         <TabsList>
           <TabsTrigger value="announcement">

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, TrendingUp, Users } from "lucide-react";
+import { Activity, ChevronDown, TrendingUp, Users } from "lucide-react";
 import { cn, formatDateTime, safeArray } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { Button } from "@/components/ui/button";
 import { RangePicker } from "@/components/ui/range-picker";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Card,
   CardContent,
@@ -19,11 +21,23 @@ import { useUserActivity } from "../hooks";
 import type { UserActivityTopUser, UserActivityTopRoute } from "../types";
 
 const PRESETS = [24, 72, 168, 24 * 30] as const;
+const PAGE_STEP = 30;
+const PAGE_MAX = 200;
 
 export function UserActivityPanel() {
   const { t } = useAppStore();
   const [sinceHours, setSinceHours] = useState<number>(168);
-  const { data, isLoading } = useUserActivity(sinceHours);
+  const [take, setTake] = useState<number>(PAGE_STEP);
+  const { data, isLoading, isFetching } = useUserActivity(sinceHours, take);
+
+  function handleRangeChange(next: number) {
+    setSinceHours(next);
+    setTake(PAGE_STEP);
+  }
+
+  function loadMore() {
+    setTake((prev) => Math.min(prev + PAGE_STEP, PAGE_MAX));
+  }
 
   const topUsers = safeArray<UserActivityTopUser>(data, "topUsers");
   const topRoutes = safeArray<UserActivityTopRoute>(data, "topRoutes");
@@ -50,7 +64,7 @@ export function UserActivityPanel() {
         </div>
         <RangePicker
           value={sinceHours}
-          onChange={setSinceHours}
+          onChange={handleRangeChange}
           presets={PRESETS}
           unit="hours"
           min={1}
@@ -240,6 +254,23 @@ export function UserActivityPanel() {
                 </div>
               );
             })
+          )}
+          {recent.length >= take && take < PAGE_MAX && (
+            <div className="flex items-center justify-center border-t bg-muted/20 px-4 py-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={loadMore}
+                disabled={isFetching}
+              >
+                {isFetching ? (
+                  <Spinner className="mr-1.5 h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                {t("common.loadMore")}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

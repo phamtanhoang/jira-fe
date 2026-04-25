@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import type { MessageKey } from "@/lib/config/i18n";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useWorkspace } from "@/features/workspaces/hooks";
@@ -57,6 +58,9 @@ const ROLE_COLORS: Record<string, string> = {
   VIEWER: "bg-gray-100 text-gray-600",
 };
 
+const PROJECT_SETTINGS_TABS = ["general", "members"] as const;
+type ProjectSettingsTab = (typeof PROJECT_SETTINGS_TABS)[number];
+
 export default function ProjectSettingsPage() {
   const { workspaceId, projectId } = useParams<{
     workspaceId: string;
@@ -89,6 +93,10 @@ export default function ProjectSettingsPage() {
   const [memberSearch, setMemberSearch] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<ProjectMember | null>(null);
+  const [tab, setTab] = useUrlTab<ProjectSettingsTab>(
+    PROJECT_SETTINGS_TABS,
+    "general",
+  );
 
   // Role of the current user inside this project. Workspace OWNER/ADMIN are
   // treated as managers of all projects they oversee, even when they don't
@@ -207,7 +215,10 @@ export default function ProjectSettingsPage() {
         <p className="mt-0.5 text-sm text-muted-foreground">{project?.name}</p>
       </div>
 
-      <Tabs defaultValue="general">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => v && setTab(v as ProjectSettingsTab)}
+      >
         <TabsList variant="line" className="mb-6">
           <TabsTrigger value="general">
             <Settings className="mr-1.5 h-3.5 w-3.5" />

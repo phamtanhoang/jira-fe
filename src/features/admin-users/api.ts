@@ -69,18 +69,20 @@ export async function fetchAdminAnalytics(
 
 export async function fetchAdminMetrics(
   sinceHours: number,
+  take = 10,
 ): Promise<AdminMetrics> {
   const res = await api.get<AdminMetrics>(ENDPOINTS.admin.metrics, {
-    params: { sinceHours },
+    params: { sinceHours, take },
   });
   return res.data;
 }
 
 export async function fetchUserActivity(
   sinceHours: number,
+  take = 30,
 ): Promise<UserActivity> {
   const res = await api.get<UserActivity>(ENDPOINTS.admin.userActivity, {
-    params: { sinceHours },
+    params: { sinceHours, take },
   });
   return res.data;
 }
