@@ -35,7 +35,20 @@ export const SETTING_KEYS = {
   APP_FEATURES: "app.features",
   APP_ANNOUNCEMENT: "app.announcement",
   APP_MAINTENANCE: "app.maintenance",
+  APP_AUTH_PROVIDERS: "app.auth_providers",
 } as const;
+
+export type AuthProvidersValue = {
+  password: boolean;
+  google: boolean;
+  github: boolean;
+};
+
+export const DEFAULT_AUTH_PROVIDERS: AuthProvidersValue = {
+  password: true,
+  google: true,
+  github: true,
+};
 
 export type FeatureFlags = Record<string, boolean>;
 

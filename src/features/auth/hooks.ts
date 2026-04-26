@@ -13,6 +13,7 @@ import { STALE_AUTH_USER } from "@/lib/constants/query-stale";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
 import type {
+  CreatePatPayload,
   LoginPayload,
   RegisterPayload,
   VerifyEmailPayload,
@@ -257,6 +258,41 @@ export function useRevokeAllMySessions() {
       document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
+    },
+    onError: handleApiError,
+  });
+}
+
+// ─── Personal access tokens ──────────────────────────────
+const PAT_KEY = ["auth", "tokens"] as const;
+
+export function useMyTokens() {
+  return useQuery({
+    queryKey: PAT_KEY,
+    queryFn: () => authApi.listTokens(),
+  });
+}
+
+export function useCreateToken() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreatePatPayload) => authApi.createToken(payload),
+    // No success toast — the dialog itself surfaces the raw token, that's
+    // the meaningful user feedback. A toast would just clutter the UI.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PAT_KEY });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRevokeToken() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => authApi.revokeToken(id),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: PAT_KEY });
     },
     onError: handleApiError,
   });

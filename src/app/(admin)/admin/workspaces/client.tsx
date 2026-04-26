@@ -68,11 +68,12 @@ export function AdminWorkspacesClient() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border bg-card">
-        <div className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>{t("admin.workspaces.columns.workspace")}</span>
           <span>{t("admin.workspaces.columns.owner")}</span>
           <span>{t("admin.workspaces.columns.members")}</span>
           <span>{t("admin.workspaces.columns.projects")}</span>
+          <span>{t("admin.workspaces.columns.storage")}</span>
           <span>{t("admin.workspaces.columns.created")}</span>
           <span className="w-10 text-right">
             {t("admin.workspaces.columns.actions")}
@@ -163,6 +164,15 @@ export function AdminWorkspacesClient() {
   );
 }
 
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), units.length - 1);
+  const v = bytes / Math.pow(k, i);
+  return `${v.toFixed(v >= 100 ? 0 : 1)} ${units[i]}`;
+}
+
 function WorkspaceRow({
   row,
   onDelete,
@@ -173,7 +183,7 @@ function WorkspaceRow({
   const initials = getInitials(row.owner.name, null);
 
   return (
-    <div className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_auto] items-center gap-2 border-b px-4 py-2.5 text-sm last:border-b-0 hover:bg-muted/30">
+    <div className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr_auto] items-center gap-2 border-b px-4 py-2.5 text-sm last:border-b-0 hover:bg-muted/30">
       <div className="min-w-0">
         <div className="truncate font-medium">{row.name}</div>
         <div className="truncate text-[11px] text-muted-foreground">
@@ -193,6 +203,9 @@ function WorkspaceRow({
       </div>
       <div className="text-xs tabular-nums">{row._count.members}</div>
       <div className="text-xs tabular-nums">{row._count.projects}</div>
+      <div className="text-xs tabular-nums text-muted-foreground">
+        {formatBytes(row.storageBytes)}
+      </div>
       <div className="text-xs text-muted-foreground">
         {formatDate(row.createdAt)}
       </div>

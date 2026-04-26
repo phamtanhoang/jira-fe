@@ -27,6 +27,8 @@ const AUTH_ENDPOINTS = {
   oauthProviders: `${AUTH_BASE}/oauth/providers`,
   oauthGoogle: `${AUTH_BASE}/google`,
   oauthGithub: `${AUTH_BASE}/github`,
+  tokens: `${AUTH_BASE}/tokens`,
+  tokenById: (id: string) => `${AUTH_BASE}/tokens/${id}`,
 } as const;
 
 const SETTINGS_ENDPOINTS = {
@@ -77,6 +79,7 @@ const SPRINTS_ENDPOINTS = {
   complete: (id: string) => `${SPRINTS_BASE}/${id}/complete`,
   burndown: (id: string) => `${SPRINTS_BASE}/${id}/burndown`,
   velocity: (boardId: string) => `${SPRINTS_BASE}/velocity/${boardId}`,
+  cfd: (boardId: string) => `${SPRINTS_BASE}/cfd/${boardId}`,
 } as const;
 
 const ISSUES_ENDPOINTS = {

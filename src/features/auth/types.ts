@@ -43,3 +43,24 @@ export type SessionRow = {
   ip: string | null;
   isCurrent: boolean;
 };
+
+export type PatRow = {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  scopes: string[];
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+};
+
+export type CreatePatPayload = {
+  name: string;
+  expiresInDays?: number;
+};
+
+export type CreatePatResponse = {
+  message: string;
+  token: string;
+  pat: PatRow;
+};

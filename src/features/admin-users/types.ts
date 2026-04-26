@@ -154,6 +154,7 @@ export type AdminWorkspaceRow = {
   createdAt: string;
   owner: { id: string; name: string | null; image: string | null };
   _count: { projects: number; members: number };
+  storageBytes: number;
 };
 
 export type AdminWorkspacesListResponse = {

@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { authApi } from "../api";
 
 // Hits BE for the configured-provider whitelist. Cached aggressively because
-// the answer only changes when admin updates env vars.
-function useOAuthProviders() {
+// the answer only changes when admin updates env vars or toggles the
+// `app.auth_providers` setting. Exported so SignInForm can also hide the
+// password block when the password provider is disabled.
+export function useOAuthProviders() {
   return useQuery({
     queryKey: ["auth", "oauth-providers"],
     queryFn: () => authApi.oauthProviders(),

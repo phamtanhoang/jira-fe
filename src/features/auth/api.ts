@@ -2,7 +2,10 @@ import { api } from "@/lib/api";
 import { ENDPOINTS } from "@/lib/constants";
 import type {
   AuthUser,
+  CreatePatPayload,
+  CreatePatResponse,
   LoginPayload,
+  PatRow,
   RegisterPayload,
   VerifyEmailPayload,
   ForgotPasswordPayload,
@@ -94,6 +97,21 @@ export const authApi = {
 
   oauthProviders: () =>
     api
-      .get<{ google: boolean; github: boolean }>(ENDPOINTS.auth.oauthProviders)
+      .get<{ password: boolean; google: boolean; github: boolean }>(
+        ENDPOINTS.auth.oauthProviders,
+      )
+      .then((r) => r.data),
+
+  listTokens: () =>
+    api.get<PatRow[]>(ENDPOINTS.auth.tokens).then((r) => r.data),
+
+  createToken: (data: CreatePatPayload) =>
+    api
+      .post<CreatePatResponse>(ENDPOINTS.auth.tokens, data)
+      .then((r) => r.data),
+
+  revokeToken: (id: string) =>
+    api
+      .delete<{ message: string }>(ENDPOINTS.auth.tokenById(id))
       .then((r) => r.data),
 };

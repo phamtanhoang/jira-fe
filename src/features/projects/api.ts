@@ -371,4 +371,16 @@ export const sprintsApi = {
         predicted: number;
       }>(ENDPOINTS.sprints.velocity(boardId))
       .then((r) => r.data),
+
+  cfd: (boardId: string, days = 30) =>
+    api
+      .get<{
+        data: {
+          day: string;
+          TODO: number;
+          IN_PROGRESS: number;
+          DONE: number;
+        }[];
+      }>(ENDPOINTS.sprints.cfd(boardId), { params: { days } })
+      .then((r) => r.data),
 };

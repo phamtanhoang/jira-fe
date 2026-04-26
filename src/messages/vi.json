@@ -35,7 +35,39 @@
     "resetPasswordDesc": "Nhập mã đã gửi đến email và mật khẩu mới của bạn",
     "newPassword": "Mật khẩu mới",
     "resetting": "Đang đặt lại...",
-    "backToSignIn": "Quay lại đăng nhập"
+    "backToSignIn": "Quay lại đăng nhập",
+    "passwordDisabled": "Đăng nhập bằng mật khẩu đã bị tắt. Vui lòng dùng OAuth bên dưới hoặc liên hệ admin.",
+    "tokens": {
+      "title": "Personal Access Tokens",
+      "description": "Token để truy cập API thay cho session cookie. Dùng `Authorization: Bearer pat_…` trên mỗi request.",
+      "create": "Tạo token",
+      "createTitle": "Tạo Personal Access Token",
+      "createDesc": "Đặt tên + chọn thời hạn. Token chỉ hiện 1 lần duy nhất sau khi tạo — hãy copy ngay.",
+      "createdTitle": "Token đã tạo",
+      "createdDesc": "Lưu chuỗi này ngay. Sau khi đóng dialog, bạn không thể xem lại token.",
+      "nameLabel": "Tên",
+      "namePlaceholder": "ci-bot, máy local, …",
+      "expiryLabel": "Thời hạn",
+      "expiryNever": "Không hết hạn",
+      "expiry7d": "7 ngày",
+      "expiry30d": "30 ngày",
+      "expiry90d": "90 ngày",
+      "expiry1y": "1 năm",
+      "copyWarning": "Token sẽ KHÔNG hiển thị lại sau khi đóng dialog. Hãy copy + lưu ngay.",
+      "copy": "Copy",
+      "copied": "Đã copy",
+      "done": "Xong",
+      "usageHint": "Dùng trong header: `Authorization: Bearer <token>`",
+      "lastUsed": "Dùng gần nhất {date}",
+      "neverUsed": "Chưa dùng",
+      "expiresOn": "Hết hạn {date}",
+      "expired": "Hết hạn",
+      "emptyTitle": "Chưa có token nào",
+      "emptyDesc": "Tạo token để dùng API mà không cần đăng nhập qua trình duyệt.",
+      "revoke": "Thu hồi",
+      "revokeTitle": "Thu hồi token?",
+      "revokeDesc": "Token \"{name}\" sẽ ngừng hoạt động ngay lập tức. Mọi script đang dùng nó sẽ bị reject."
+    }
   },
   "footer": {
     "copyright": "© {year} {name}",
@@ -239,6 +271,7 @@
         "owner": "Chủ sở hữu",
         "members": "Thành viên",
         "projects": "Project",
+        "storage": "Dung lượng",
         "created": "Tạo",
         "actions": "Hành động"
       },
@@ -432,6 +465,18 @@
       "description": "Cấu hình thương hiệu, metadata và email gửi đi.",
       "tabAppInfo": "Thông tin ứng dụng",
       "tabAppEmail": "Email ứng dụng",
+      "tabAuthProviders": "Phương thức đăng nhập",
+      "authProviders": {
+        "title": "Phương thức đăng nhập",
+        "description": "Bật/tắt từng provider. Tắt khi muốn force user dùng SSO hoặc tạm khóa OAuth khi cần điều tra.",
+        "password": "Email + mật khẩu",
+        "passwordHint": "Đăng nhập truyền thống. Tắt → mọi user phải dùng OAuth.",
+        "google": "Google",
+        "googleHint": "Yêu cầu đã cấu hình GOOGLE_CLIENT_ID/SECRET ở env.",
+        "github": "GitHub",
+        "githubHint": "Yêu cầu đã cấu hình GITHUB_CLIENT_ID/SECRET ở env.",
+        "allDisabledWarning": "⚠️ Tắt hết sẽ khóa cửa app. Phải bật ít nhất 1 provider."
+      },
       "appInfo": {
         "name": "Tên ứng dụng",
         "namePlaceholder": "Jira Clone",
@@ -748,7 +793,10 @@
     "velocityCommitted": "Cam kết",
     "velocityCompleted": "Hoàn thành",
     "velocityPredicted": "Dự đoán (avg 3 sprint)",
-    "velocityEmpty": "Chưa có sprint nào hoàn thành để tính velocity."
+    "velocityEmpty": "Chưa có sprint nào hoàn thành để tính velocity.",
+    "cfdTitle": "Cumulative Flow Diagram",
+    "cfdDescription": "Số lượng issue theo trạng thái trong {days} ngày qua. Vùng \"In Progress\" mở rộng nhanh = backlog đang phình to.",
+    "cfdEmpty": "Chưa có dữ liệu để vẽ CFD."
   },
   "issue": {
     "createIssue": "Tạo công việc",

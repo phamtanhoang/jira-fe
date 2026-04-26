@@ -12,6 +12,7 @@ import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { BurndownChart } from "./burndown-chart";
+import { CfdChart } from "./cfd-chart";
 import { VelocityChart } from "./velocity-chart";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -129,6 +130,10 @@ export function SummaryView({ board, allIssues, members }: Props) {
       {board.type === "SCRUM" && (
         <VelocityChart boardId={board.id} />
       )}
+
+      {/* CFD — works for both SCRUM and KANBAN since it just plots issue
+          flow over time. */}
+      <CfdChart boardId={board.id} days={30} />
 
       {/* Active sprint + status breakdown */}
       <div className="grid grid-cols-2 gap-4">

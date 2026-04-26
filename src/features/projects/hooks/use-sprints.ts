@@ -21,6 +21,14 @@ export function useVelocity(boardId: string | undefined) {
   });
 }
 
+export function useCfd(boardId: string | undefined, days = 30) {
+  return useQuery({
+    queryKey: ["cfd", boardId, days],
+    queryFn: () => sprintsApi.cfd(boardId!, days),
+    enabled: !!boardId,
+  });
+}
+
 export function useCreateSprint(projectId: string) {
   const queryClient = useQueryClient();
 

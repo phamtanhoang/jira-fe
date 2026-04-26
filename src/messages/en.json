@@ -35,7 +35,39 @@
     "resetPasswordDesc": "Enter the code sent to your email and your new password",
     "newPassword": "New password",
     "resetting": "Resetting...",
-    "backToSignIn": "Back to Sign In"
+    "backToSignIn": "Back to Sign In",
+    "passwordDisabled": "Password sign-in is disabled. Please use an OAuth provider below or contact the admin.",
+    "tokens": {
+      "title": "Personal Access Tokens",
+      "description": "Tokens for API access in place of session cookies. Send as `Authorization: Bearer pat_…` on each request.",
+      "create": "Create token",
+      "createTitle": "Create Personal Access Token",
+      "createDesc": "Pick a name + expiry. The raw token is shown ONCE after creation — copy it immediately.",
+      "createdTitle": "Token created",
+      "createdDesc": "Save this string now. After you close this dialog you cannot view the token again.",
+      "nameLabel": "Name",
+      "namePlaceholder": "ci-bot, local-machine, …",
+      "expiryLabel": "Expires",
+      "expiryNever": "Never",
+      "expiry7d": "7 days",
+      "expiry30d": "30 days",
+      "expiry90d": "90 days",
+      "expiry1y": "1 year",
+      "copyWarning": "This token will NOT be shown again after this dialog closes. Copy + store it now.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "done": "Done",
+      "usageHint": "Use in headers: `Authorization: Bearer <token>`",
+      "lastUsed": "Last used {date}",
+      "neverUsed": "Never used",
+      "expiresOn": "Expires {date}",
+      "expired": "Expired",
+      "emptyTitle": "No tokens yet",
+      "emptyDesc": "Create a token to access the API without going through the browser sign-in.",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke token?",
+      "revokeDesc": "Token \"{name}\" will stop working immediately. Any script using it will be rejected."
+    }
   },
   "footer": {
     "copyright": "© {year} {name}",
@@ -239,6 +271,7 @@
         "owner": "Owner",
         "members": "Members",
         "projects": "Projects",
+        "storage": "Storage",
         "created": "Created",
         "actions": "Actions"
       },
@@ -432,6 +465,18 @@
       "description": "Configure branding, metadata, and the FROM email address.",
       "tabAppInfo": "App Info",
       "tabAppEmail": "App Email",
+      "tabAuthProviders": "Auth Providers",
+      "authProviders": {
+        "title": "Auth providers",
+        "description": "Toggle individual providers on/off. Use to enforce SSO or temporarily disable OAuth during an incident.",
+        "password": "Email + password",
+        "passwordHint": "Classic password sign-in. Disable to force all users through OAuth.",
+        "google": "Google",
+        "googleHint": "Requires GOOGLE_CLIENT_ID/SECRET configured in env.",
+        "github": "GitHub",
+        "githubHint": "Requires GITHUB_CLIENT_ID/SECRET configured in env.",
+        "allDisabledWarning": "⚠️ Disabling all providers locks everyone out. At least one must stay enabled."
+      },
       "appInfo": {
         "name": "App name",
         "namePlaceholder": "Jira Clone",
@@ -748,7 +793,10 @@
     "velocityCommitted": "Committed",
     "velocityCompleted": "Completed",
     "velocityPredicted": "Predicted (3-sprint avg)",
-    "velocityEmpty": "No closed sprints yet — velocity will appear after the first sprint completes."
+    "velocityEmpty": "No closed sprints yet — velocity will appear after the first sprint completes.",
+    "cfdTitle": "Cumulative Flow Diagram",
+    "cfdDescription": "Issue count by status across the last {days} days. A widening \"In Progress\" band signals the backlog is filling up.",
+    "cfdEmpty": "Not enough data to draw a CFD yet."
   },
   "issue": {
     "createIssue": "Create Issue",
