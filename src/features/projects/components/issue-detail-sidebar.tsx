@@ -4,7 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { Pencil, ChevronDown, ChevronRight, Settings } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG, STATUS_DOT_COLORS, UNASSIGNED_VALUE } from "@/lib/constants/issue-config";
 import type { MessageKey } from "@/lib/config/i18n";
-import { formatDate, formatDateShort } from "@/lib/utils";
+import {
+  formatDate,
+  formatDateShort,
+  formatDuration,
+  parseDuration,
+} from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useBoard, useMoveIssue, useIssues, useWatchers, useWorklogs } from "../hooks";
 import { WorklogSection } from "./worklog-section";
@@ -535,32 +540,6 @@ function TimeEstimateDisplay({
   );
 }
 
-// "2h 30m" / "1h" / "45m" / "5400" (raw seconds) → seconds. Returns null
-// for empty/invalid input so the BE can clear the field.
-function parseDuration(input: string): number | null {
-  const trimmed = input.trim().toLowerCase();
-  if (!trimmed) return null;
-  // Bare number → assume seconds (advanced users)
-  if (/^\d+$/.test(trimmed)) return parseInt(trimmed) || null;
-  let total = 0;
-  const re = /(\d+)\s*([hm])/g;
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(trimmed)) !== null) {
-    const n = parseInt(match[1]);
-    if (match[2] === "h") total += n * 3600;
-    else if (match[2] === "m") total += n * 60;
-  }
-  return total > 0 ? total : null;
-}
-
-function formatDuration(seconds: number | null | undefined): string {
-  if (!seconds) return "";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.round((seconds % 3600) / 60);
-  if (h && m) return `${h}h ${m}m`;
-  if (h) return `${h}h`;
-  return `${m}m`;
-}
 
 // Stacked avatars of users currently watching this issue. Hides itself when
 // nobody is watching to avoid an empty-looking section in the sidebar.

@@ -1,4 +1,5 @@
 export * from "./cn";
+export * from "./duration";
 export * from "./message";
 export * from "./metadata";
 export * from "./format";

@@ -61,8 +61,15 @@ function dedupKey(item: RecentItem) {
   return `${item.type}:${item.id}`;
 }
 
-export function pushRecent(item: Omit<RecentItem, "openedAt">) {
-  const next: RecentItem = { ...item, openedAt: Date.now() } as RecentItem;
+// `Omit<RecentItem, "openedAt">` flattens the discriminated union and loses
+// the per-variant fields (TS distributes Omit only for some union shapes).
+// Spelling out each variant keeps the discrimination intact for callers.
+export type PushRecentInput =
+  | Omit<RecentIssue, "openedAt">
+  | Omit<RecentProject, "openedAt">;
+
+export function pushRecent(item: PushRecentInput) {
+  const next: RecentItem = { ...item, openedAt: Date.now() };
   const existing = readRaw();
   const filtered = existing.filter((x) => dedupKey(x) !== dedupKey(next));
   const merged = [next, ...filtered].slice(0, MAX_ITEMS);

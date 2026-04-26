@@ -110,7 +110,9 @@ export function CreateIssueDialog({
                 {t("issue.fromTemplate")}
               </label>
               <Select
-                onValueChange={(v) => v && applyTemplate(v)}
+                onValueChange={(v) =>
+                  typeof v === "string" && v && applyTemplate(v)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t("issue.pickTemplate")} />
