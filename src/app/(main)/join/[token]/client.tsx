@@ -77,7 +77,7 @@ export default function JoinPage() {
           </p>
         )}
         <p className="mb-6 text-[12px] text-muted-foreground">
-          You'll join with the role <strong>{preview.role}</strong>.
+          You&apos;ll join with the role <strong>{preview.role}</strong>.
           {preview.expiresAt && (
             <>
               {" "}
