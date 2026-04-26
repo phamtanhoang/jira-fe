@@ -47,10 +47,30 @@ function readRaw(): RecentItem[] {
   }
 }
 
+// Snapshot cache: useSyncExternalStore polls getSnapshot every render and
+// re-renders whenever the returned reference changes (Object.is). readRaw()
+// allocates a fresh array each call, so without caching React would treat
+// every snapshot as new → infinite render loop. We invalidate the cache only
+// when push/clear runs (or another tab fires a storage event).
+let cachedSnapshot: RecentItem[] = [];
+let snapshotDirty = true;
+
+function invalidateSnapshot() {
+  snapshotDirty = true;
+}
+
+function getSnapshot(): RecentItem[] {
+  if (!snapshotDirty) return cachedSnapshot;
+  cachedSnapshot = readRaw();
+  snapshotDirty = false;
+  return cachedSnapshot;
+}
+
 function writeRaw(items: RecentItem[]) {
   if (!isClient()) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    invalidateSnapshot();
     window.dispatchEvent(new CustomEvent(STORAGE_EVENT));
   } catch {
     // Quota exceeded or storage disabled — silent
@@ -85,23 +105,26 @@ export function getRecents(): RecentItem[] {
 }
 
 // Subscribe to changes so React components re-render when push/clear happens
-// in the same tab (storage event only fires for cross-tab changes).
+// in the same tab (storage event only fires for cross-tab changes). Always
+// invalidate the cache before notifying so the next getSnapshot reads fresh
+// data — without this, a `storage` event from another tab would notify React
+// but getSnapshot would still return the stale cached array.
 function subscribe(callback: () => void) {
   if (!isClient()) return () => {};
-  window.addEventListener(STORAGE_EVENT, callback);
-  window.addEventListener("storage", callback);
+  function onChange() {
+    invalidateSnapshot();
+    callback();
+  }
+  window.addEventListener(STORAGE_EVENT, onChange);
+  window.addEventListener("storage", onChange);
   return () => {
-    window.removeEventListener(STORAGE_EVENT, callback);
-    window.removeEventListener("storage", callback);
+    window.removeEventListener(STORAGE_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
   };
 }
 
 const EMPTY: RecentItem[] = [];
 
 export function useRecents(): RecentItem[] {
-  return useSyncExternalStore(
-    subscribe,
-    () => readRaw(),
-    () => EMPTY,
-  );
+  return useSyncExternalStore(subscribe, getSnapshot, () => EMPTY);
 }

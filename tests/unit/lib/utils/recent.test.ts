@@ -8,15 +8,21 @@
  *   - clearRecents() empties storage
  *   - readRaw() tolerates corrupted JSON / missing key
  */
+import { renderHook, act } from "@testing-library/react";
 import {
   clearRecents,
   getRecents,
   pushRecent,
+  useRecents,
 } from "@/lib/utils/recent";
 
 beforeEach(() => {
-  // Use the real jsdom localStorage but reset it for each test
+  // Reset both localStorage AND the in-memory snapshot cache. clearRecents()
+  // does both atomically (writes to storage + invalidates the cache + fires
+  // the change event); plain localStorage.clear() would leak stale cache
+  // into the next test.
   window.localStorage.clear();
+  clearRecents();
 });
 
 describe("pushRecent()", () => {
@@ -95,6 +101,45 @@ describe("clearRecents()", () => {
     expect(getRecents()).toHaveLength(1);
     clearRecents();
     expect(getRecents()).toEqual([]);
+  });
+});
+
+describe("useRecents() — React hook (regression for infinite render)", () => {
+  // Regression for React error #185: getSnapshot used to allocate a fresh
+  // array each call, so useSyncExternalStore saw the snapshot as "changed"
+  // every render and re-rendered forever. Cache is now invalidated only via
+  // the storage / custom-event subscription path.
+  it("returns the same reference on repeated reads when storage is unchanged", () => {
+    const { result, rerender } = renderHook(() => useRecents());
+    const first = result.current;
+    rerender();
+    rerender();
+    rerender();
+    expect(result.current).toBe(first); // Object.is — same reference
+  });
+
+  it("returns a different reference after pushRecent fires the storage event", () => {
+    const { result } = renderHook(() => useRecents());
+    const before = result.current;
+    act(() => {
+      pushRecent({
+        type: "ISSUE",
+        id: "i1",
+        key: "PROJ-1",
+        summary: "test",
+      });
+    });
+    expect(result.current).not.toBe(before);
+    expect(result.current).toHaveLength(1);
+  });
+
+  it("does not loop — 50 rerenders all return the same reference", () => {
+    const { result, rerender } = renderHook(() => useRecents());
+    const first = result.current;
+    for (let i = 0; i < 50; i++) rerender();
+    // Pure re-renders without state changes must NOT spawn new snapshots,
+    // otherwise useSyncExternalStore would re-render forever.
+    expect(result.current).toBe(first);
   });
 });
 
