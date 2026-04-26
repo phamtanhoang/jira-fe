@@ -293,6 +293,7 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
                   onChange={setDescDraft}
                   placeholder={t("issue.descPlaceholder")}
                   autoFocus
+                  mentionMembers={(project?.members ?? []).map((m) => m.user)}
                   onUploadFile={async (file) => {
                     const r = await issuesApi.uploadAttachments(issue.id, [file]);
                     const att = r.attachments?.[0];
@@ -343,7 +344,11 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             </TabsList>
 
             <TabsContent value="comments">
-              <IssueComments issueId={issue.id} currentUser={{ id: user?.id ?? "", name: user?.name ?? null }} />
+              <IssueComments
+                issueId={issue.id}
+                currentUser={{ id: user?.id ?? "", name: user?.name ?? null }}
+                members={(project?.members ?? []).map((m) => m.user)}
+              />
             </TabsContent>
 
             <TabsContent value="activity">

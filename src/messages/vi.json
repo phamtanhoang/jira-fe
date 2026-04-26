@@ -268,6 +268,8 @@
       "title": "Nhật ký quản trị",
       "description": "Mọi hành động đổi role, xóa user, revoke session, sửa flag và setting đều được lưu kèm actor + payload.",
       "allActions": "Tất cả hành động",
+    "exportCsv": "Xuất CSV",
+    "exportHint": "Tải file CSV chứa toàn bộ audit log đang lọc",
       "columns": {
         "action": "Hành động",
         "actor": "Người thực hiện",
@@ -659,7 +661,12 @@
     "summaryRecentActivity": "Hoạt động gần đây",
     "burndownDay": "Ngày {label}",
     "burndownIdeal": "Lý tưởng",
-    "burndownActual": "Thực tế"
+    "burndownActual": "Thực tế",
+    "velocityTitle": "Tốc độ team (Velocity)",
+    "velocityCommitted": "Cam kết",
+    "velocityCompleted": "Hoàn thành",
+    "velocityPredicted": "Dự đoán (avg 3 sprint)",
+    "velocityEmpty": "Chưa có sprint nào hoàn thành để tính velocity."
   },
   "issue": {
     "createIssue": "Tạo công việc",

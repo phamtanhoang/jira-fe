@@ -12,6 +12,7 @@ import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { BurndownChart } from "./burndown-chart";
+import { VelocityChart } from "./velocity-chart";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";
@@ -121,6 +122,12 @@ export function SummaryView({ board, allIssues, members }: Props) {
             <BurndownChart sprintId={activeSprint.id} />
           </CardContent>
         </Card>
+      )}
+
+      {/* Velocity — past sprints. Hidden if no closed sprints exist (chart
+          handles its own empty state, this just keeps SCRUM-only). */}
+      {board.type === "SCRUM" && (
+        <VelocityChart boardId={board.id} />
       )}
 
       {/* Active sprint + status breakdown */}

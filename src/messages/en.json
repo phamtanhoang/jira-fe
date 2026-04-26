@@ -268,6 +268,8 @@
       "title": "Admin Audit Log",
       "description": "Every role change, user delete, session revoke, flag change, and setting write lands here with actor + payload.",
       "allActions": "All actions",
+      "exportCsv": "Export CSV",
+      "exportHint": "Download the filtered audit log as CSV",
       "columns": {
         "action": "Action",
         "actor": "Actor",
@@ -659,7 +661,12 @@
     "summaryRecentActivity": "Recent Activity",
     "burndownDay": "Day {label}",
     "burndownIdeal": "Ideal",
-    "burndownActual": "Actual"
+    "burndownActual": "Actual",
+    "velocityTitle": "Team velocity",
+    "velocityCommitted": "Committed",
+    "velocityCompleted": "Completed",
+    "velocityPredicted": "Predicted (3-sprint avg)",
+    "velocityEmpty": "No closed sprints yet — velocity will appear after the first sprint completes."
   },
   "issue": {
     "createIssue": "Create Issue",

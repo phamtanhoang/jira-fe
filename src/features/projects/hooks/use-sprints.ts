@@ -13,6 +13,14 @@ export function useSprintBurndown(sprintId: string | undefined) {
   });
 }
 
+export function useVelocity(boardId: string | undefined) {
+  return useQuery({
+    queryKey: ["velocity", boardId],
+    queryFn: () => sprintsApi.velocity(boardId!),
+    enabled: !!boardId,
+  });
+}
+
 export function useCreateSprint(projectId: string) {
   const queryClient = useQueryClient();
 

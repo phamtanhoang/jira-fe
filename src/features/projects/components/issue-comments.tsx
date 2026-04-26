@@ -14,9 +14,11 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 export function IssueComments({
   issueId,
   currentUser,
+  members,
 }: {
   issueId: string;
   currentUser: { id: string; name: string | null };
+  members?: { id: string; name: string | null; image: string | null; email?: string }[];
 }) {
   const { t } = useAppStore();
   const { data: comments } = useComments(issueId);
@@ -57,6 +59,7 @@ export function IssueComments({
               placeholder={t("issue.addComment")}
               minimal
               className="mb-2"
+              mentionMembers={members}
               onUploadFile={uploadInlineImage}
             />
             {text && text !== "<p></p>" && (
@@ -116,6 +119,7 @@ export function IssueComments({
                     onChange={setEditDraft}
                     minimal
                     autoFocus
+                    mentionMembers={members}
                     onUploadFile={uploadInlineImage}
                   />
                   <div className="flex gap-2">

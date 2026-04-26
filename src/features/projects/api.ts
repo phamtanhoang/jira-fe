@@ -357,4 +357,18 @@ export const sprintsApi = {
         ENDPOINTS.sprints.burndown(id),
       )
       .then((r) => r.data),
+
+  velocity: (boardId: string) =>
+    api
+      .get<{
+        data: {
+          sprintId: string;
+          name: string;
+          endDate: string | null;
+          committed: number;
+          completed: number;
+        }[];
+        predicted: number;
+      }>(ENDPOINTS.sprints.velocity(boardId))
+      .then((r) => r.data),
 };

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEffect, useRef, useState } from "react";
+import { useEditor, EditorContent, ReactRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
 import Image from "@tiptap/extension-image";
+import Mention from "@tiptap/extension-mention";
 import {
   Bold,
   Italic,
@@ -30,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { MentionList, type MentionItem, type MentionListHandle } from "./mention-list";
 
 export type RichEditorProps = {
   content?: string;
@@ -45,6 +47,11 @@ export type RichEditorProps = {
    * (e.g. attachment storage). When omitted, falls back to inline base64.
    */
   onUploadFile?: (file: File) => Promise<string>;
+  /**
+   * Members searchable via the @-mention picker. When omitted, the mention
+   * extension is dropped entirely so the editor doesn't intercept typed `@`.
+   */
+  mentionMembers?: MentionItem[];
 };
 
 export default function RichEditor({
@@ -56,9 +63,17 @@ export default function RichEditor({
   className,
   autoFocus = false,
   onUploadFile,
+  mentionMembers,
 }: RichEditorProps) {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+
+  // Keep a live ref to mentionMembers so the suggestion query reads fresh
+  // data even though the editor extensions are configured once at mount.
+  const membersRef = useRef<MentionItem[]>(mentionMembers ?? []);
+  useEffect(() => {
+    membersRef.current = mentionMembers ?? [];
+  }, [mentionMembers]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -69,6 +84,39 @@ export default function RichEditor({
       Placeholder.configure({ placeholder }),
       CharacterCount.configure({ limit: RICH_EDITOR.CHAR_LIMIT }),
       Image.configure({ inline: true, allowBase64: true }),
+      // Mention extension only when caller wires `mentionMembers`. The
+      // extension matches the BE parser's expected markup —
+      // `<span data-mention data-id="UUID">@Name</span>` — so triggers fire
+      // notifications without extra backend work.
+      ...(mentionMembers
+        ? [
+            Mention.configure({
+              HTMLAttributes: {
+                "data-mention": "",
+                class:
+                  "rounded bg-primary/10 px-1 py-0.5 text-primary font-medium",
+              },
+              renderHTML({ options, node }) {
+                const id = String(node.attrs.id ?? "");
+                const label = String(node.attrs.label ?? id);
+                return [
+                  "span",
+                  {
+                    ...options.HTMLAttributes,
+                    "data-id": id,
+                  },
+                  `@${label}`,
+                ];
+              },
+              // The closure captures `membersRef` but only reads `.current`
+              // when Tiptap calls `items()` later (during user typing), not
+              // during this render. The lint rule can't see through the
+              // indirection — disable for this line, the access is safe.
+              // eslint-disable-next-line react-hooks/refs
+              suggestion: makeMentionSuggestion(() => membersRef.current),
+            }),
+          ]
+        : []),
     ],
     content,
     editable,
@@ -294,6 +342,85 @@ export default function RichEditor({
       </Dialog>
     </div>
   );
+}
+
+// Suggestion config factory for the @-mention extension. Reads members from
+// a ref so the editor (which is configured once at mount) sees fresh data
+// when the parent's prop updates. Positions the popup with a fixed-position
+// portal via React's createPortal — no tippy.js dependency.
+//
+// Lifecycle:
+//   onStart  — caret hit `@`, mount popup at clientRect
+//   onUpdate — query changed or members updated, re-render with new items
+//   onKeyDown — forward ↑/↓/Enter to the list (ref's onKeyDown returns true
+//               when the key was handled, so the editor lets it through)
+//   onExit   — caret left the trigger context, unmount popup
+function makeMentionSuggestion(getMembers: () => MentionItem[]) {
+  return {
+    items: ({ query }: { query: string }) => {
+      const q = query.toLowerCase();
+      return getMembers()
+        .filter((m) =>
+          (m.name ?? m.email ?? "").toLowerCase().includes(q),
+        )
+        .slice(0, 6);
+    },
+    render: () => {
+      let component: ReactRenderer<MentionListHandle> | null = null;
+      let container: HTMLDivElement | null = null;
+
+      function mount(rect: DOMRect | null) {
+        if (!container) return;
+        if (rect) {
+          container.style.top = `${rect.bottom + 4}px`;
+          container.style.left = `${rect.left}px`;
+        }
+      }
+
+      return {
+        onStart: (props: {
+          editor: import("@tiptap/react").Editor;
+          clientRect?: (() => DOMRect | null) | null;
+          items: MentionItem[];
+          command: (item: { id: string; label: string }) => void;
+        }) => {
+          component = new ReactRenderer(MentionList, {
+            props: { items: props.items, command: props.command },
+            editor: props.editor,
+          });
+          container = document.createElement("div");
+          container.style.position = "fixed";
+          container.style.zIndex = "60";
+          container.appendChild(component.element as Node);
+          document.body.appendChild(container);
+          mount(props.clientRect?.() ?? null);
+        },
+        onUpdate: (props: {
+          clientRect?: (() => DOMRect | null) | null;
+          items: MentionItem[];
+          command: (item: { id: string; label: string }) => void;
+        }) => {
+          component?.updateProps({
+            items: props.items,
+            command: props.command,
+          });
+          mount(props.clientRect?.() ?? null);
+        },
+        onKeyDown: (props: { event: KeyboardEvent }) => {
+          if (props.event.key === "Escape") {
+            return true;
+          }
+          return component?.ref?.onKeyDown(props.event) ?? false;
+        },
+        onExit: () => {
+          container?.remove();
+          component?.destroy();
+          container = null;
+          component = null;
+        },
+      };
+    },
+  };
 }
 
 // Inserts a pasted/dropped file as an <img>. If onUploadFile is provided we

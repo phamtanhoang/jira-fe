@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { cn } from "@/lib/utils";
+import { cn, sanitizeRichHtml } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RichEditorProps } from "./editor.client";
 
@@ -24,8 +25,14 @@ export const RichEditor = dynamic<RichEditorProps>(
 );
 
 /**
- * Read-only renderer for stored HTML content. Pure render — no Tiptap
- * dependency, so this stays in the main bundle and SSRs fine.
+ * Read-only renderer for stored rich-text HTML.
+ *
+ * Defense-in-depth: BE also sanitizes on write. The FE pass here protects
+ * against (a) historical rows persisted before BE sanitization shipped and
+ * (b) any future BE bypass. DOMPurify is the industry-standard sanitizer —
+ * preserves Tiptap's mention/image/link semantics while stripping every
+ * known XSS vector (script, on*-handlers, javascript:, data:text/html,
+ * mutation XSS, namespace confusion, ...).
  */
 export function RichContent({
   html,
@@ -34,12 +41,14 @@ export function RichContent({
   html: string;
   className?: string;
 }) {
-  if (!html || html === "<p></p>") return null;
+  const safeHtml = useMemo(() => sanitizeRichHtml(html), [html]);
+
+  if (!safeHtml || safeHtml === "<p></p>") return null;
 
   return (
     <div
       className={cn("prose prose-sm dark:prose-invert max-w-none", className)}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: safeHtml }}
     />
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Download } from "lucide-react";
 import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { cn, formatDateTime, getInitials, safeGet } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { ENDPOINTS } from "@/lib/constants";
 import {
   AUDIT_ACTION_CONFIG,
   AUDIT_TONE_CLASS,
@@ -69,6 +71,17 @@ export function AuditPanel() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Export CSV — honors the action filter via the same query string. */}
+        <a
+          href={`/api${ENDPOINTS.admin.auditExport}${filters.action ? `?action=${filters.action}` : ""}`}
+          download
+          className="ml-auto inline-flex items-center gap-1 rounded-md border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          title={t("admin.audit.exportHint")}
+        >
+          <Download className="h-3 w-3" />
+          {t("admin.audit.exportCsv")}
+        </a>
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-card">

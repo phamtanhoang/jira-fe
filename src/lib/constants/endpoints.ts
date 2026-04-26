@@ -76,6 +76,7 @@ const SPRINTS_ENDPOINTS = {
   start: (id: string) => `${SPRINTS_BASE}/${id}/start`,
   complete: (id: string) => `${SPRINTS_BASE}/${id}/complete`,
   burndown: (id: string) => `${SPRINTS_BASE}/${id}/burndown`,
+  velocity: (boardId: string) => `${SPRINTS_BASE}/velocity/${boardId}`,
 } as const;
 
 const ISSUES_ENDPOINTS = {
@@ -181,6 +182,7 @@ const ADMIN_ENDPOINTS = {
   workspaces: `${ADMIN_BASE}/workspaces`,
   workspaceById: (id: string) => `${ADMIN_BASE}/workspaces/${id}`,
   audit: `${ADMIN_BASE}/audit`,
+  auditExport: `${ADMIN_BASE}/audit/export.csv`,
   mailLogs: `${ADMIN_BASE}/mail-logs`,
   mailLogById: (id: string) => `${ADMIN_BASE}/mail-logs/${id}`,
   mailLogStats: `${ADMIN_BASE}/mail-logs/stats`,
