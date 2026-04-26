@@ -2,13 +2,16 @@ import { api } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/constants";
 import type {
   AdminAnalytics,
+  AdminHealth,
   AdminMetrics,
   AdminStats,
   AdminUser,
   AdminUsersFilters,
   AdminUsersListResponse,
+  AdminWorkspaceDetail,
   AdminWorkspacesFilters,
   AdminWorkspacesListResponse,
+  BulkInviteResult,
   Role,
   SessionsResponse,
   UserActivity,
@@ -105,6 +108,31 @@ export async function adminDeleteWorkspace(
 ): Promise<{ message: string }> {
   const res = await api.delete<{ message: string }>(
     ENDPOINTS.admin.workspaceById(id),
+  );
+  return res.data;
+}
+
+export async function fetchAdminWorkspaceDetail(
+  id: string,
+): Promise<AdminWorkspaceDetail> {
+  const res = await api.get<AdminWorkspaceDetail>(
+    ENDPOINTS.admin.workspaceById(id),
+  );
+  return res.data;
+}
+
+export async function fetchAdminHealth(): Promise<AdminHealth> {
+  const res = await api.get<AdminHealth>(ENDPOINTS.admin.health);
+  return res.data;
+}
+
+export async function bulkInviteUsers(
+  emails: string[],
+  message?: string,
+): Promise<BulkInviteResult> {
+  const res = await api.post<BulkInviteResult>(
+    ENDPOINTS.admin.usersBulkInvite,
+    { emails, message },
   );
   return res.data;
 }

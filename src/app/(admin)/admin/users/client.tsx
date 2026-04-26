@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronRight,
   Monitor,
+  UserPlus,
 } from "lucide-react";
 import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { cn, formatDate, formatDateTime, getInitials } from "@/lib/utils";
@@ -25,6 +26,7 @@ import {
   useUserSessions,
   useRevokeSession,
   useRevokeAllSessions,
+  BulkInviteDialog,
   type AdminUser,
   type AdminUsersFilters,
   type Role,
@@ -68,6 +70,7 @@ export function AdminUsersClient() {
   const [filters, setFilters] = useState<AdminUsersFilters>({ take: 50 });
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [bulkInviteOpen, setBulkInviteOpen] = useState(false);
 
   const { data, isLoading } = useAdminUsers(filters);
   const updateRole = useUpdateUserRole();
@@ -76,13 +79,19 @@ export function AdminUsersClient() {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          {t("admin.users.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("admin.users.description")}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">
+            {t("admin.users.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("admin.users.description")}
+          </p>
+        </div>
+        <Button onClick={() => setBulkInviteOpen(true)} className="gap-2">
+          <UserPlus className="h-4 w-4" />
+          {t("admin.users.bulkInvite.openButton")}
+        </Button>
       </div>
 
       {/* Filters */}
@@ -267,6 +276,8 @@ export function AdminUsersClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <BulkInviteDialog open={bulkInviteOpen} onOpenChange={setBulkInviteOpen} />
     </div>
   );
 }

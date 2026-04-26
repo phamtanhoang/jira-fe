@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, ExternalLink } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { cn, formatDate, getInitials } from "@/lib/utils";
-import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
+import { AVATAR_GRADIENT, ROUTES } from "@/lib/constants";
 import {
   useAdminDeleteWorkspace,
   useAdminWorkspaces,
@@ -12,7 +13,7 @@ import {
   type AdminWorkspacesFilters,
 } from "@/features/admin-users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -195,7 +196,16 @@ function WorkspaceRow({
       <div className="text-xs text-muted-foreground">
         {formatDate(row.createdAt)}
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-1">
+        <Link
+          href={ROUTES.ADMIN_WORKSPACE_DETAIL(row.id)}
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon-xs" }),
+            "text-muted-foreground",
+          )}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </Link>
         <Button
           variant="ghost"
           size="icon-xs"

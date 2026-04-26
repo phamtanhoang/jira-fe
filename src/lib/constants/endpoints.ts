@@ -176,6 +176,7 @@ const ISSUE_TEMPLATES_ENDPOINTS = {
 const ADMIN_BASE = "/admin";
 const ADMIN_ENDPOINTS = {
   stats: `${ADMIN_BASE}/stats`,
+  health: `${ADMIN_BASE}/health`,
   analytics: `${ADMIN_BASE}/analytics`,
   metrics: `${ADMIN_BASE}/metrics`,
   userActivity: `${ADMIN_BASE}/user-activity`,
@@ -188,6 +189,10 @@ const ADMIN_ENDPOINTS = {
   mailLogStats: `${ADMIN_BASE}/mail-logs/stats`,
   mailLogConfig: `${ADMIN_BASE}/mail-logs/config-status`,
   mailTest: `${ADMIN_BASE}/mail-logs/test`,
+  usersBulkInvite: `${ADMIN_BASE}/users/bulk-invite`,
+  throttleOverrides: `${ADMIN_BASE}/throttle-overrides`,
+  throttleOverrideById: (id: string) =>
+    `${ADMIN_BASE}/throttle-overrides/${id}`,
 } as const;
 
 export const ENDPOINTS = {

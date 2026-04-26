@@ -66,6 +66,7 @@
       "maintenance": "Bảo trì",
       "siteNotices": "Thông báo hệ thống",
       "audit": "Nhật ký quản trị",
+      "throttle": "Rate-limit",
       "groupOverview": "Tổng quan",
       "groupOperations": "Vận hành",
       "groupConfiguration": "Cấu hình"
@@ -122,6 +123,18 @@
       "selfBadge": "(bạn)",
       "empty": "Không có người dùng nào phù hợp.",
       "loadMore": "Tải thêm",
+      "bulkInvite": {
+        "openButton": "Mời hàng loạt",
+        "title": "Mời người dùng theo lô",
+        "description": "Dán hoặc nhập danh sách email (tách bằng dấu phẩy, khoảng trắng hoặc xuống dòng). Hệ thống sẽ gửi email mời tới các email mới — user hiện có sẽ được bỏ qua.",
+        "emailsLabel": "Email",
+        "emailsPlaceholder": "alice@example.com, bob@example.com\ncarol@example.com",
+        "parsedHint": "{valid} hợp lệ • {invalid} không hợp lệ • {total} đã nhập (tối đa {max})",
+        "messageLabel": "Lời nhắn",
+        "messagePlaceholder": "Một câu giới thiệu ngắn để kèm trong email mời…",
+        "optional": "tuỳ chọn",
+        "submit": "Gửi {count} lời mời"
+      },
       "meta": {
         "title": "Quản lý người dùng",
         "desc": "Trang quản lý người dùng"
@@ -237,8 +250,45 @@
       "loadMore": "Tải thêm",
       "meta": {
         "title": "Tất cả Workspace",
-        "desc": "Quản lý workspace cross-tenant"
+        "desc": "Quản lý workspace cross-tenant",
+        "detailTitle": "Chi tiết Workspace",
+        "detailDesc": "Xem thông tin tổng quan của một workspace"
+      },
+      "detail": {
+        "back": "Quay lại danh sách",
+        "notFoundTitle": "Không tìm thấy workspace",
+        "notFoundDesc": "Workspace có thể đã bị xóa hoặc bạn nhập sai ID.",
+        "createdOn": "Tạo {date}",
+        "members": "Thành viên",
+        "projects": "Project",
+        "issues": "Issue",
+        "openCount": "{count} đang mở",
+        "attachments": "Tệp đính kèm",
+        "storage": "Dung lượng",
+        "recentProjects": "Project gần đây",
+        "recentMembers": "Thành viên gần đây",
+        "noProjects": "Chưa có project nào.",
+        "noMembers": "Chưa có thành viên.",
+        "issuesShort": "issue"
       }
+    },
+    "health": {
+      "title": "Tình trạng hệ thống",
+      "description": "Kiểm tra DB, mail, supabase, sentry và metrics process. Tự động làm mới mỗi 30 giây.",
+      "db": "Database",
+      "supabase": "Supabase",
+      "mail": "Email",
+      "sentry": "Sentry",
+      "notConfigured": "Chưa cấu hình",
+      "reachable": "Hoạt động",
+      "errorState": "Có lỗi",
+      "configured": "Đã cấu hình",
+      "active": "Đang hoạt động",
+      "dormant": "Chỉ bật ở production",
+      "node": "Node",
+      "uptime": "Uptime",
+      "memory": "Memory",
+      "env": "Env"
     },
     "sessions": {
       "title": "Phiên đang hoạt động",
@@ -473,6 +523,36 @@
         "breadcrumbs": "Breadcrumbs",
         "userAgent": "User agent"
       }
+    },
+    "throttle": {
+      "title": "Rate-limit overrides",
+      "description": "Bypass hoặc nhân giới hạn request mặc định cho từng user/IP cụ thể. Có hiệu lực sau tối đa 30 giây.",
+      "add": "Thêm override",
+      "addTitle": "Thêm override",
+      "addDesc": "Tạo một quy tắc cho user hoặc IP cụ thể.",
+      "create": "Tạo",
+      "target": "Đối tượng",
+      "targetLabel": "Đối tượng",
+      "targetHint": "Định dạng: `user:UUID` hoặc `ip:1.2.3.4`",
+      "modeLabel": "Chế độ",
+      "modeBypass": "Bypass — bỏ qua hoàn toàn",
+      "modeScale": "Scale — nhân giới hạn",
+      "bypass": "Bypass",
+      "multiplier": "Hệ số nhân",
+      "multiplierHint": "Ví dụ: 10 → cho phép gấp 10 lần limit chuẩn của route",
+      "reason": "Lý do",
+      "reasonPlaceholder": "Bulk import 1 lần, ngày X tới Y…",
+      "expires": "Hết hạn",
+      "expiresAt": "Thời điểm hết hạn",
+      "actions": "Hành động",
+      "deleteTitle": "Xóa override?",
+      "deleteDesc": "Xóa override cho `{target}`? Sau khi xóa, đối tượng này sẽ phải tuân theo limit mặc định.",
+      "emptyTitle": "Chưa có override nào",
+      "emptyDesc": "Tạo một override khi cần cho phép một user/IP gửi request nhiều hơn limit chuẩn.",
+      "meta": {
+        "title": "Rate-limit overrides",
+        "desc": "Quản lý exception của throttler"
+      }
     }
   },
   "errors": {
@@ -498,6 +578,8 @@
     "creating": "Đang tạo...",
     "optional": "(tùy chọn)",
     "noResults": "Không có kết quả",
+    "yes": "Có",
+    "no": "Không",
     "members": "thành viên",
     "projects": "dự án",
     "viewAll": "Xem tất cả",

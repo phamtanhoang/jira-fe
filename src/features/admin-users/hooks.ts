@@ -4,10 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError, showMessage } from "@/lib/utils";
 import {
   adminDeleteWorkspace,
+  bulkInviteUsers,
   deleteUser,
   fetchAdminAnalytics,
+  fetchAdminHealth,
   fetchAdminMetrics,
   fetchAdminStats,
+  fetchAdminWorkspaceDetail,
   fetchAdminWorkspaces,
   fetchUserActivity,
   fetchUserSessions,
@@ -137,6 +140,42 @@ export function useRevokeSession() {
       queryClient.invalidateQueries({
         queryKey: ["admin-user-sessions", userId],
       });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useAdminHealth() {
+  return useQuery({
+    queryKey: ["admin-health"],
+    queryFn: () => fetchAdminHealth(),
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useAdminWorkspaceDetail(id: string | null) {
+  return useQuery({
+    queryKey: ["admin-workspace-detail", id],
+    queryFn: () => fetchAdminWorkspaceDetail(id as string),
+    enabled: !!id,
+  });
+}
+
+export function useBulkInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      emails,
+      message,
+    }: {
+      emails: string[];
+      message?: string;
+    }) => bulkInviteUsers(emails, message),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
     onError: handleApiError,
   });

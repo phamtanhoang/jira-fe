@@ -83,6 +83,11 @@ export function AdminSidebar({
           label: t("admin.nav.workspaces"),
           icon: Briefcase,
         },
+        {
+          href: ROUTES.ADMIN_THROTTLE,
+          label: t("admin.nav.throttle"),
+          icon: ShieldCheck,
+        },
       ],
     },
     {

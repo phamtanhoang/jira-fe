@@ -25,7 +25,7 @@ import {
   type AppEmailValue,
   type AppInfoValue,
 } from "@/features/admin";
-import { useAdminStats } from "@/features/admin-users";
+import { useAdminStats, HealthPanel } from "@/features/admin-users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -64,6 +64,8 @@ export function AdminOverviewClient() {
           </div>
         </div>
       </div>
+
+      <HealthPanel />
 
       {/* Stats row */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

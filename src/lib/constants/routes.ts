@@ -26,8 +26,10 @@ export const ROUTES = {
   ADMIN_ANALYTICS: "/admin/analytics",
   ADMIN_METRICS: "/admin/metrics",
   ADMIN_WORKSPACES: "/admin/workspaces",
+  ADMIN_WORKSPACE_DETAIL: (id: string) => `/admin/workspaces/${id}`,
   ADMIN_MAINTENANCE: "/admin/maintenance",
   ADMIN_AUDIT: "/admin/audit",
+  ADMIN_THROTTLE: "/admin/throttle",
   MAINTENANCE: "/maintenance",
 } as const;
 

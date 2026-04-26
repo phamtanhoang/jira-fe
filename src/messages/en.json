@@ -66,6 +66,7 @@
       "maintenance": "Maintenance",
       "siteNotices": "Site Notices",
       "audit": "Audit Log",
+      "throttle": "Rate-limit",
       "groupOverview": "Overview",
       "groupOperations": "Operations",
       "groupConfiguration": "Configuration"
@@ -122,6 +123,18 @@
       "selfBadge": "(you)",
       "empty": "No users match the current filters.",
       "loadMore": "Load more",
+      "bulkInvite": {
+        "openButton": "Bulk invite",
+        "title": "Bulk-invite users",
+        "description": "Paste or type a list of emails (separated by commas, whitespace, or newlines). The system sends an invitation email to new addresses — existing users are skipped.",
+        "emailsLabel": "Emails",
+        "emailsPlaceholder": "alice@example.com, bob@example.com\ncarol@example.com",
+        "parsedHint": "{valid} valid · {invalid} invalid · {total} parsed (max {max})",
+        "messageLabel": "Message",
+        "messagePlaceholder": "A short note to include in the invitation email…",
+        "optional": "optional",
+        "submit": "Send {count} invitations"
+      },
       "meta": {
         "title": "User Management",
         "desc": "Admin user management"
@@ -237,8 +250,45 @@
       "loadMore": "Load more",
       "meta": {
         "title": "All Workspaces",
-        "desc": "Admin workspace management"
+        "desc": "Admin workspace management",
+        "detailTitle": "Workspace Detail",
+        "detailDesc": "Inspect a single workspace"
+      },
+      "detail": {
+        "back": "Back to list",
+        "notFoundTitle": "Workspace not found",
+        "notFoundDesc": "It may have been deleted or you opened the wrong ID.",
+        "createdOn": "Created {date}",
+        "members": "Members",
+        "projects": "Projects",
+        "issues": "Issues",
+        "openCount": "{count} open",
+        "attachments": "Attachments",
+        "storage": "Storage",
+        "recentProjects": "Recent projects",
+        "recentMembers": "Recent members",
+        "noProjects": "No projects yet.",
+        "noMembers": "No members yet.",
+        "issuesShort": "issues"
       }
+    },
+    "health": {
+      "title": "System health",
+      "description": "Probes DB, mail, supabase, sentry plus process metrics. Auto-refreshes every 30s.",
+      "db": "Database",
+      "supabase": "Supabase",
+      "mail": "Email",
+      "sentry": "Sentry",
+      "notConfigured": "Not configured",
+      "reachable": "Reachable",
+      "errorState": "Error",
+      "configured": "Configured",
+      "active": "Active",
+      "dormant": "Production-only",
+      "node": "Node",
+      "uptime": "Uptime",
+      "memory": "Memory",
+      "env": "Env"
     },
     "sessions": {
       "title": "Active sessions",
@@ -473,6 +523,36 @@
         "breadcrumbs": "Breadcrumbs",
         "userAgent": "User agent"
       }
+    },
+    "throttle": {
+      "title": "Rate-limit overrides",
+      "description": "Bypass or scale the default request limits for specific users / IPs. Effective within 30s.",
+      "add": "Add override",
+      "addTitle": "Add override",
+      "addDesc": "Create a rule for a specific user or IP.",
+      "create": "Create",
+      "target": "Target",
+      "targetLabel": "Target",
+      "targetHint": "Format: `user:UUID` or `ip:1.2.3.4`",
+      "modeLabel": "Mode",
+      "modeBypass": "Bypass — skip throttling entirely",
+      "modeScale": "Scale — multiply the limit",
+      "bypass": "Bypass",
+      "multiplier": "Multiplier",
+      "multiplierHint": "e.g. 10 → allow 10× the standard route limit",
+      "reason": "Reason",
+      "reasonPlaceholder": "One-off bulk import, day X to Y…",
+      "expires": "Expires",
+      "expiresAt": "Expires at",
+      "actions": "Actions",
+      "deleteTitle": "Delete override?",
+      "deleteDesc": "Remove the override for `{target}`? It will fall back to the default limit.",
+      "emptyTitle": "No overrides yet",
+      "emptyDesc": "Create one when you need to allow a user or IP to exceed the standard limit.",
+      "meta": {
+        "title": "Rate-limit overrides",
+        "desc": "Manage throttler exceptions"
+      }
     }
   },
   "errors": {
@@ -498,6 +578,8 @@
     "creating": "Creating...",
     "optional": "(optional)",
     "noResults": "No results",
+    "yes": "Yes",
+    "no": "No",
     "members": "members",
     "projects": "projects",
     "viewAll": "View all",

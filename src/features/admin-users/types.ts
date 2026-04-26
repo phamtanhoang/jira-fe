@@ -177,3 +177,60 @@ export type SessionRow = {
 export type SessionsResponse = {
   data: SessionRow[];
 };
+
+export type AdminHealth = {
+  checkedAt: string;
+  checkDurationMs: number;
+  db: { ok: boolean; latencyMs: number; error?: string };
+  mail: { configured: boolean; from: string | null };
+  supabase: { configured: boolean; ok: boolean; error?: string };
+  sentry: { configured: boolean; active: boolean };
+  runtime: {
+    nodeVersion: string;
+    uptimeSec: number;
+    memoryMB: number;
+    env: string;
+  };
+};
+
+export type AdminWorkspaceDetail = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  createdAt: string;
+  owner: {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
+  counts: {
+    members: number;
+    projects: number;
+    issues: number;
+    issuesOpen: number;
+    attachments: number;
+  };
+  storage: { bytes: number };
+  recentProjects: {
+    id: string;
+    name: string;
+    key: string;
+    createdAt: string;
+    _count: { issues: number };
+  }[];
+  recentMembers: {
+    id: string;
+    role: string;
+    joinedAt: string;
+    user: { id: string; name: string | null; email: string; image: string | null };
+  }[];
+};
+
+export type BulkInviteResult = {
+  message: string;
+  invited: number;
+  skipped: number;
+  invalid: number;
+};
