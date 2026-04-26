@@ -30,6 +30,7 @@ export const ROUTES = {
   ADMIN_MAINTENANCE: "/admin/maintenance",
   ADMIN_AUDIT: "/admin/audit",
   ADMIN_THROTTLE: "/admin/throttle",
+  ADMIN_WEBHOOKS: "/admin/webhooks",
   MAINTENANCE: "/maintenance",
 } as const;
 

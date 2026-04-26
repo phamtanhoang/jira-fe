@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   ShieldCheck,
   ArrowLeft,
+  Webhook,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
@@ -87,6 +88,11 @@ export function AdminSidebar({
           href: ROUTES.ADMIN_THROTTLE,
           label: t("admin.nav.throttle"),
           icon: ShieldCheck,
+        },
+        {
+          href: ROUTES.ADMIN_WEBHOOKS,
+          label: t("admin.nav.webhooks"),
+          icon: Webhook,
         },
       ],
     },

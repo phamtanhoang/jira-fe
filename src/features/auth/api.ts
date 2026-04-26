@@ -114,4 +114,28 @@ export const authApi = {
     api
       .delete<{ message: string }>(ENDPOINTS.auth.tokenById(id))
       .then((r) => r.data),
+
+  deletionStatus: () =>
+    api
+      .get<{
+        requestedAt: string | null;
+        hardDeleteAt: string | null;
+        graceDays: number;
+      }>(ENDPOINTS.auth.deletionRequest)
+      .then((r) => r.data),
+
+  requestDeletion: () =>
+    api
+      .post<{
+        message: string;
+        deletionRequestedAt: string;
+        hardDeleteAt: string;
+        graceDays: number;
+      }>(ENDPOINTS.auth.deletionRequest)
+      .then((r) => r.data),
+
+  cancelDeletion: () =>
+    api
+      .delete<{ message: string }>(ENDPOINTS.auth.deletionRequest)
+      .then((r) => r.data),
 };

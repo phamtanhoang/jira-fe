@@ -36,7 +36,20 @@ export const SETTING_KEYS = {
   APP_ANNOUNCEMENT: "app.announcement",
   APP_MAINTENANCE: "app.maintenance",
   APP_AUTH_PROVIDERS: "app.auth_providers",
+  APP_QUOTAS: "app.quotas",
 } as const;
+
+export type QuotasValue = {
+  maxProjectsPerWorkspace: number;
+  maxMembersPerWorkspace: number;
+  maxStorageGB: number;
+};
+
+export const DEFAULT_QUOTAS: QuotasValue = {
+  maxProjectsPerWorkspace: 0,
+  maxMembersPerWorkspace: 0,
+  maxStorageGB: 0,
+};
 
 export type AuthProvidersValue = {
   password: boolean;

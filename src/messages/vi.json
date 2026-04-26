@@ -67,6 +67,21 @@
       "revoke": "Thu hồi",
       "revokeTitle": "Thu hồi token?",
       "revokeDesc": "Token \"{name}\" sẽ ngừng hoạt động ngay lập tức. Mọi script đang dùng nó sẽ bị reject."
+    },
+    "privacy": {
+      "title": "Quyền riêng tư & dữ liệu (GDPR)",
+      "description": "Tải về toàn bộ dữ liệu của bạn hoặc yêu cầu xóa tài khoản vĩnh viễn.",
+      "exportTitle": "Tải về dữ liệu",
+      "exportDesc": "JSON chứa profile, issue bạn báo cáo/được giao, comment, worklog, attachment metadata, starred, watching, preference.",
+      "exportCta": "Tải về JSON",
+      "deleteTitle": "Xóa tài khoản",
+      "deleteDesc": "Account sẽ xóa vĩnh viễn sau {days} ngày. Trong thời gian đó bạn có thể hủy. Sau hạn, mọi dữ liệu (issue, comment, ...) đều bị xóa cascade.",
+      "scheduledFor": "Sẽ xóa vào {date}",
+      "notScheduled": "Chưa có yêu cầu xóa nào.",
+      "requestDeletion": "Yêu cầu xóa tài khoản",
+      "cancelDeletion": "Hủy yêu cầu",
+      "confirmTitle": "Xóa tài khoản?",
+      "confirmDesc": "Sau {days} ngày, mọi workspace bạn sở hữu, issue đã tạo, comment, worklog, attachment đều bị xóa vĩnh viễn không thể khôi phục. Bạn có thể hủy yêu cầu trong thời gian này."
     }
   },
   "footer": {
@@ -99,6 +114,7 @@
       "siteNotices": "Thông báo hệ thống",
       "audit": "Nhật ký quản trị",
       "throttle": "Rate-limit",
+      "webhooks": "Webhook log",
       "groupOverview": "Tổng quan",
       "groupOperations": "Vận hành",
       "groupConfiguration": "Cấu hình"
@@ -466,6 +482,17 @@
       "tabAppInfo": "Thông tin ứng dụng",
       "tabAppEmail": "Email ứng dụng",
       "tabAuthProviders": "Phương thức đăng nhập",
+      "tabQuotas": "Hạn mức",
+      "quotas": {
+        "title": "Hạn mức tenant",
+        "description": "Giới hạn số project, member, dung lượng storage trên mỗi workspace. Đặt 0 = không giới hạn.",
+        "projects": "Project tối đa per workspace",
+        "projectsHint": "0 = không giới hạn. Workspace đạt mức tối đa sẽ không tạo được project mới.",
+        "members": "Member tối đa per workspace",
+        "membersHint": "0 = không giới hạn. Áp dụng khi add member mới — không kick member hiện tại.",
+        "storage": "Storage tối đa",
+        "storageHint": "0 = không giới hạn. Tổng kích thước attachment per workspace."
+      },
       "authProviders": {
         "title": "Phương thức đăng nhập",
         "description": "Bật/tắt từng provider. Tắt khi muốn force user dùng SSO hoặc tạm khóa OAuth khi cần điều tra.",
@@ -567,6 +594,26 @@
         "responseBody": "Response body",
         "breadcrumbs": "Breadcrumbs",
         "userAgent": "User agent"
+      }
+    },
+    "webhookDeliveries": {
+      "title": "Webhook deliveries",
+      "description": "Lịch sử dispatch webhook trên toàn hệ thống. Cập nhật mỗi 15 giây.",
+      "event": "Event",
+      "webhook": "Webhook",
+      "status": "Status",
+      "attempts": "Attempts",
+      "when": "When",
+      "actions": "Hành động",
+      "retry": "Thử lại",
+      "allStatuses": "Tất cả trạng thái",
+      "emptyTitle": "Chưa có delivery",
+      "emptyDesc": "Khi có sự kiện trigger và workspace có webhook subscribed, các attempts sẽ xuất hiện ở đây.",
+      "error": "Error",
+      "payload": "Payload",
+      "meta": {
+        "title": "Webhook deliveries",
+        "desc": "Cross-workspace webhook delivery log"
       }
     },
     "throttle": {
@@ -720,6 +767,30 @@
       "ADMIN": "Quản trị",
       "MEMBER": "Thành viên",
       "VIEWER": "Người xem"
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "description": "Forward issue + comment events sang URL bên ngoài. Mỗi request được ký HMAC-SHA256 dùng secret của hook.",
+      "add": "Thêm webhook",
+      "create": "Tạo",
+      "createTitle": "Thêm webhook",
+      "editTitle": "Sửa webhook",
+      "dialogDesc": "URL `hooks.slack.com/...` sẽ tự được format thành Slack attachment.",
+      "name": "Tên",
+      "url": "URL",
+      "urlHint": "Phải là http hoặc https. Nhận POST với JSON + header X-Webhook-Signature.",
+      "events": "Events",
+      "enabled": "Bật",
+      "enabledLabel": "Bật webhook",
+      "disabled": "Tắt",
+      "disable": "Tắt",
+      "enable": "Bật",
+      "test": "Gửi test",
+      "copySecret": "Copy secret",
+      "deleteTitle": "Xóa webhook?",
+      "deleteDesc": "Webhook \"{name}\" sẽ bị xóa và không nhận event nữa.",
+      "emptyTitle": "Chưa có webhook nào",
+      "emptyDesc": "Thêm webhook để nhận sự kiện realtime trên Slack, Discord, hoặc service nội bộ."
     }
   },
   "project": {
@@ -765,6 +836,8 @@
   "board": {
     "board": "Bảng",
     "backlog": "Danh sách chờ",
+    "calendar": "Lịch",
+    "roadmap": "Roadmap",
     "summary": "Tổng quan",
     "addColumn": "Thêm cột",
     "columnName": "Tên cột",
@@ -864,6 +937,23 @@
       "MEDIUM": "Trung bình",
       "LOW": "Thấp",
       "LOWEST": "Rất thấp"
+    }
+  },
+  "roadmap": {
+    "emptyTitle": "Chưa có epic để hiển thị trên timeline",
+    "emptyDesc": "Tạo issue type EPIC với startDate hoặc dueDate để chúng xuất hiện ở đây."
+  },
+  "calendar": {
+    "today": "Hôm nay",
+    "dragHint": "Kéo issue sang ngày khác để dời deadline",
+    "day": {
+      "Mon": "T2",
+      "Tue": "T3",
+      "Wed": "T4",
+      "Thu": "T5",
+      "Fri": "T6",
+      "Sat": "T7",
+      "Sun": "CN"
     }
   },
   "sprint": {

@@ -29,6 +29,8 @@ const AUTH_ENDPOINTS = {
   oauthGithub: `${AUTH_BASE}/github`,
   tokens: `${AUTH_BASE}/tokens`,
   tokenById: (id: string) => `${AUTH_BASE}/tokens/${id}`,
+  dataExport: `${AUTH_BASE}/data-export`,
+  deletionRequest: `${AUTH_BASE}/deletion-request`,
 } as const;
 
 const SETTINGS_ENDPOINTS = {
@@ -52,6 +54,11 @@ const WORKSPACES_ENDPOINTS = {
   invitePreview: (token: string) =>
     `${WORKSPACES_BASE}/join/${token}/preview`,
   join: (token: string) => `${WORKSPACES_BASE}/join/${token}`,
+  webhooks: (id: string) => `${WORKSPACES_BASE}/${id}/webhooks`,
+  webhook: (id: string, webhookId: string) =>
+    `${WORKSPACES_BASE}/${id}/webhooks/${webhookId}`,
+  webhookTest: (id: string, webhookId: string) =>
+    `${WORKSPACES_BASE}/${id}/webhooks/${webhookId}/test`,
 } as const;
 
 const PROJECTS_ENDPOINTS = {
@@ -196,6 +203,9 @@ const ADMIN_ENDPOINTS = {
   throttleOverrides: `${ADMIN_BASE}/throttle-overrides`,
   throttleOverrideById: (id: string) =>
     `${ADMIN_BASE}/throttle-overrides/${id}`,
+  webhookDeliveries: `${ADMIN_BASE}/webhook-deliveries`,
+  webhookDeliveryRetry: (id: string) =>
+    `${ADMIN_BASE}/webhook-deliveries/${id}/retry`,
 } as const;
 
 export const ENDPOINTS = {

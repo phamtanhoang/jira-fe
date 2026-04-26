@@ -26,6 +26,7 @@ import { useProjects, useCreateProject } from "@/features/projects/hooks";
 import { AddMemberDialog } from "@/features/workspaces/components/add-member-dialog";
 import { MembersList } from "@/features/workspaces/components/members-list";
 import { InviteLinksPanel } from "@/features/invite-links/components/invite-links-panel";
+import { WebhooksPanel } from "@/features/webhooks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -363,6 +364,8 @@ export default function WorkspaceDetailPage() {
               onSave={(data) => updateWorkspace({ id: workspaceId, data })}
               onDeleteClick={() => setDeleteWsOpen(true)}
             />
+            <Separator className="my-6" />
+            <WebhooksPanel workspaceId={workspaceId} />
           </TabsContent>
         )}
       </Tabs>

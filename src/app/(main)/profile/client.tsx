@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { SessionsPanel } from "@/features/auth/components/sessions-panel";
 import { TokensPanel } from "@/features/auth/components/tokens-panel";
+import { PrivacyPanel } from "@/features/auth/components/privacy-panel";
 import { NotificationPreferences } from "@/features/notifications/components/notification-preferences";
 
 const ALLOWED_AVATAR_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -210,6 +211,7 @@ export default function ProfilePage() {
       <NotificationPreferences />
       <TokensPanel />
       <SessionsPanel />
+      <PrivacyPanel />
     </div>
   );
 }

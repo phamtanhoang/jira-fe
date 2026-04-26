@@ -4,8 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { pushRecent } from "@/lib/utils";
 import {
+  CalendarDays,
   ChevronRight,
   Columns3,
+  GitBranch,
   List,
   Plus,
   LayoutDashboard,
@@ -40,9 +42,11 @@ import {
   EMPTY_FILTERS,
   type BoardFilters,
 } from "@/features/projects/components/board-filters";
+import { CalendarView } from "@/features/projects/components/calendar-view";
 import { CreateIssueDialog } from "@/features/projects/components/create-issue-dialog";
 import { IssuePreviewModal } from "@/features/projects/components/issue-preview-modal";
 import { EpicView } from "@/features/projects/components/epic-view";
+import { RoadmapView } from "@/features/projects/components/roadmap-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -323,6 +327,14 @@ export default function BoardPage() {
                   </Badge>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="calendar">
+                <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
+                {t("board.calendar")}
+              </TabsTrigger>
+              <TabsTrigger value="roadmap">
+                <GitBranch className="mr-1.5 h-3.5 w-3.5" />
+                {t("board.roadmap")}
+              </TabsTrigger>
             </TabsList>
           </div>
           <TabsContent value="summary" className="flex-1 overflow-auto">
@@ -383,21 +395,91 @@ export default function BoardPage() {
               </div>
             )}
           </TabsContent>
+          <TabsContent
+            value="calendar"
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <CalendarView
+              issues={allIssues ?? []}
+              onClickIssue={(issue) => handleClickIssue(issue.key)}
+              onUpdateIssue={(id, data) => updateIssue({ id, ...data })}
+            />
+          </TabsContent>
+          <TabsContent
+            value="roadmap"
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            {board && (
+              <RoadmapView
+                board={board}
+                allIssues={allIssues ?? []}
+                onClickIssue={(issue) => handleClickIssue(issue.key)}
+                onUpdateIssue={(id, data) => updateIssue({ id, ...data })}
+              />
+            )}
+          </TabsContent>
         </Tabs>
       ) : (
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <div className="border-b px-5 py-2.5">
-            <BoardFilterBar
-              filters={filters}
-              onChange={setFilters}
-              members={members}
-              projectId={projectId}
+        <Tabs
+          defaultValue="board"
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          <div className="border-b px-6">
+            <TabsList variant="line">
+              <TabsTrigger value="board">
+                <Columns3 className="mr-1.5 h-3.5 w-3.5" />
+                {t("board.board")}
+              </TabsTrigger>
+              <TabsTrigger value="calendar">
+                <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
+                {t("board.calendar")}
+              </TabsTrigger>
+              <TabsTrigger value="roadmap">
+                <GitBranch className="mr-1.5 h-3.5 w-3.5" />
+                {t("board.roadmap")}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent
+            value="board"
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <div className="border-b px-5 py-2.5">
+              <BoardFilterBar
+                filters={filters}
+                onChange={setFilters}
+                members={members}
+                projectId={projectId}
+              />
+            </div>
+            <div className="flex flex-1 gap-3 overflow-auto p-5">
+              {columnsView}
+            </div>
+          </TabsContent>
+          <TabsContent
+            value="calendar"
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <CalendarView
+              issues={allIssues ?? []}
+              onClickIssue={(issue) => handleClickIssue(issue.key)}
+              onUpdateIssue={(id, data) => updateIssue({ id, ...data })}
             />
-          </div>
-          <div className="flex flex-1 gap-3 overflow-auto p-5">
-            {columnsView}
-          </div>
-        </div>
+          </TabsContent>
+          <TabsContent
+            value="roadmap"
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            {board && (
+              <RoadmapView
+                board={board}
+                allIssues={allIssues ?? []}
+                onClickIssue={(issue) => handleClickIssue(issue.key)}
+                onUpdateIssue={(id, data) => updateIssue({ id, ...data })}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       )}
       {/* Issue preview modal */}
       {previewKey && (

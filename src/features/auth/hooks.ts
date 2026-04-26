@@ -297,3 +297,37 @@ export function useRevokeToken() {
     onError: handleApiError,
   });
 }
+
+// ─── GDPR ────────────────────────────────────────────────
+const DELETION_KEY = ["auth", "deletion-status"] as const;
+
+export function useDeletionStatus() {
+  return useQuery({
+    queryKey: DELETION_KEY,
+    queryFn: () => authApi.deletionStatus(),
+  });
+}
+
+export function useRequestDeletion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.requestDeletion(),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: DELETION_KEY });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useCancelDeletion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.cancelDeletion(),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: DELETION_KEY });
+    },
+    onError: handleApiError,
+  });
+}

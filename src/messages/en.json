@@ -67,6 +67,21 @@
       "revoke": "Revoke",
       "revokeTitle": "Revoke token?",
       "revokeDesc": "Token \"{name}\" will stop working immediately. Any script using it will be rejected."
+    },
+    "privacy": {
+      "title": "Privacy & data (GDPR)",
+      "description": "Download all your data or schedule permanent account deletion.",
+      "exportTitle": "Export your data",
+      "exportDesc": "JSON containing your profile, issues you reported/were assigned to, comments, worklogs, attachment metadata, starred, watching, preferences.",
+      "exportCta": "Download JSON",
+      "deleteTitle": "Delete account",
+      "deleteDesc": "Account is permanently deleted after {days} days. You can cancel within that window. After the deadline, all your data (issues, comments, ...) is cascade-deleted.",
+      "scheduledFor": "Scheduled for {date}",
+      "notScheduled": "No deletion request pending.",
+      "requestDeletion": "Request deletion",
+      "cancelDeletion": "Cancel request",
+      "confirmTitle": "Delete account?",
+      "confirmDesc": "After {days} days, every workspace you own, issue you created, comment, worklog, and attachment is permanently deleted with no recovery. You can cancel the request before the deadline."
     }
   },
   "footer": {
@@ -99,6 +114,7 @@
       "siteNotices": "Site Notices",
       "audit": "Audit Log",
       "throttle": "Rate-limit",
+      "webhooks": "Webhook log",
       "groupOverview": "Overview",
       "groupOperations": "Operations",
       "groupConfiguration": "Configuration"
@@ -466,6 +482,17 @@
       "tabAppInfo": "App Info",
       "tabAppEmail": "App Email",
       "tabAuthProviders": "Auth Providers",
+      "tabQuotas": "Quotas",
+      "quotas": {
+        "title": "Tenant quotas",
+        "description": "Cap project count, member count, and total storage per workspace. Set 0 = unlimited.",
+        "projects": "Max projects per workspace",
+        "projectsHint": "0 = unlimited. Workspaces at the cap can't create new projects.",
+        "members": "Max members per workspace",
+        "membersHint": "0 = unlimited. Applied on add — existing members aren't kicked.",
+        "storage": "Max storage",
+        "storageHint": "0 = unlimited. Total attachment size per workspace."
+      },
       "authProviders": {
         "title": "Auth providers",
         "description": "Toggle individual providers on/off. Use to enforce SSO or temporarily disable OAuth during an incident.",
@@ -567,6 +594,26 @@
         "responseBody": "Response body",
         "breadcrumbs": "Breadcrumbs",
         "userAgent": "User agent"
+      }
+    },
+    "webhookDeliveries": {
+      "title": "Webhook deliveries",
+      "description": "Cross-workspace dispatch history. Refreshes every 15s.",
+      "event": "Event",
+      "webhook": "Webhook",
+      "status": "Status",
+      "attempts": "Attempts",
+      "when": "When",
+      "actions": "Actions",
+      "retry": "Retry",
+      "allStatuses": "All statuses",
+      "emptyTitle": "No deliveries yet",
+      "emptyDesc": "When events fire and workspaces have webhooks subscribed, attempts will appear here.",
+      "error": "Error",
+      "payload": "Payload",
+      "meta": {
+        "title": "Webhook deliveries",
+        "desc": "Cross-workspace webhook delivery log"
       }
     },
     "throttle": {
@@ -720,6 +767,30 @@
       "ADMIN": "Admin",
       "MEMBER": "Member",
       "VIEWER": "Viewer"
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "description": "Forward issue + comment events to an external URL. Every request is signed with HMAC-SHA256 using the hook's secret.",
+      "add": "Add webhook",
+      "create": "Create",
+      "createTitle": "Add webhook",
+      "editTitle": "Edit webhook",
+      "dialogDesc": "URLs at `hooks.slack.com/...` are auto-formatted as Slack attachments.",
+      "name": "Name",
+      "url": "URL",
+      "urlHint": "Must be http or https. Receives POST with JSON + X-Webhook-Signature header.",
+      "events": "Events",
+      "enabled": "Enabled",
+      "enabledLabel": "Webhook enabled",
+      "disabled": "Disabled",
+      "disable": "Disable",
+      "enable": "Enable",
+      "test": "Send test",
+      "copySecret": "Copy secret",
+      "deleteTitle": "Delete webhook?",
+      "deleteDesc": "Webhook \"{name}\" will be removed and stop receiving events.",
+      "emptyTitle": "No webhooks yet",
+      "emptyDesc": "Add a webhook to receive real-time events in Slack, Discord, or your internal services."
     }
   },
   "project": {
@@ -765,6 +836,8 @@
   "board": {
     "board": "Board",
     "backlog": "Backlog",
+    "calendar": "Calendar",
+    "roadmap": "Roadmap",
     "summary": "Summary",
     "addColumn": "Add column",
     "columnName": "Column name",
@@ -864,6 +937,23 @@
       "MEDIUM": "Medium",
       "LOW": "Low",
       "LOWEST": "Lowest"
+    }
+  },
+  "roadmap": {
+    "emptyTitle": "No epics to plot on the timeline",
+    "emptyDesc": "Create EPIC-type issues with a startDate or dueDate to see them here."
+  },
+  "calendar": {
+    "today": "Today",
+    "dragHint": "Drag an issue to another day to reschedule",
+    "day": {
+      "Mon": "Mon",
+      "Tue": "Tue",
+      "Wed": "Wed",
+      "Thu": "Thu",
+      "Fri": "Fri",
+      "Sat": "Sat",
+      "Sun": "Sun"
     }
   },
   "sprint": {
