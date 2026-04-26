@@ -150,9 +150,13 @@ function patchIssueInAllCaches(
     },
   );
 
-  queryClient.setQueriesData<{ issue: Issue }>({ queryKey: ["issue"] }, (old) => {
-    if (!old?.issue || old.issue.id !== issueId) return old;
-    return { ...old, issue: { ...old.issue, ...patch } };
+  // `useIssue` stores the Issue directly under ["issue", key] (not wrapped
+  // in `{ issue: ... }`). Patching the right shape so optimistic updates on
+  // the detail page actually take effect — without this, star/watch toggles
+  // and quick-edits show stale data until the next refetch.
+  queryClient.setQueriesData<Issue>({ queryKey: ["issue"] }, (old) => {
+    if (!old || old.id !== issueId) return old;
+    return { ...old, ...patch };
   });
 }
 
@@ -424,6 +428,10 @@ export function useToggleWatch() {
     onSettled: (result) => {
       if (!result?.issueId) return;
       queryClient.invalidateQueries({ queryKey: ["watchers", result.issueId] });
+      // Refetch the issue so the detail-page header reconciles with server
+      // truth (covers the case where the optimistic patch raced a stale
+      // refetch and lost). Cheap because the page is open anyway.
+      queryClient.invalidateQueries({ queryKey: ["issue"] });
     },
   });
 }
@@ -482,6 +490,8 @@ export function useToggleStar() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["issues", "me", "starred"] });
       queryClient.invalidateQueries({ queryKey: ["issues", "me", "dashboard"] });
+      // Same rationale as useToggleWatch — reconcile detail-page header.
+      queryClient.invalidateQueries({ queryKey: ["issue"] });
     },
   });
 }

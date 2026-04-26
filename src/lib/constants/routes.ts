@@ -14,6 +14,8 @@ export const ROUTES = {
   ISSUE: (key: string) => `/issues/${key}`,
   NOTIFICATIONS: "/notifications",
   PROFILE: "/profile",
+  SHARE_ISSUE: (token: string) => `/share/issue/${token}`,
+  JOIN: (token: string) => `/join/${token}`,
   ADMIN: "/admin",
   ADMIN_LOGS: "/admin/logs",
   ADMIN_SETTINGS: "/admin/settings",

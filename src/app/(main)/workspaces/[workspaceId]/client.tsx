@@ -25,6 +25,7 @@ import {
 import { useProjects, useCreateProject } from "@/features/projects/hooks";
 import { AddMemberDialog } from "@/features/workspaces/components/add-member-dialog";
 import { MembersList } from "@/features/workspaces/components/members-list";
+import { InviteLinksPanel } from "@/features/invite-links/components/invite-links-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -340,6 +341,13 @@ export default function WorkspaceDetailPage() {
                 <Skeleton key={i} className="h-16 rounded-lg" />
               ))}
             </div>
+          )}
+
+          {canManageMembers && (
+            <>
+              <Separator className="my-6" />
+              <InviteLinksPanel workspaceId={workspaceId} />
+            </>
           )}
         </TabsContent>
 

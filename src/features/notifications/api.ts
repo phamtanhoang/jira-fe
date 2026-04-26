@@ -35,4 +35,29 @@ export const notificationsApi = {
     api
       .delete<{ message: string }>(ENDPOINTS.notifications.byId(id))
       .then((r) => r.data),
+
+  getPreferences: () =>
+    api
+      .get<{ preferences: NotificationPreference[] }>(
+        ENDPOINTS.notifications.preferences,
+      )
+      .then((r) => r.data.preferences),
+
+  updatePreferences: (
+    body: Record<string, { inApp?: boolean; email?: boolean }>,
+  ) =>
+    api
+      .put<{ message: string; preferences: NotificationPreference[] }>(
+        ENDPOINTS.notifications.preferences,
+        body,
+      )
+      .then((r) => r.data),
+};
+
+export type NotificationPreference = {
+  id: string;
+  userId: string;
+  type: string;
+  inApp: boolean;
+  email: boolean;
 };

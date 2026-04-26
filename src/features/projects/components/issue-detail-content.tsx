@@ -17,11 +17,13 @@ import {
   Star,
   Eye,
   EyeOff,
+  Share2,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { TYPE_CONFIG } from "@/lib/constants/issue-config";
 import { useIssue, useUpdateIssue, useDeleteIssue, useProject, useComments, useToggleStar, useToggleWatch } from "../hooks";
 import { issuesApi } from "../api";
+import { ShareIssueDialog } from "@/features/issue-share/components/share-issue-dialog";
 import { useWorkspace } from "@/features/workspaces/hooks";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -68,6 +70,7 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
   const [editingDesc, setEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(modal ? 280 : 320);
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Track this issue in the Cmd+K "Recent" list whenever its identity loads.
   useEffect(() => {
@@ -212,6 +215,14 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             <span className="text-[11px]">
               {issue.watchedByMe ? t("issue.watching") : t("issue.watch")}
             </span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => setShareOpen(true)}
+            title={t("share.title")}
+          >
+            <Share2 className="h-4 w-4" />
           </Button>
           {modal && (
             <>
@@ -374,6 +385,14 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
         />
       </div>
       </div>
+
+      {issue && (
+        <ShareIssueDialog
+          issueId={issue.id}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
     </div>
   );
 }

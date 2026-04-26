@@ -48,8 +48,17 @@ function isAdminPath(pathname: string): boolean {
   return pathname === ROUTES.ADMIN || pathname.startsWith(`${ROUTES.ADMIN}/`);
 }
 
+// Public share links — token-based, dynamic path. Must reach the page even
+// without auth (and without redirecting through sign-in). Also bypassed
+// during maintenance because external recipients shouldn't see the
+// maintenance page when the org-internal site is down.
+function isPublicShareRoute(pathname: string): boolean {
+  return pathname.startsWith("/share/");
+}
+
 function isAllowlistedDuringMaintenance(pathname: string): boolean {
   if (isAdminPath(pathname)) return true;
+  if (isPublicShareRoute(pathname)) return true;
   return (MAINTENANCE_ALLOWLIST as readonly string[]).includes(pathname);
 }
 
@@ -77,8 +86,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(ROUTES.DASHBOARD, request.url));
   }
 
-  // Maintenance page itself is open to everyone
+  // Maintenance page + public share links are open to everyone
   if (pathname === ROUTES.MAINTENANCE) return;
+  if (isPublicShareRoute(pathname)) return;
 
   // Protected pages — redirect to sign-in if not logged in
   if (

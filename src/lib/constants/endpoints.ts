@@ -44,6 +44,12 @@ const WORKSPACES_ENDPOINTS = {
   members: (id: string) => `${WORKSPACES_BASE}/${id}/members`,
   member: (id: string, memberId: string) =>
     `${WORKSPACES_BASE}/${id}/members/${memberId}`,
+  inviteLinks: (id: string) => `${WORKSPACES_BASE}/${id}/invite-links`,
+  inviteLink: (id: string, linkId: string) =>
+    `${WORKSPACES_BASE}/${id}/invite-links/${linkId}`,
+  invitePreview: (token: string) =>
+    `${WORKSPACES_BASE}/join/${token}/preview`,
+  join: (token: string) => `${WORKSPACES_BASE}/join/${token}`,
 } as const;
 
 const PROJECTS_ENDPOINTS = {
@@ -84,6 +90,9 @@ const ISSUES_ENDPOINTS = {
   watchers: (id: string) => `${ISSUES_BASE}/${id}/watchers`,
   links: (id: string) => `${ISSUES_BASE}/${id}/links`,
   link: (id: string, linkId: string) => `${ISSUES_BASE}/${id}/links/${linkId}`,
+  share: (id: string) => `${ISSUES_BASE}/${id}/share`,
+  shareById: (id: string, tokenId: string) =>
+    `${ISSUES_BASE}/${id}/share/${tokenId}`,
   move: (id: string) => `${ISSUES_BASE}/${id}/move`,
   labels: (id: string, labelId: string) =>
     `${ISSUES_BASE}/${id}/labels/${labelId}`,
@@ -143,6 +152,12 @@ const NOTIFICATIONS_ENDPOINTS = {
   read: (id: string) => `${NOTIFICATIONS_BASE}/${id}/read`,
   readAll: `${NOTIFICATIONS_BASE}/read-all`,
   unreadCount: `${NOTIFICATIONS_BASE}/unread-count`,
+  preferences: `${NOTIFICATIONS_BASE}/preferences`,
+} as const;
+
+const PUBLIC_BASE = "/public";
+const PUBLIC_ENDPOINTS = {
+  issueByToken: (token: string) => `${PUBLIC_BASE}/issues/${token}`,
 } as const;
 
 const SAVED_FILTERS_BASE = "/saved-filters";
@@ -192,4 +207,5 @@ export const ENDPOINTS = {
   notifications: NOTIFICATIONS_ENDPOINTS,
   savedFilters: SAVED_FILTERS_ENDPOINTS,
   issueTemplates: ISSUE_TEMPLATES_ENDPOINTS,
+  public: PUBLIC_ENDPOINTS,
 } as const;

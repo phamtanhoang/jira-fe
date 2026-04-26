@@ -68,3 +68,27 @@ export function useDeleteNotification() {
     onError: handleApiError,
   });
 }
+
+const PREFERENCES_KEY = ["notifications", "preferences"] as const;
+
+export function useNotificationPreferences() {
+  return useQuery({
+    queryKey: PREFERENCES_KEY,
+    queryFn: () => notificationsApi.getPreferences(),
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useUpdateNotificationPreferences() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Record<string, { inApp?: boolean; email?: boolean }>) =>
+      notificationsApi.updatePreferences(body),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.setQueryData(PREFERENCES_KEY, result.preferences);
+    },
+    onError: handleApiError,
+  });
+}

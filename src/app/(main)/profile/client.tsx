@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { SessionsPanel } from "@/features/auth/components/sessions-panel";
+import { NotificationPreferences } from "@/features/notifications/components/notification-preferences";
 
 const ALLOWED_AVATAR_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
@@ -205,6 +206,7 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
+      <NotificationPreferences />
       <SessionsPanel />
     </div>
   );
