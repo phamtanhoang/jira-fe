@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { handleApiError, showMessage } from "@/lib/utils";
 import {
   adminDeleteWorkspace,
@@ -33,6 +38,23 @@ export function useAdminUsers(filters: AdminUsersFilters) {
   });
 }
 
+/**
+ * Cursor-paginated infinite list. Filters DO change the queryKey (so a new
+ * search resets the pages); only the cursor advances within a single result
+ * set. Concatenated rows live in `pages.flatMap((p) => p.data)`.
+ */
+export function useInfiniteAdminUsers(
+  filters: Omit<AdminUsersFilters, "cursor">,
+) {
+  return useInfiniteQuery({
+    queryKey: ["admin-users-infinite", filters],
+    queryFn: ({ pageParam }) =>
+      fetchUsers({ ...filters, cursor: pageParam as string | undefined }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => (last.hasMore ? last.nextCursor : undefined),
+  });
+}
+
 export function useUpdateUserRole() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -41,6 +63,7 @@ export function useUpdateUserRole() {
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
     onError: handleApiError,
@@ -54,6 +77,7 @@ export function useDeleteUser() {
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
     onError: handleApiError,
@@ -68,6 +92,7 @@ export function useSetUserActive() {
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
     onError: handleApiError,
@@ -88,10 +113,16 @@ export function useAdminAnalytics(days: number) {
   });
 }
 
-export function useAdminMetrics(sinceHours: number, take = 10) {
+export function useAdminMetrics(
+  sinceHours: number,
+  takes: { topRoutes: number; slowest: number } = {
+    topRoutes: 10,
+    slowest: 10,
+  },
+) {
   return useQuery({
-    queryKey: ["admin-metrics", sinceHours, take],
-    queryFn: () => fetchAdminMetrics(sinceHours, take),
+    queryKey: ["admin-metrics", sinceHours, takes.topRoutes, takes.slowest],
+    queryFn: () => fetchAdminMetrics(sinceHours, takes),
   });
 }
 
@@ -109,6 +140,22 @@ export function useAdminWorkspaces(filters: AdminWorkspacesFilters) {
   });
 }
 
+/** Cursor-paginated infinite list — see `useInfiniteAdminUsers`. */
+export function useInfiniteAdminWorkspaces(
+  filters: Omit<AdminWorkspacesFilters, "cursor">,
+) {
+  return useInfiniteQuery({
+    queryKey: ["admin-workspaces-infinite", filters],
+    queryFn: ({ pageParam }) =>
+      fetchAdminWorkspaces({
+        ...filters,
+        cursor: pageParam as string | undefined,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => (last.hasMore ? last.nextCursor : undefined),
+  });
+}
+
 export function useAdminDeleteWorkspace() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -116,6 +163,7 @@ export function useAdminDeleteWorkspace() {
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["admin-workspaces"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-workspaces-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
     onError: handleApiError,
@@ -175,6 +223,7 @@ export function useBulkInvite() {
     onSuccess: (result) => {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
     onError: handleApiError,

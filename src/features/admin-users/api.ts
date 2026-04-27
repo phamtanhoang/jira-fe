@@ -72,10 +72,17 @@ export async function fetchAdminAnalytics(
 
 export async function fetchAdminMetrics(
   sinceHours: number,
-  take = 10,
+  takes: { topRoutes: number; slowest: number } = {
+    topRoutes: 10,
+    slowest: 10,
+  },
 ): Promise<AdminMetrics> {
   const res = await api.get<AdminMetrics>(ENDPOINTS.admin.metrics, {
-    params: { sinceHours, take },
+    params: {
+      sinceHours,
+      topRoutesTake: takes.topRoutes,
+      slowestTake: takes.slowest,
+    },
   });
   return res.data;
 }

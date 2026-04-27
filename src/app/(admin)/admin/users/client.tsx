@@ -19,7 +19,7 @@ import { cn, formatDate, formatDateTime, getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import {
-  useAdminUsers,
+  useInfiniteAdminUsers,
   useUpdateUserRole,
   useDeleteUser,
   useSetUserActive,
@@ -67,12 +67,23 @@ export function AdminUsersClient() {
   const { t } = useAppStore();
   const { user: currentUser } = useCurrentUser();
 
-  const [filters, setFilters] = useState<AdminUsersFilters>({ take: 50 });
+  const [filters, setFilters] = useState<
+    Omit<AdminUsersFilters, "cursor">
+  >({ take: 50 });
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [bulkInviteOpen, setBulkInviteOpen] = useState(false);
 
-  const { data, isLoading } = useAdminUsers(filters);
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteAdminUsers(filters);
+  // Concatenated rows across all loaded pages — keeping this flat lets the
+  // existing render path treat it like the old single-page response.
+  const rows = data?.pages.flatMap((p) => p.data) ?? [];
   const updateRole = useUpdateUserRole();
   const deleteUser = useDeleteUser();
   const setActive = useSetUserActive();
@@ -106,7 +117,6 @@ export function AdminUsersClient() {
               setFilters((f) => ({
                 ...f,
                 search: e.target.value || undefined,
-                cursor: undefined,
               }))
             }
           />
@@ -118,7 +128,6 @@ export function AdminUsersClient() {
             setFilters((f) => ({
               ...f,
               role: v === ROLE_ANY ? undefined : (v as Role),
-              cursor: undefined,
             }))
           }
         >
@@ -147,7 +156,6 @@ export function AdminUsersClient() {
               ...f,
               verified:
                 v === VERIFIED_ANY ? undefined : v === "yes" ? true : false,
-              cursor: undefined,
             }))
           }
         >
@@ -185,12 +193,12 @@ export function AdminUsersClient() {
           <div className="flex h-40 items-center justify-center">
             <Spinner />
           </div>
-        ) : !data?.data.length ? (
+        ) : rows.length === 0 ? (
           <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
             {t("admin.users.empty")}
           </div>
         ) : (
-          data.data.map((u) => (
+          rows.map((u) => (
             <UserRow
               key={u.id}
               user={u}
@@ -215,18 +223,17 @@ export function AdminUsersClient() {
         )}
       </div>
 
-      {data?.hasMore && (
+      {hasNextPage && (
         <div className="flex justify-center">
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                cursor: data.nextCursor ?? undefined,
-              }))
-            }
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
           >
+            {isFetchingNextPage ? (
+              <Spinner className="mr-1.5 h-3.5 w-3.5" />
+            ) : null}
             {t("admin.users.loadMore")}
           </Button>
         </div>

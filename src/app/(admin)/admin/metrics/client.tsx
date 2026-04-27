@@ -47,17 +47,41 @@ const METHOD_COLORS: Record<string, string> = {
 export function AdminMetricsClient() {
   const { t } = useAppStore();
   const [since, setSince] = useState<number>(24);
-  const [take, setTake] = useState<number>(METRICS_PAGE_STEP);
-  const { data, isLoading, isFetching } = useAdminMetrics(since, take);
+  // Each section paginates independently. The shared `useAdminMetrics`
+  // call returns both lists in one request so the BE doesn't run two query
+  // batches, but each LIMIT is driven by its own state.
+  const [topRoutesTake, setTopRoutesTake] = useState<number>(METRICS_PAGE_STEP);
+  const [slowestTake, setSlowestTake] = useState<number>(METRICS_PAGE_STEP);
+  const { data, isLoading, isFetching } = useAdminMetrics(since, {
+    topRoutes: topRoutesTake,
+    slowest: slowestTake,
+  });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // A section is "expanding" while the new (larger) take has been requested
+  // but not yet returned — in that window the local row count still matches
+  // the previous take. Used so only the clicked Load more shows a spinner.
+  const topRoutesLen = data?.topRoutes?.length ?? 0;
+  const slowestLen = data?.slowestRequests?.length ?? 0;
+  const isLoadingTopRoutes = isFetching && topRoutesLen < topRoutesTake;
+  const isLoadingSlowest = isFetching && slowestLen < slowestTake;
 
   function handleSinceChange(next: number) {
     setSince(next);
-    setTake(METRICS_PAGE_STEP);
+    setTopRoutesTake(METRICS_PAGE_STEP);
+    setSlowestTake(METRICS_PAGE_STEP);
   }
 
-  function loadMore() {
-    setTake((prev) => Math.min(prev + METRICS_PAGE_STEP, METRICS_PAGE_MAX));
+  function loadMoreTopRoutes() {
+    setTopRoutesTake((prev) =>
+      Math.min(prev + METRICS_PAGE_STEP, METRICS_PAGE_MAX),
+    );
+  }
+
+  function loadMoreSlowest() {
+    setSlowestTake((prev) =>
+      Math.min(prev + METRICS_PAGE_STEP, METRICS_PAGE_MAX),
+    );
   }
 
   return (
@@ -205,16 +229,16 @@ export function AdminMetricsClient() {
               );
             })
           )}
-          {(data?.topRoutes?.length ?? 0) >= take &&
-            take < METRICS_PAGE_MAX && (
+          {(data?.topRoutes?.length ?? 0) >= topRoutesTake &&
+            topRoutesTake < METRICS_PAGE_MAX && (
               <div className="flex items-center justify-center border-t bg-muted/20 px-4 py-3">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={loadMore}
-                  disabled={isFetching}
+                  onClick={loadMoreTopRoutes}
+                  disabled={isLoadingTopRoutes}
                 >
-                  {isFetching ? (
+                  {isLoadingTopRoutes ? (
                     <Spinner className="mr-1.5 h-3.5 w-3.5" />
                   ) : (
                     <ChevronDown className="mr-1.5 h-3.5 w-3.5" />
@@ -376,16 +400,16 @@ export function AdminMetricsClient() {
               </button>
             ))
           )}
-          {(data?.slowestRequests?.length ?? 0) >= take &&
-            take < METRICS_PAGE_MAX && (
+          {(data?.slowestRequests?.length ?? 0) >= slowestTake &&
+            slowestTake < METRICS_PAGE_MAX && (
               <div className="flex items-center justify-center border-t bg-muted/20 px-4 py-3">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={loadMore}
-                  disabled={isFetching}
+                  onClick={loadMoreSlowest}
+                  disabled={isLoadingSlowest}
                 >
-                  {isFetching ? (
+                  {isLoadingSlowest ? (
                     <Spinner className="mr-1.5 h-3.5 w-3.5" />
                   ) : (
                     <ChevronDown className="mr-1.5 h-3.5 w-3.5" />

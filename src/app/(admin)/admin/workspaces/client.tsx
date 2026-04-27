@@ -8,7 +8,7 @@ import { cn, formatDate, getInitials } from "@/lib/utils";
 import { AVATAR_GRADIENT, ROUTES } from "@/lib/constants";
 import {
   useAdminDeleteWorkspace,
-  useAdminWorkspaces,
+  useInfiniteAdminWorkspaces,
   type AdminWorkspaceRow,
   type AdminWorkspacesFilters,
 } from "@/features/admin-users";
@@ -28,12 +28,21 @@ import {
 export function AdminWorkspacesClient() {
   const { t } = useAppStore();
 
-  const [filters, setFilters] = useState<AdminWorkspacesFilters>({ take: 50 });
+  const [filters, setFilters] = useState<
+    Omit<AdminWorkspacesFilters, "cursor">
+  >({ take: 50 });
   const [deleteTarget, setDeleteTarget] = useState<AdminWorkspaceRow | null>(
     null,
   );
 
-  const { data, isLoading } = useAdminWorkspaces(filters);
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteAdminWorkspaces(filters);
+  const rows = data?.pages.flatMap((p) => p.data) ?? [];
   const remove = useAdminDeleteWorkspace();
 
   return (
@@ -59,7 +68,6 @@ export function AdminWorkspacesClient() {
               setFilters((f) => ({
                 ...f,
                 search: e.target.value || undefined,
-                cursor: undefined,
               }))
             }
           />
@@ -84,12 +92,12 @@ export function AdminWorkspacesClient() {
           <div className="flex h-40 items-center justify-center">
             <Spinner />
           </div>
-        ) : !data?.data.length ? (
+        ) : rows.length === 0 ? (
           <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
             {t("admin.workspaces.empty")}
           </div>
         ) : (
-          data.data.map((w) => (
+          rows.map((w) => (
             <WorkspaceRow
               key={w.id}
               row={w}
@@ -99,18 +107,17 @@ export function AdminWorkspacesClient() {
         )}
       </div>
 
-      {data?.hasMore && (
+      {hasNextPage && (
         <div className="flex justify-center">
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                cursor: data.nextCursor ?? undefined,
-              }))
-            }
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
           >
+            {isFetchingNextPage ? (
+              <Spinner className="mr-1.5 h-3.5 w-3.5" />
+            ) : null}
             {t("admin.workspaces.loadMore")}
           </Button>
         </div>
