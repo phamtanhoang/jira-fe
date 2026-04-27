@@ -29,11 +29,16 @@ export function SignInForm() {
   const passwordEnabled = providers?.password ?? true;
 
   // OAuth callback redirects with `?error=...` when something fails
-  // (provider denial, missing email, etc.). Surface as a toast so the user
-  // knows why they're back at the sign-in page.
+  // (provider denial, missing email, schema migration missing, etc.). Show
+  // the decoded BE message so admins can debug; fall back to generic toast
+  // for the few cases where we only get a code (e.g. `oauth_failed`).
   useEffect(() => {
     const err = searchParams.get("error");
-    if (err) toast.error(t("auth.oauthFailed"));
+    if (!err) return;
+    const decoded = decodeURIComponent(err);
+    toast.error(
+      decoded && decoded !== "oauth_failed" ? decoded : t("auth.oauthFailed"),
+    );
   }, [searchParams, t]);
 
   const form = useForm<LoginForm>({
