@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import {
   Bell,
   Camera,
+  Link2,
   Lock,
   Mail,
   ShieldCheck,
@@ -39,6 +40,7 @@ const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
 const PROFILE_TABS = [
   "general",
   "security",
+  "connections",
   "notifications",
   "privacy",
 ] as const;
@@ -169,6 +171,10 @@ export default function ProfilePage() {
             <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
             {t("profile.tab.security")}
           </TabsTrigger>
+          <TabsTrigger value="connections">
+            <Link2 className="mr-1.5 h-3.5 w-3.5" />
+            {t("profile.tab.connections")}
+          </TabsTrigger>
           <TabsTrigger value="notifications">
             <Bell className="mr-1.5 h-3.5 w-3.5" />
             {t("profile.tab.notifications")}
@@ -273,9 +279,12 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
+          <SessionsPanel />
+        </TabsContent>
+
+        <TabsContent value="connections" className="mt-4 space-y-6">
           <ConnectedAccountsPanel />
           <TokensPanel />
-          <SessionsPanel />
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-4">

@@ -1283,6 +1283,7 @@
     "tab": {
       "general": "General",
       "security": "Security",
+      "connections": "Connections",
       "notifications": "Notifications",
       "privacy": "Privacy"
     },
