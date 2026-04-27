@@ -1279,6 +1279,13 @@
   },
   "profile": {
     "title": "Hồ sơ cá nhân",
+    "subtitle": "Quản lý tài khoản, bảo mật, thông báo và quyền riêng tư.",
+    "tab": {
+      "general": "Chung",
+      "security": "Bảo mật",
+      "notifications": "Thông báo",
+      "privacy": "Riêng tư"
+    },
     "personalInfo": "Thông tin cá nhân",
     "nameLabel": "Họ và tên",
     "emailLabel": "Email",

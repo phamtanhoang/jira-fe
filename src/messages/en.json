@@ -1279,6 +1279,13 @@
   },
   "profile": {
     "title": "Profile",
+    "subtitle": "Manage your account, security, notifications, and privacy settings.",
+    "tab": {
+      "general": "General",
+      "security": "Security",
+      "notifications": "Notifications",
+      "privacy": "Privacy"
+    },
     "personalInfo": "Personal Information",
     "nameLabel": "Full name",
     "emailLabel": "Email",
