@@ -381,7 +381,7 @@ export default function BoardPage() {
                     projectId={projectId}
                   />
                 </div>
-                <div className="flex flex-1 gap-3 overflow-auto p-5">
+                <div className="flex flex-1 flex-col gap-3 overflow-auto p-3 sm:flex-row sm:p-5">
                   {columnsView}
                 </div>
               </>
@@ -452,7 +452,7 @@ export default function BoardPage() {
                 projectId={projectId}
               />
             </div>
-            <div className="flex flex-1 gap-3 overflow-auto p-5">
+            <div className="flex flex-1 flex-col gap-3 overflow-auto p-3 sm:flex-row sm:p-5">
               {columnsView}
             </div>
           </TabsContent>

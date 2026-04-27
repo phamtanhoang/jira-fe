@@ -64,7 +64,7 @@ export function BoardColumn({
 
   return (
     <div
-      className={`flex h-full w-68 shrink-0 flex-col rounded-lg transition-all duration-200 ${
+      className={`flex w-full shrink-0 flex-col rounded-lg transition-all duration-200 sm:h-full sm:w-68 ${
         dragOver
           ? "bg-primary/8 ring-2 ring-primary/30 scale-[1.02] shadow-lg dark:bg-primary/10"
           : "bg-muted/40 dark:bg-muted/20"

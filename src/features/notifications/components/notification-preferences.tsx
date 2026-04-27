@@ -6,6 +6,7 @@ import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from "../hooks";
+import { PushOptIn } from "./push-opt-in";
 
 // Mirror of the NotificationType union in BE — drives the matrix rows.
 const TYPES = [
@@ -93,6 +94,10 @@ export function NotificationPreferences() {
       <p className="mt-3 text-[11px] text-muted-foreground/70">
         {t("notifPrefs.emailNote")}
       </p>
+
+      <div className="mt-4">
+        <PushOptIn />
+      </div>
     </div>
   );
 }

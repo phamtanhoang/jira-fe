@@ -52,6 +52,8 @@ import {
 } from "@/components/ui/dialog";
 import type { ProjectMember } from "@/features/projects/types";
 import { ProjectTemplates } from "@/features/issue-templates/components/project-templates";
+import { CustomFieldsManager } from "@/features/custom-fields";
+import { ProjectColumnsManager } from "@/features/projects/components/project-columns-manager";
 
 const ROLE_COLORS: Record<string, string> = {
   LEAD: "bg-purple-100 text-purple-700",
@@ -60,7 +62,13 @@ const ROLE_COLORS: Record<string, string> = {
   VIEWER: "bg-gray-100 text-gray-600",
 };
 
-const PROJECT_SETTINGS_TABS = ["general", "members", "templates"] as const;
+const PROJECT_SETTINGS_TABS = [
+  "general",
+  "members",
+  "templates",
+  "fields",
+  "columns",
+] as const;
 type ProjectSettingsTab = (typeof PROJECT_SETTINGS_TABS)[number];
 
 export default function ProjectSettingsPage() {
@@ -236,6 +244,14 @@ export default function ProjectSettingsPage() {
           <TabsTrigger value="templates">
             <FileText className="mr-1.5 h-3.5 w-3.5" />
             {t("templates.tab")}
+          </TabsTrigger>
+          <TabsTrigger value="fields">
+            <Settings className="mr-1.5 h-3.5 w-3.5" />
+            {t("customFields.tab")}
+          </TabsTrigger>
+          <TabsTrigger value="columns">
+            <Settings className="mr-1.5 h-3.5 w-3.5" />
+            {t("project.columns.tab")}
           </TabsTrigger>
         </TabsList>
 
@@ -549,6 +565,16 @@ export default function ProjectSettingsPage() {
         {/* Templates Tab */}
         <TabsContent value="templates">
           <ProjectTemplates projectId={projectId} canManage={canManage} />
+        </TabsContent>
+
+        {/* Custom Fields Tab */}
+        <TabsContent value="fields">
+          <CustomFieldsManager projectId={projectId} />
+        </TabsContent>
+
+        {/* Columns Tab — custom statuses (Phase 8.1) */}
+        <TabsContent value="columns">
+          <ProjectColumnsManager projectId={projectId} canManage={canManage} />
         </TabsContent>
       </Tabs>
 

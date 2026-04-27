@@ -725,7 +725,15 @@
     "markAllRead": "Mark all as read",
     "viewAll": "View all",
     "tabAll": "All",
-    "tabUnread": "Unread"
+    "tabUnread": "Unread",
+    "push": {
+      "title": "Browser push",
+      "descOff": "Turn on to receive notifications even when this tab is closed (HTTPS required).",
+      "descOn": "Push is enabled. Your browser will show alerts when new events fire.",
+      "enable": "Enable push",
+      "disable": "Disable push",
+      "blocked": "Blocked by browser"
+    }
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",
@@ -794,6 +802,27 @@
     }
   },
   "project": {
+    "columns": {
+      "tab": "Columns (Workflow)",
+      "title": "Board columns (Workflow)",
+      "description": "Add/rename/delete Kanban columns. Each must belong to one of TODO, IN_PROGRESS, or DONE. At least one DONE column must always exist so closed issues have a home.",
+      "add": "Add column",
+      "addTitle": "Add a new column",
+      "addDesc": "Pick a name + category. New issues land in the first TODO column.",
+      "category": {
+        "label": "Category",
+        "TODO": "To Do",
+        "IN_PROGRESS": "In Progress",
+        "DONE": "Done"
+      },
+      "categoryHint": "Category drives stats + filters. Changing it doesn't move existing issues.",
+      "issuesIn": "{count} issues in column",
+      "deleteTitle": "Delete column?",
+      "deleteDesc": "Delete column \"{name}\". Issues in this column move to the first TODO column.",
+      "emptyTitle": "No columns yet",
+      "emptyDesc": "Create the first column to bootstrap the workflow.",
+      "cannotDeleteLastDone": "Can't delete the last DONE column. Create another DONE column first."
+    },
     "newProject": "New Project",
     "createProject": "Create Project",
     "noProjects": "No projects yet",
@@ -942,6 +971,33 @@
   "roadmap": {
     "emptyTitle": "No epics to plot on the timeline",
     "emptyDesc": "Create EPIC-type issues with a startDate or dueDate to see them here."
+  },
+  "customFields": {
+    "tab": "Custom fields",
+    "title": "Custom fields",
+    "description": "Define extra fields per issue in this project. Each renders on the issue detail sidebar.",
+    "sidebarTitle": "Custom fields",
+    "add": "Add field",
+    "name": "Name",
+    "type": "Type",
+    "options": "Options (one per line or comma-separated)",
+    "optionsPlaceholder": "High\nMedium\nLow",
+    "required": "Required",
+    "requiredLabel": "Required when creating an issue",
+    "makeRequired": "Make required",
+    "makeOptional": "Make optional",
+    "createTitle": "Add custom field",
+    "createDesc": "Field appears on the issue sidebar immediately. SELECT/MULTI_SELECT need at least one option.",
+    "deleteTitle": "Delete field?",
+    "deleteDesc": "Field \"{name}\" will be removed along with every saved issue value.",
+    "emptyTitle": "No custom fields yet",
+    "emptyDesc": "Add fields (Team, Severity, ...) to capture extra info per issue.",
+    "placeholderText": "Type...",
+    "placeholderSelect": "Pick..."
+  },
+  "pwa": {
+    "installPrompt": "Install the app for faster access",
+    "install": "Install"
   },
   "calendar": {
     "today": "Today",
@@ -1099,6 +1155,9 @@
     "NOTIFICATIONS_READ_ALL": "All notifications marked as read.",
     "NOTIFICATION_DELETED": "Notification deleted.",
     "MAIL_TEST_SENT": "Test email sent. Check the inbox to confirm the config.",
+    "PUSH_SUBSCRIBED": "Browser push enabled for this device.",
+    "PUSH_UNSUBSCRIBED": "Browser push disabled.",
+    "PUSH_PERMISSION_DENIED": "Browser denied notification permission. Adjust site settings to re-enable.",
     "MAIL_RETRIED": "Test email sent. Check the inbox to confirm the config.",
     "MAIL_NOT_CONFIGURED": "Mail config is incomplete. Open Settings → App Email to fill in the missing fields.",
     "MAIL_SEND_FAILED": "Failed to send email. Open System Logs → Email for details.",

@@ -166,6 +166,12 @@ const NOTIFICATIONS_ENDPOINTS = {
   preferences: `${NOTIFICATIONS_BASE}/preferences`,
 } as const;
 
+const PUSH_BASE = "/push";
+const PUSH_ENDPOINTS = {
+  config: `${PUSH_BASE}/config`,
+  subscribe: `${PUSH_BASE}/subscribe`,
+} as const;
+
 const PUBLIC_BASE = "/public";
 const PUBLIC_ENDPOINTS = {
   issueByToken: (token: string) => `${PUBLIC_BASE}/issues/${token}`,
@@ -181,6 +187,12 @@ const ISSUE_TEMPLATES_BASE = "/issue-templates";
 const ISSUE_TEMPLATES_ENDPOINTS = {
   base: ISSUE_TEMPLATES_BASE,
   byId: (id: string) => `${ISSUE_TEMPLATES_BASE}/${id}`,
+} as const;
+
+const CUSTOM_FIELDS_BASE = "/custom-fields";
+const CUSTOM_FIELDS_ENDPOINTS = {
+  base: CUSTOM_FIELDS_BASE,
+  byId: (id: string) => `${CUSTOM_FIELDS_BASE}/${id}`,
 } as const;
 
 const ADMIN_BASE = "/admin";
@@ -227,5 +239,7 @@ export const ENDPOINTS = {
   notifications: NOTIFICATIONS_ENDPOINTS,
   savedFilters: SAVED_FILTERS_ENDPOINTS,
   issueTemplates: ISSUE_TEMPLATES_ENDPOINTS,
+  customFields: CUSTOM_FIELDS_ENDPOINTS,
+  push: PUSH_ENDPOINTS,
   public: PUBLIC_ENDPOINTS,
 } as const;

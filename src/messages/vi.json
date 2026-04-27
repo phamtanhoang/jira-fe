@@ -725,7 +725,15 @@
     "markAllRead": "Đánh dấu tất cả đã đọc",
     "viewAll": "Xem tất cả",
     "tabAll": "Tất cả",
-    "tabUnread": "Chưa đọc"
+    "tabUnread": "Chưa đọc",
+    "push": {
+      "title": "Browser push",
+      "descOff": "Bật để nhận noti realtime ngay cả khi tab đóng (yêu cầu HTTPS).",
+      "descOn": "Đang bật push. Browser sẽ hiện noti khi có sự kiện mới.",
+      "enable": "Bật push",
+      "disable": "Tắt push",
+      "blocked": "Bị browser chặn"
+    }
   },
   "shortcuts": {
     "title": "Phím tắt",
@@ -794,6 +802,27 @@
     }
   },
   "project": {
+    "columns": {
+      "tab": "Cột (Workflow)",
+      "title": "Cột bảng (Workflow)",
+      "description": "Sắp xếp/thêm/xóa cột Kanban. Mỗi cột thuộc 1 trong 3 category: TODO, IN_PROGRESS, DONE. Phải còn ít nhất 1 cột DONE để issue \"đóng\" có chỗ về.",
+      "add": "Thêm cột",
+      "addTitle": "Thêm cột mới",
+      "addDesc": "Đặt tên + chọn category. Issue mới luôn rơi vào cột TODO đầu tiên.",
+      "category": {
+        "label": "Category",
+        "TODO": "Chưa làm",
+        "IN_PROGRESS": "Đang làm",
+        "DONE": "Hoàn thành"
+      },
+      "categoryHint": "Category dùng cho thống kê + filter. Đổi không ảnh hưởng issue đang ở cột.",
+      "issuesIn": "{count} issue trong cột",
+      "deleteTitle": "Xóa cột?",
+      "deleteDesc": "Xóa cột \"{name}\". Issue trong cột sẽ chuyển về cột TODO đầu tiên.",
+      "emptyTitle": "Chưa có cột nào",
+      "emptyDesc": "Tạo cột đầu tiên để khởi tạo workflow.",
+      "cannotDeleteLastDone": "Không thể xóa cột DONE cuối cùng. Tạo cột DONE khác trước khi xóa cột này."
+    },
     "newProject": "Tạo dự án",
     "createProject": "Tạo dự án",
     "noProjects": "Chưa có dự án",
@@ -942,6 +971,33 @@
   "roadmap": {
     "emptyTitle": "Chưa có epic để hiển thị trên timeline",
     "emptyDesc": "Tạo issue type EPIC với startDate hoặc dueDate để chúng xuất hiện ở đây."
+  },
+  "customFields": {
+    "tab": "Custom fields",
+    "title": "Custom fields",
+    "description": "Định nghĩa fields tùy biến cho issue trong project. Mỗi field hiện trên sidebar của issue detail.",
+    "sidebarTitle": "Custom fields",
+    "add": "Thêm field",
+    "name": "Tên",
+    "type": "Loại",
+    "options": "Options (mỗi dòng hoặc dấu phẩy)",
+    "optionsPlaceholder": "High\nMedium\nLow",
+    "required": "Bắt buộc",
+    "requiredLabel": "Bắt buộc khi tạo issue",
+    "makeRequired": "Đặt bắt buộc",
+    "makeOptional": "Bỏ bắt buộc",
+    "createTitle": "Thêm custom field",
+    "createDesc": "Field sẽ hiện ngay trên sidebar issue. SELECT/MULTI_SELECT cần ít nhất 1 option.",
+    "deleteTitle": "Xóa field?",
+    "deleteDesc": "Field \"{name}\" sẽ bị xóa cùng với mọi giá trị issue đã lưu.",
+    "emptyTitle": "Chưa có custom field",
+    "emptyDesc": "Thêm field tùy biến (Team, Severity, ...) để bổ sung thông tin cho issue.",
+    "placeholderText": "Nhập...",
+    "placeholderSelect": "Chọn..."
+  },
+  "pwa": {
+    "installPrompt": "Cài app cho truy cập nhanh hơn",
+    "install": "Cài"
   },
   "calendar": {
     "today": "Hôm nay",
@@ -1099,6 +1155,9 @@
     "NOTIFICATIONS_READ_ALL": "Đã đánh dấu tất cả đã đọc.",
     "NOTIFICATION_DELETED": "Đã xóa thông báo.",
     "MAIL_TEST_SENT": "Đã gửi email thử. Kiểm tra inbox để xác nhận cấu hình.",
+    "PUSH_SUBSCRIBED": "Đã bật push notification cho browser này.",
+    "PUSH_UNSUBSCRIBED": "Đã tắt push notification.",
+    "PUSH_PERMISSION_DENIED": "Browser từ chối cấp quyền notification. Vào cài đặt site để bật lại.",
     "MAIL_RETRIED": "Đã gửi email thử. Kiểm tra inbox để xác nhận cấu hình.",
     "MAIL_NOT_CONFIGURED": "Cấu hình email chưa đầy đủ. Vào cài đặt → App Email để bổ sung.",
     "MAIL_SEND_FAILED": "Gửi email thất bại. Mở System Logs → Email để xem chi tiết.",
