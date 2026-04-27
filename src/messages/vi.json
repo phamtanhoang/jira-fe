@@ -506,6 +506,11 @@
         "fallbackHint": "Bỏ trống = dùng mẫu mặc định.",
         "previewMode": "Xem trước",
         "editMode": "Chỉnh sửa",
+        "mode": {
+          "code": "Code",
+          "split": "Chia đôi",
+          "preview": "Xem trước"
+        },
         "tab": {
           "verification": "OTP xác minh",
           "resetPassword": "Đặt lại mật khẩu",

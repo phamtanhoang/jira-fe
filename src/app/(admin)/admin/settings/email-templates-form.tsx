@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RichContent, RichEditor } from "@/components/shared/rich-editor";
+import { Textarea } from "@/components/ui/textarea";
 
 const TEMPLATE_KEYS: EmailTemplateKey[] = [
   "verification",
@@ -190,6 +190,23 @@ function SubjectField({
   );
 }
 
+// Sample values used in the live preview so the admin sees real layout
+// instead of literal `{{otp}}` strings. Mirror of MailService.renderTemplate.
+const PREVIEW_VARS: Record<string, string> = {
+  appName: "Acme",
+  logoUrl: "",
+  otp: "123456",
+  expiryMinutes: "10",
+  recipientEmail: "you@example.com",
+};
+
+function renderForPreview(html: string): string {
+  return html.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g, (match, key) => {
+    const v = PREVIEW_VARS[key as string];
+    return v === undefined ? match : v;
+  });
+}
+
 function BodyField({
   value,
   onChange,
@@ -198,40 +215,72 @@ function BodyField({
   onChange: (next: string) => void;
 }) {
   const { t } = useAppStore();
-  const [showPreview, setShowPreview] = useState(false);
+  const [mode, setMode] = useState<"code" | "preview" | "split">("split");
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <Label>{t("admin.settings.emailTemplates.body")}</Label>
-        <Button
-          type="button"
-          size="xs"
-          variant="ghost"
-          onClick={() => setShowPreview((v) => !v)}
-        >
-          {showPreview
-            ? t("admin.settings.emailTemplates.editMode")
-            : t("admin.settings.emailTemplates.previewMode")}
-        </Button>
-      </div>
-      {showPreview ? (
-        <div className="rounded-md border bg-card p-3 text-sm">
-          {value ? (
-            <RichContent html={value} />
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              {t("admin.settings.emailTemplates.fallbackHint")}
-            </p>
-          )}
+        <div className="flex gap-1 rounded-md border p-0.5">
+          {(["code", "split", "preview"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
+                mode === m
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {t(`admin.settings.emailTemplates.mode.${m}`)}
+            </button>
+          ))}
         </div>
-      ) : (
-        <RichEditor
-          content={value}
-          onChange={onChange}
-          placeholder={t("admin.settings.emailTemplates.bodyPlaceholder")}
-        />
-      )}
+      </div>
+      <div
+        className={
+          mode === "split"
+            ? "grid gap-2 md:grid-cols-2"
+            : "block"
+        }
+      >
+        {(mode === "code" || mode === "split") && (
+          <Textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={t("admin.settings.emailTemplates.bodyPlaceholder")}
+            className="min-h-90 font-mono text-[11px] leading-snug"
+            spellCheck={false}
+          />
+        )}
+        {(mode === "preview" || mode === "split") && (
+          <PreviewFrame html={value} />
+        )}
+      </div>
     </div>
+  );
+}
+
+function PreviewFrame({ html }: { html: string }) {
+  const { t } = useAppStore();
+  if (!html.trim()) {
+    return (
+      <div className="flex min-h-90 items-center justify-center rounded-md border bg-muted/30 p-4 text-xs text-muted-foreground">
+        {t("admin.settings.emailTemplates.fallbackHint")}
+      </div>
+    );
+  }
+  // Wrap in a minimal HTML doc so inline styles + body padding behave like
+  // a real email client. `srcDoc` keeps everything sandboxed from the app's
+  // own CSS — Tailwind resets, theme variables, dark mode all stay out.
+  const srcDoc = `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>html,body{margin:0;padding:16px;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}</style></head><body>${renderForPreview(html)}</body></html>`;
+  return (
+    <iframe
+      title="Email preview"
+      srcDoc={srcDoc}
+      sandbox="allow-same-origin"
+      className="min-h-90 w-full rounded-md border bg-white"
+    />
   );
 }
 

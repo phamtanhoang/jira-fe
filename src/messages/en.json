@@ -506,6 +506,11 @@
         "fallbackHint": "Empty = use the built-in default template.",
         "previewMode": "Preview",
         "editMode": "Edit",
+        "mode": {
+          "code": "Code",
+          "split": "Split",
+          "preview": "Preview"
+        },
         "tab": {
           "verification": "Verification OTP",
           "resetPassword": "Password reset",
