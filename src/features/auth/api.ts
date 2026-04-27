@@ -5,6 +5,7 @@ import type {
   CreatePatPayload,
   CreatePatResponse,
   LoginPayload,
+  OAuthAccountRow,
   PatRow,
   RegisterPayload,
   VerifyEmailPayload,
@@ -99,6 +100,18 @@ export const authApi = {
     api
       .get<{ password: boolean; google: boolean; github: boolean }>(
         ENDPOINTS.auth.oauthProviders,
+      )
+      .then((r) => r.data),
+
+  listOAuthAccounts: () =>
+    api
+      .get<{ data: OAuthAccountRow[] }>(ENDPOINTS.auth.oauthAccounts)
+      .then((r) => r.data.data),
+
+  unlinkOAuthAccount: (provider: string) =>
+    api
+      .delete<{ message: string }>(
+        ENDPOINTS.auth.oauthAccountByProvider(provider),
       )
       .then((r) => r.data),
 

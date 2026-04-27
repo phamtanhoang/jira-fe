@@ -25,6 +25,9 @@ const AUTH_ENDPOINTS = {
   sessionsRevokeOthers: `${AUTH_BASE}/sessions/revoke-others`,
   sessionsRevokeAll: `${AUTH_BASE}/sessions/revoke-all`,
   oauthProviders: `${AUTH_BASE}/oauth/providers`,
+  oauthAccounts: `${AUTH_BASE}/oauth/accounts`,
+  oauthAccountByProvider: (provider: string) =>
+    `${AUTH_BASE}/oauth/accounts/${provider}`,
   oauthGoogle: `${AUTH_BASE}/google`,
   oauthGithub: `${AUTH_BASE}/github`,
   tokens: `${AUTH_BASE}/tokens`,
@@ -211,6 +214,7 @@ const ADMIN_ENDPOINTS = {
   mailLogStats: `${ADMIN_BASE}/mail-logs/stats`,
   mailLogConfig: `${ADMIN_BASE}/mail-logs/config-status`,
   mailTest: `${ADMIN_BASE}/mail-logs/test`,
+  mailTemplateTest: `${ADMIN_BASE}/mail-logs/template-test`,
   usersBulkInvite: `${ADMIN_BASE}/users/bulk-invite`,
   throttleOverrides: `${ADMIN_BASE}/throttle-overrides`,
   throttleOverrideById: (id: string) =>

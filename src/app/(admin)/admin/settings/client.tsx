@@ -1,6 +1,6 @@
 "use client";
 
-import { Gauge, Info, Mail, ShieldCheck } from "lucide-react";
+import { FileText, Gauge, Info, Mail, ShieldCheck } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,8 +8,15 @@ import { AppInfoForm } from "./app-info-form";
 import { AppEmailForm } from "./app-email-form";
 import { AuthProvidersForm } from "./auth-providers-form";
 import { QuotasForm } from "./quotas-form";
+import { EmailTemplatesForm } from "./email-templates-form";
 
-const TABS = ["app-info", "app-email", "auth-providers", "quotas"] as const;
+const TABS = [
+  "app-info",
+  "app-email",
+  "email-templates",
+  "auth-providers",
+  "quotas",
+] as const;
 type Tab = (typeof TABS)[number];
 
 export function AdminSettingsClient() {
@@ -37,6 +44,10 @@ export function AdminSettingsClient() {
             <Mail className="mr-1.5 h-3.5 w-3.5" />
             {t("admin.settings.tabAppEmail")}
           </TabsTrigger>
+          <TabsTrigger value="email-templates">
+            <FileText className="mr-1.5 h-3.5 w-3.5" />
+            {t("admin.settings.tabEmailTemplates")}
+          </TabsTrigger>
           <TabsTrigger value="auth-providers">
             <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
             {t("admin.settings.tabAuthProviders")}
@@ -52,6 +63,9 @@ export function AdminSettingsClient() {
         </TabsContent>
         <TabsContent value="app-email" className="mt-4">
           <AppEmailForm />
+        </TabsContent>
+        <TabsContent value="email-templates" className="mt-4">
+          <EmailTemplatesForm />
         </TabsContent>
         <TabsContent value="auth-providers" className="mt-4">
           <AuthProvidersForm />

@@ -17,6 +17,8 @@ import type { BoardColumn as BoardColumnType } from "../types";
 
 export function BoardColumn({
   column,
+  prevColumnId = null,
+  nextColumnId = null,
   onMoveIssue,
   onClickIssue,
   onQuickCreate,
@@ -24,6 +26,10 @@ export function BoardColumn({
   onUpdateWipLimit,
 }: {
   column: BoardColumnType;
+  /** Column to the left, or null for first column. Used by swipe gestures. */
+  prevColumnId?: string | null;
+  /** Column to the right, or null for last column. Used by swipe gestures. */
+  nextColumnId?: string | null;
   onMoveIssue: (issueId: string, columnId: string) => void;
   onClickIssue: (issueKey: string) => void;
   onQuickCreate?: (summary: string, columnId: string) => void;
@@ -171,6 +177,16 @@ export function BoardColumn({
             key={issue.id}
             issue={issue}
             onClick={() => onClickIssue(issue.key)}
+            onSwipeLeft={
+              prevColumnId
+                ? () => onMoveIssue(issue.id, prevColumnId)
+                : undefined
+            }
+            onSwipeRight={
+              nextColumnId
+                ? () => onMoveIssue(issue.id, nextColumnId)
+                : undefined
+            }
           />
         ))}
 

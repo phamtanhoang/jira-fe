@@ -20,6 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { SessionsPanel } from "@/features/auth/components/sessions-panel";
 import { TokensPanel } from "@/features/auth/components/tokens-panel";
 import { PrivacyPanel } from "@/features/auth/components/privacy-panel";
+import { ConnectedAccountsPanel } from "@/features/auth/components/connected-accounts-panel";
 import { NotificationPreferences } from "@/features/notifications/components/notification-preferences";
 
 const ALLOWED_AVATAR_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -209,6 +210,7 @@ export default function ProfilePage() {
       </Card>
 
       <NotificationPreferences />
+      <ConnectedAccountsPanel />
       <TokensPanel />
       <SessionsPanel />
       <PrivacyPanel />

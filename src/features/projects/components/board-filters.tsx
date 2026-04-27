@@ -6,6 +6,8 @@ import { ISSUE_TYPES, PRIORITIES } from "@/lib/constants/issue-config";
 import { toggleArrayItem } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
+import { useCustomFields } from "@/features/custom-fields/hooks";
+import type { CustomFieldDef } from "@/features/custom-fields/types";
 import {
   useSavedFilters,
   useCreateSavedFilter,
@@ -27,6 +29,14 @@ export type BoardFilters = {
   types: string[];
   priorities: string[];
   assigneeIds: string[];
+  /**
+   * Per custom-field filter values, keyed by `CustomFieldDef.id`.
+   * - TEXT: substring (case-insensitive)
+   * - NUMBER: exact match (string-encoded for serialisation)
+   * - DATE: ISO date — matches the same calendar day
+   * - SELECT / MULTI_SELECT: array of allowed option values; any-of match
+   */
+  customFields: Record<string, string | string[]>;
 };
 
 const EMPTY_FILTERS: BoardFilters = {
@@ -34,6 +44,7 @@ const EMPTY_FILTERS: BoardFilters = {
   types: [],
   priorities: [],
   assigneeIds: [],
+  customFields: {},
 };
 
 export function BoardFilterBar({
@@ -50,11 +61,16 @@ export function BoardFilterBar({
 }) {
   const { t } = useAppStore();
   const [showFilters, setShowFilters] = useState(false);
+  const { data: customFields } = useCustomFields(projectId);
 
+  const customFieldCount = Object.values(filters.customFields ?? {}).filter(
+    (v) => (Array.isArray(v) ? v.length > 0 : !!v),
+  ).length;
   const hasFilters =
     filters.types.length > 0 ||
     filters.priorities.length > 0 ||
-    filters.assigneeIds.length > 0;
+    filters.assigneeIds.length > 0 ||
+    customFieldCount > 0;
 
   return (
     <div className="space-y-2">
@@ -80,7 +96,10 @@ export function BoardFilterBar({
           {t("filter.filters")}
           {hasFilters && (
             <Badge className="ml-1 h-4 min-w-4 px-1 text-[9px]">
-              {filters.types.length + filters.priorities.length + filters.assigneeIds.length}
+              {filters.types.length +
+                filters.priorities.length +
+                filters.assigneeIds.length +
+                customFieldCount}
             </Badge>
           )}
         </Button>
@@ -184,13 +203,180 @@ export function BoardFilterBar({
               ))}
             </div>
           </div>
+
+          {customFields && customFields.length > 0 && (
+            <CustomFieldFilters
+              fields={customFields}
+              values={filters.customFields ?? {}}
+              onChange={(next) =>
+                onChange({ ...filters, customFields: next })
+              }
+            />
+          )}
         </div>
       )}
     </div>
   );
 }
 
+function CustomFieldFilters({
+  fields,
+  values,
+  onChange,
+}: {
+  fields: CustomFieldDef[];
+  values: Record<string, string | string[]>;
+  onChange: (next: Record<string, string | string[]>) => void;
+}) {
+  const { t } = useAppStore();
+  const setValue = (id: string, value: string | string[] | undefined) => {
+    const next = { ...values };
+    if (
+      value === undefined ||
+      (Array.isArray(value) ? value.length === 0 : value === "")
+    ) {
+      delete next[id];
+    } else {
+      next[id] = value;
+    }
+    onChange(next);
+  };
+
+  return (
+    <div className="basis-full border-t pt-3">
+      <span className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+        {t("filter.customFields")}
+      </span>
+      <div className="flex flex-wrap gap-3">
+        {fields.map((field) => {
+          const v = values[field.id];
+          if (field.type === "TEXT" || field.type === "NUMBER") {
+            return (
+              <div key={field.id} className="flex items-center gap-1.5">
+                <span className="text-[10px] text-muted-foreground">
+                  {field.name}
+                </span>
+                <Input
+                  type={field.type === "NUMBER" ? "number" : "text"}
+                  value={typeof v === "string" ? v : ""}
+                  onChange={(e) => setValue(field.id, e.target.value)}
+                  className="h-6 w-32 text-[11px]"
+                  placeholder={t("filter.anyValue")}
+                />
+              </div>
+            );
+          }
+          if (field.type === "DATE") {
+            return (
+              <div key={field.id} className="flex items-center gap-1.5">
+                <span className="text-[10px] text-muted-foreground">
+                  {field.name}
+                </span>
+                <Input
+                  type="date"
+                  value={typeof v === "string" ? v : ""}
+                  onChange={(e) => setValue(field.id, e.target.value)}
+                  className="h-6 w-36 text-[11px]"
+                />
+              </div>
+            );
+          }
+          // SELECT / MULTI_SELECT
+          const selected = new Set(
+            Array.isArray(v) ? v : typeof v === "string" && v ? [v] : [],
+          );
+          return (
+            <div key={field.id}>
+              <span className="mb-1 block text-[10px] text-muted-foreground">
+                {field.name}
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {field.options.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => {
+                      const next = new Set(selected);
+                      if (next.has(opt)) {
+                        next.delete(opt);
+                      } else {
+                        next.add(opt);
+                      }
+                      setValue(
+                        field.id,
+                        next.size === 0 ? undefined : Array.from(next),
+                      );
+                    }}
+                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                      selected.has(opt)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export { EMPTY_FILTERS };
+
+/**
+ * Apply the custom-field filter dictionary to a single issue. Issues whose
+ * `customFieldValues` lack a matching entry for any active filter are
+ * excluded. Filters with empty values are ignored.
+ */
+export function matchesCustomFieldFilters(
+  issue: {
+    customFieldValues?: Array<{
+      fieldId: string;
+      valueText: string | null;
+      valueNumber: number | null;
+      valueDate: string | null;
+      valueSelect: string[];
+    }>;
+  },
+  rules: Record<string, string | string[]> | undefined,
+): boolean {
+  if (!rules) return true;
+  const entries = Object.entries(rules);
+  if (entries.length === 0) return true;
+  const byField = new Map(
+    (issue.customFieldValues ?? []).map((v) => [v.fieldId, v]),
+  );
+
+  for (const [fieldId, raw] of entries) {
+    if (Array.isArray(raw) ? raw.length === 0 : !raw) continue;
+    const v = byField.get(fieldId);
+    if (!v) return false;
+
+    if (Array.isArray(raw)) {
+      // SELECT / MULTI_SELECT: any-of
+      if (!raw.some((opt) => v.valueSelect.includes(opt))) return false;
+      continue;
+    }
+
+    // Probe each populated value type — at least one must match.
+    const r = raw.toString();
+    if (v.valueText && v.valueText.toLowerCase().includes(r.toLowerCase())) {
+      continue;
+    }
+    if (v.valueNumber !== null && Number(r) === v.valueNumber) continue;
+    if (v.valueDate) {
+      // Same calendar day in the user's locale.
+      const day = new Date(v.valueDate).toISOString().slice(0, 10);
+      if (day === r) continue;
+    }
+    if (v.valueSelect.includes(r)) continue;
+    return false;
+  }
+  return true;
+}
 
 // Dropdown that lets the user save the current filter combination and
 // re-apply it later. Personal filters appear above shared ones.

@@ -40,6 +40,7 @@ import { SummaryView } from "@/features/projects/components/summary-view";
 import {
   BoardFilterBar,
   EMPTY_FILTERS,
+  matchesCustomFieldFilters,
   type BoardFilters,
 } from "@/features/projects/components/board-filters";
 import { CalendarView } from "@/features/projects/components/calendar-view";
@@ -135,6 +136,8 @@ export default function BoardPage() {
           (!issue.assigneeId || !filters.assigneeIds.includes(issue.assigneeId))
         )
           return false;
+        if (!matchesCustomFieldFilters(issue, filters.customFields))
+          return false;
         return true;
       }),
     })) as BoardColumnType[];
@@ -205,10 +208,12 @@ export default function BoardPage() {
 
   const columnsView = (
     <>
-      {filteredColumns.map((column) => (
+      {filteredColumns.map((column, idx) => (
         <BoardColumn
           key={column.id}
           column={column}
+          prevColumnId={filteredColumns[idx - 1]?.id ?? null}
+          nextColumnId={filteredColumns[idx + 1]?.id ?? null}
           onMoveIssue={handleMoveIssue}
           onClickIssue={handleClickIssue}
           onQuickCreate={handleQuickCreate}

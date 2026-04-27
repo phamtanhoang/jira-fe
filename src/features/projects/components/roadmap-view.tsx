@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { GripHorizontal, Link2 } from "lucide-react";
+import { ChevronDown, ChevronRight, GripHorizontal, Link2 } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Board, Issue } from "../types";
@@ -49,16 +49,47 @@ export function RoadmapView({
     start: number;
     end: number;
   } | null>(null);
+  const [expandedEpics, setExpandedEpics] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
 
   const epics = useMemo(
     () => allIssues.filter((i) => i.type === "EPIC"),
     [allIssues],
   );
 
+  /** Children of an epic with at least one date set. Issues missing both
+   * dates can't be positioned, so we exclude them from the nested rows. */
+  const childrenByEpic = useMemo(() => {
+    const map = new Map<
+      string,
+      { issue: Issue; start: number; end: number }[]
+    >();
+    for (const issue of allIssues) {
+      if (issue.type === "EPIC") continue;
+      const epicId = issue.epicId ?? issue.parentId;
+      if (!epicId) continue;
+      const start = issue.startDate
+        ? new Date(issue.startDate).getTime()
+        : null;
+      const end = issue.dueDate ? new Date(issue.dueDate).getTime() : null;
+      if (start === null && end === null) continue;
+      const row = {
+        issue,
+        start: start ?? (end ?? 0) - 7 * DAY_MS,
+        end: end ?? (start ?? 0) + 7 * DAY_MS,
+      };
+      const list = map.get(epicId) ?? [];
+      list.push(row);
+      map.set(epicId, list);
+    }
+    return map;
+  }, [allIssues]);
+
   // Build the drawable epic list — only ones with at least startDate OR
   // dueDate. Issues missing both don't have a position on the timeline.
   const drawable = useMemo(() => {
-    const rows = epics
+    const epicRows = epics
       .map((e) => {
         const start = e.startDate ? new Date(e.startDate).getTime() : null;
         const end = e.dueDate ? new Date(e.dueDate).getTime() : null;
@@ -66,13 +97,31 @@ export function RoadmapView({
       })
       .filter((r) => r.start !== null || r.end !== null)
       .map((r) => ({
+        kind: "epic" as const,
         issue: r.issue,
         // Default to a 2-week duration if only one bound is set.
         start: r.start ?? (r.end ?? 0) - 14 * DAY_MS,
         end: r.end ?? (r.start ?? 0) + 14 * DAY_MS,
       }));
+
+    const rows: Array<{
+      kind: "epic" | "child";
+      issue: Issue;
+      start: number;
+      end: number;
+      hasChildren?: boolean;
+    }> = [];
+    for (const epic of epicRows) {
+      const children = childrenByEpic.get(epic.issue.id) ?? [];
+      rows.push({ ...epic, hasChildren: children.length > 0 });
+      if (expandedEpics.has(epic.issue.id)) {
+        for (const c of children) {
+          rows.push({ kind: "child", ...c });
+        }
+      }
+    }
     return rows;
-  }, [epics]);
+  }, [epics, expandedEpics, childrenByEpic]);
 
   // Time window: pad ±2 weeks around earliest/latest so the bars don't
   // hug the edges. Falls back to the current month when no epics drawable.
@@ -132,7 +181,9 @@ export function RoadmapView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [window.min, window.max, totalWidth]);
 
-  // Map epicId → bar geometry so dependency arrows can resolve endpoints.
+  // Map issue id → bar geometry so dependency arrows can resolve endpoints.
+  // Only EPIC rows participate in BLOCKS arrows today, but we record children
+  // too in case we extend cross-issue links later.
   const barRects = useMemo(() => {
     const map = new Map<string, { x1: number; x2: number; y: number }>();
     drawable.forEach((row, idx) => {
@@ -344,7 +395,7 @@ export function RoadmapView({
           fillOpacity={0.02}
         />
 
-        {/* Epic rows */}
+        {/* Epic rows + nested children */}
         {drawable.map((row, idx) => {
           const yTop = HEADER_HEIGHT + SPRINT_BAND_HEIGHT + idx * ROW_HEIGHT;
           const isDragging = dragState?.issueId === row.issue.id;
@@ -352,75 +403,129 @@ export function RoadmapView({
           const end = isDragging ? previewDates!.end : row.end;
           const x1 = xOf(start);
           const x2 = xOf(end);
-          // EPIC bars use Tiptap-friendly purple — TYPE_CONFIG only carries
-          // bg class names, not raw hex, so we hard-code the timeline palette.
-          const fill = "#7c3aed";
+          const isChild = row.kind === "child";
+          // EPIC bars purple, children muted blue. Hard-coded because
+          // TYPE_CONFIG only carries Tailwind class names, not raw hex.
+          const fill = isChild ? "#3b82f6" : "#7c3aed";
+          const isExpanded = expandedEpics.has(row.issue.id);
           return (
             <g key={row.issue.id}>
-              {/* Epic name on the left gutter */}
+              {/* Issue label on the left gutter */}
               <foreignObject
-                x={4}
+                x={isChild ? 22 : 4}
                 y={yTop + 4}
-                width={LEFT_GUTTER - 8}
+                width={LEFT_GUTTER - (isChild ? 26 : 8)}
                 height={ROW_HEIGHT - 8}
               >
-                <button
-                  type="button"
-                  onClick={() => onClickIssue(row.issue)}
-                  className="flex h-full w-full items-center gap-1 rounded text-left text-xs font-medium hover:bg-muted/50"
-                >
-                  <span className="truncate font-mono text-[10px] text-muted-foreground">
-                    {row.issue.key}
-                  </span>
-                  <span className="truncate">{row.issue.summary}</span>
-                </button>
+                <div className="flex h-full w-full items-center gap-1">
+                  {!isChild && row.hasChildren && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedEpics((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(row.issue.id)) {
+                            next.delete(row.issue.id);
+                          } else {
+                            next.add(row.issue.id);
+                          }
+                          return next;
+                        })
+                      }
+                      className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground hover:bg-muted/60"
+                      aria-label={
+                        isExpanded
+                          ? t("roadmap.collapseChildren")
+                          : t("roadmap.expandChildren")
+                      }
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-3 w-3" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3" />
+                      )}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onClickIssue(row.issue)}
+                    className={`flex h-full min-w-0 flex-1 items-center gap-1 rounded text-left hover:bg-muted/50 ${
+                      isChild ? "text-[11px]" : "text-xs font-medium"
+                    }`}
+                  >
+                    <span className="truncate font-mono text-[10px] text-muted-foreground">
+                      {row.issue.key}
+                    </span>
+                    <span className="truncate">{row.issue.summary}</span>
+                  </button>
+                </div>
               </foreignObject>
 
-              {/* Bar */}
-              <g
-                onMouseDown={handleMouseDown(row.issue.id, "move", row.start, row.end)}
-                style={{ cursor: isDragging ? "grabbing" : "grab" }}
-              >
+              {/* Bar — children render as a thinner non-draggable bar; only
+                  epics get drag/resize handles. */}
+              {isChild ? (
                 <rect
                   x={x1}
-                  y={yTop + 8}
-                  width={Math.max(8, x2 - x1)}
-                  height={ROW_HEIGHT - 16}
-                  rx={4}
+                  y={yTop + 12}
+                  width={Math.max(6, x2 - x1)}
+                  height={ROW_HEIGHT - 24}
+                  rx={3}
                   fill={fill}
-                  fillOpacity={0.85}
+                  fillOpacity={0.7}
+                  onClick={() => onClickIssue(row.issue)}
+                  style={{ cursor: "pointer" }}
                 />
-                {/* Resize handle: start */}
-                <rect
-                  x={x1 - 3}
-                  y={yTop + 8}
-                  width={6}
-                  height={ROW_HEIGHT - 16}
-                  fill="transparent"
-                  style={{ cursor: "ew-resize" }}
+              ) : (
+                <g
                   onMouseDown={handleMouseDown(
                     row.issue.id,
-                    "resize-start",
+                    "move",
                     row.start,
                     row.end,
                   )}
-                />
-                {/* Resize handle: end */}
-                <rect
-                  x={x2 - 3}
-                  y={yTop + 8}
-                  width={6}
-                  height={ROW_HEIGHT - 16}
-                  fill="transparent"
-                  style={{ cursor: "ew-resize" }}
-                  onMouseDown={handleMouseDown(
-                    row.issue.id,
-                    "resize-end",
-                    row.start,
-                    row.end,
-                  )}
-                />
-              </g>
+                  style={{ cursor: isDragging ? "grabbing" : "grab" }}
+                >
+                  <rect
+                    x={x1}
+                    y={yTop + 8}
+                    width={Math.max(8, x2 - x1)}
+                    height={ROW_HEIGHT - 16}
+                    rx={4}
+                    fill={fill}
+                    fillOpacity={0.85}
+                  />
+                  {/* Resize handle: start */}
+                  <rect
+                    x={x1 - 3}
+                    y={yTop + 8}
+                    width={6}
+                    height={ROW_HEIGHT - 16}
+                    fill="transparent"
+                    style={{ cursor: "ew-resize" }}
+                    onMouseDown={handleMouseDown(
+                      row.issue.id,
+                      "resize-start",
+                      row.start,
+                      row.end,
+                    )}
+                  />
+                  {/* Resize handle: end */}
+                  <rect
+                    x={x2 - 3}
+                    y={yTop + 8}
+                    width={6}
+                    height={ROW_HEIGHT - 16}
+                    fill="transparent"
+                    style={{ cursor: "ew-resize" }}
+                    onMouseDown={handleMouseDown(
+                      row.issue.id,
+                      "resize-end",
+                      row.start,
+                      row.end,
+                    )}
+                  />
+                </g>
+              )}
             </g>
           );
         })}

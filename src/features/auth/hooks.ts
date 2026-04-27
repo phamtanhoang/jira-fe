@@ -298,6 +298,28 @@ export function useRevokeToken() {
   });
 }
 
+// ─── OAuth accounts ──────────────────────────────────────
+const OAUTH_ACCOUNTS_KEY = ["auth", "oauth-accounts"] as const;
+
+export function useMyOAuthAccounts() {
+  return useQuery({
+    queryKey: OAUTH_ACCOUNTS_KEY,
+    queryFn: () => authApi.listOAuthAccounts(),
+  });
+}
+
+export function useUnlinkOAuthAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (provider: string) => authApi.unlinkOAuthAccount(provider),
+    onSuccess: (result) => {
+      showMessage(result.message);
+      queryClient.invalidateQueries({ queryKey: OAUTH_ACCOUNTS_KEY });
+    },
+    onError: handleApiError,
+  });
+}
+
 // ─── GDPR ────────────────────────────────────────────────
 const DELETION_KEY = ["auth", "deletion-status"] as const;
 

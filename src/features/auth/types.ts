@@ -64,3 +64,13 @@ export type CreatePatResponse = {
   token: string;
   pat: PatRow;
 };
+
+export type OAuthProviderId = "google" | "github";
+
+export type OAuthAccountRow = {
+  id: string;
+  provider: OAuthProviderId | string;
+  email: string | null;
+  createdAt: string;
+  lastUsedAt: string;
+};

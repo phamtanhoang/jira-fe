@@ -68,6 +68,17 @@
       "revokeTitle": "Revoke token?",
       "revokeDesc": "Token \"{name}\" will stop working immediately. Any script using it will be rejected."
     },
+    "connectedAccounts": {
+      "title": "Connected accounts",
+      "description": "Sign in faster by linking your Google or GitHub account. You can unlink any time as long as another sign-in method remains.",
+      "emptyTitle": "No linked accounts",
+      "emptyDesc": "Sign in with Google or GitHub once and we'll link the account here automatically.",
+      "link": "Link {provider}",
+      "unlink": "Unlink",
+      "unlinkTitle": "Unlink account?",
+      "unlinkDesc": "Sign-in via {provider} will stop working until you link it again. We'll keep your password sign-in unchanged.",
+      "linkedOn": "Linked on {date}"
+    },
     "privacy": {
       "title": "Privacy & data (GDPR)",
       "description": "Download all your data or schedule permanent account deletion.",
@@ -483,6 +494,27 @@
       "tabAppEmail": "App Email",
       "tabAuthProviders": "Auth Providers",
       "tabQuotas": "Quotas",
+      "tabEmailTemplates": "Email Templates",
+      "emailTemplates": {
+        "title": "Email templates",
+        "description": "Override the subject and HTML body for system emails. Leave blank to use the built-in defaults.",
+        "subject": "Subject",
+        "subjectPlaceholder": "Verify your email — {{appName}}",
+        "body": "HTML body",
+        "bodyPlaceholder": "Compose the email body. Leave empty to fall back to the built-in template.",
+        "placeholders": "Available placeholders",
+        "fallbackHint": "Empty = use the built-in default template.",
+        "previewMode": "Preview",
+        "editMode": "Edit",
+        "tab": {
+          "verification": "Verification OTP",
+          "resetPassword": "Password reset",
+          "welcome": "Welcome"
+        },
+        "testTo": "Send a test to",
+        "sendTest": "Send test",
+        "sendTestHint": "Renders the saved template against a sample OTP and dispatches it to the address above."
+      },
       "quotas": {
         "title": "Tenant quotas",
         "description": "Cap project count, member count, and total storage per workspace. Set 0 = unlimited.",
@@ -970,7 +1002,9 @@
   },
   "roadmap": {
     "emptyTitle": "No epics to plot on the timeline",
-    "emptyDesc": "Create EPIC-type issues with a startDate or dueDate to see them here."
+    "emptyDesc": "Create EPIC-type issues with a startDate or dueDate to see them here.",
+    "expandChildren": "Show child issues",
+    "collapseChildren": "Hide child issues"
   },
   "customFields": {
     "tab": "Custom fields",
@@ -1052,7 +1086,9 @@
     "sharedFilters": "Shared in project",
     "saveCurrent": "Save current filter",
     "filterNamePlaceholder": "Filter name",
-    "shareWithProject": "Share with the project"
+    "shareWithProject": "Share with the project",
+    "customFields": "Custom fields",
+    "anyValue": "any"
   },
   "share": {
     "title": "Share issue",
@@ -1195,6 +1231,10 @@
     "INVITE_LINK_CREATED": "Invite link created.",
     "INVITE_LINK_REVOKED": "Invite link revoked.",
     "INVITE_JOINED": "Joined the workspace.",
+    "OAUTH_ACCOUNT_UNLINKED": "Provider unlinked.",
+    "OAUTH_ACCOUNT_NOT_FOUND": "Provider is not linked.",
+    "OAUTH_LAST_LOGIN_METHOD": "Cannot unlink — this is your only sign-in method. Set a password first.",
+    "EMAIL_TEMPLATES_UPDATED": "Email templates saved.",
     "INVITE_LINK_EXPIRED": "Invite link has expired.",
     "INVITE_LINK_EXHAUSTED": "Invite link is out of uses.",
     "PREFERENCES_UPDATED": "Notification preferences saved.",

@@ -1,12 +1,16 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { Star } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsIssuePending, useToggleStar } from "../hooks";
 import type { Issue } from "../types";
+
+// Threshold (px) the user must drag horizontally before a swipe commits to
+// moving the card. Below this, the gesture snaps back without firing.
+const SWIPE_THRESHOLD = 80;
 
 // Boards render 100+ cards. Memo avoids re-rendering all cards when one
 // card's local state (drag) or a sibling's mutation changes. Props are
@@ -15,17 +19,77 @@ import type { Issue } from "../types";
 export const IssueCard = memo(function IssueCard({
   issue,
   onClick,
+  onSwipeLeft,
+  onSwipeRight,
 }: {
   issue: Issue;
   onClick: () => void;
+  /** Mobile-only: invoked when the user swipes the card left far enough. */
+  onSwipeLeft?: () => void;
+  /** Mobile-only: invoked when the user swipes the card right far enough. */
+  onSwipeRight?: () => void;
 }) {
   const [dragging, setDragging] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const swipeRef = useRef<{ startX: number; startY: number; active: boolean } | null>(null);
   const isPending = useIsIssuePending(issue.id);
   const { mutate: toggleStar } = useToggleStar();
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
   const prioConf = PRIORITY_CONFIG[issue.priority] ?? PRIORITY_CONFIG.MEDIUM;
   const PrioIcon = prioConf.icon;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (isPending || (!onSwipeLeft && !onSwipeRight)) return;
+    const touch = e.touches[0];
+    swipeRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      active: false,
+    };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const state = swipeRef.current;
+    if (!state) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - state.startX;
+    const dy = touch.clientY - state.startY;
+    if (!state.active) {
+      // Lock direction: only treat as a swipe once the gesture is clearly
+      // horizontal. Otherwise we'd hijack the column's vertical scroll.
+      if (Math.abs(dx) < 12) return;
+      if (Math.abs(dx) < Math.abs(dy)) {
+        swipeRef.current = null;
+        return;
+      }
+      state.active = true;
+    }
+    setSwipeOffset(dx);
+  };
+
+  const handleTouchEnd = () => {
+    const state = swipeRef.current;
+    if (!state) return;
+    if (state.active) {
+      if (swipeOffset <= -SWIPE_THRESHOLD && onSwipeLeft) {
+        onSwipeLeft();
+      } else if (swipeOffset >= SWIPE_THRESHOLD && onSwipeRight) {
+        onSwipeRight();
+      }
+    }
+    swipeRef.current = null;
+    setSwipeOffset(0);
+  };
+
+  // Suppress click when the card was just swiped — preserves swipe-to-move
+  // even if the synthetic click reaches the card after the touch sequence.
+  const handleClick = () => {
+    if (Math.abs(swipeOffset) > 4) return;
+    onClick();
+  };
+
+  const swiping = Math.abs(swipeOffset) > 0;
 
   return (
     <div
@@ -36,7 +100,19 @@ export const IssueCard = memo(function IssueCard({
         setDragging(true);
       }}
       onDragEnd={() => setDragging(false)}
-      onClick={onClick}
+      onClick={handleClick}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      style={
+        swiping
+          ? {
+              transform: `translateX(${swipeOffset}px)`,
+              transition: "none",
+            }
+          : undefined
+      }
       className={`group relative cursor-grab rounded-md border bg-card p-2.5 shadow-sm transition-all duration-150
         ${dragging
           ? "rotate-2 scale-105 border-primary/40 opacity-60 shadow-lg"

@@ -109,6 +109,13 @@ export type Issue = {
   watchedByMe?: boolean;
   outboundLinks?: IssueLink[];
   inboundLinks?: IssueLink[];
+  customFieldValues?: Array<{
+    fieldId: string;
+    valueText: string | null;
+    valueNumber: number | null;
+    valueDate: string | null;
+    valueSelect: string[];
+  }>;
 };
 
 export type IssueLinkType =

@@ -37,6 +37,7 @@ export const SETTING_KEYS = {
   APP_MAINTENANCE: "app.maintenance",
   APP_AUTH_PROVIDERS: "app.auth_providers",
   APP_QUOTAS: "app.quotas",
+  APP_EMAIL_TEMPLATES: "app.email_templates",
 } as const;
 
 export type QuotasValue = {
@@ -62,6 +63,25 @@ export const DEFAULT_AUTH_PROVIDERS: AuthProvidersValue = {
   google: true,
   github: true,
 };
+
+export type EmailTemplate = {
+  subject: string;
+  html: string;
+};
+
+export type EmailTemplatesValue = {
+  verification: EmailTemplate;
+  resetPassword: EmailTemplate;
+  welcome: EmailTemplate;
+};
+
+export const DEFAULT_EMAIL_TEMPLATES: EmailTemplatesValue = {
+  verification: { subject: "", html: "" },
+  resetPassword: { subject: "", html: "" },
+  welcome: { subject: "", html: "" },
+};
+
+export type EmailTemplateKey = keyof EmailTemplatesValue;
 
 export type FeatureFlags = Record<string, boolean>;
 

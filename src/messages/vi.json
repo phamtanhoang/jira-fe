@@ -68,6 +68,17 @@
       "revokeTitle": "Thu hồi token?",
       "revokeDesc": "Token \"{name}\" sẽ ngừng hoạt động ngay lập tức. Mọi script đang dùng nó sẽ bị reject."
     },
+    "connectedAccounts": {
+      "title": "Tài khoản đã liên kết",
+      "description": "Đăng nhập nhanh hơn bằng cách liên kết Google/GitHub. Bạn có thể hủy liên kết bất cứ lúc nào miễn còn ít nhất một cách đăng nhập.",
+      "emptyTitle": "Chưa có tài khoản liên kết",
+      "emptyDesc": "Đăng nhập bằng Google hoặc GitHub một lần để tự động liên kết tại đây.",
+      "link": "Liên kết {provider}",
+      "unlink": "Hủy liên kết",
+      "unlinkTitle": "Hủy liên kết?",
+      "unlinkDesc": "Đăng nhập qua {provider} sẽ ngừng hoạt động cho tới khi bạn liên kết lại. Mật khẩu đăng nhập vẫn giữ nguyên.",
+      "linkedOn": "Liên kết lúc {date}"
+    },
     "privacy": {
       "title": "Quyền riêng tư & dữ liệu (GDPR)",
       "description": "Tải về toàn bộ dữ liệu của bạn hoặc yêu cầu xóa tài khoản vĩnh viễn.",
@@ -483,6 +494,27 @@
       "tabAppEmail": "Email ứng dụng",
       "tabAuthProviders": "Phương thức đăng nhập",
       "tabQuotas": "Hạn mức",
+      "tabEmailTemplates": "Mẫu email",
+      "emailTemplates": {
+        "title": "Mẫu email",
+        "description": "Tuỳ chỉnh tiêu đề và nội dung HTML cho email hệ thống. Để trống sẽ dùng mẫu mặc định.",
+        "subject": "Tiêu đề",
+        "subjectPlaceholder": "Xác minh email — {{appName}}",
+        "body": "Nội dung HTML",
+        "bodyPlaceholder": "Soạn nội dung email. Bỏ trống để dùng mẫu mặc định.",
+        "placeholders": "Các placeholder có sẵn",
+        "fallbackHint": "Bỏ trống = dùng mẫu mặc định.",
+        "previewMode": "Xem trước",
+        "editMode": "Chỉnh sửa",
+        "tab": {
+          "verification": "OTP xác minh",
+          "resetPassword": "Đặt lại mật khẩu",
+          "welcome": "Chào mừng"
+        },
+        "testTo": "Gửi thử đến",
+        "sendTest": "Gửi thử",
+        "sendTestHint": "Render mẫu đã lưu với OTP mẫu rồi gửi tới địa chỉ phía trên."
+      },
       "quotas": {
         "title": "Hạn mức tenant",
         "description": "Giới hạn số project, member, dung lượng storage trên mỗi workspace. Đặt 0 = không giới hạn.",
@@ -970,7 +1002,9 @@
   },
   "roadmap": {
     "emptyTitle": "Chưa có epic để hiển thị trên timeline",
-    "emptyDesc": "Tạo issue type EPIC với startDate hoặc dueDate để chúng xuất hiện ở đây."
+    "emptyDesc": "Tạo issue type EPIC với startDate hoặc dueDate để chúng xuất hiện ở đây.",
+    "expandChildren": "Hiện công việc con",
+    "collapseChildren": "Ẩn công việc con"
   },
   "customFields": {
     "tab": "Custom fields",
@@ -1052,7 +1086,9 @@
     "sharedFilters": "Chia sẻ trong dự án",
     "saveCurrent": "Lưu bộ lọc hiện tại",
     "filterNamePlaceholder": "Tên bộ lọc",
-    "shareWithProject": "Chia sẻ với cả dự án"
+    "shareWithProject": "Chia sẻ với cả dự án",
+    "customFields": "Trường tuỳ chỉnh",
+    "anyValue": "bất kỳ"
   },
   "share": {
     "title": "Chia sẻ công việc",
@@ -1195,6 +1231,10 @@
     "INVITE_LINK_CREATED": "Đã tạo link mời.",
     "INVITE_LINK_REVOKED": "Đã hủy link mời.",
     "INVITE_JOINED": "Đã tham gia workspace.",
+    "OAUTH_ACCOUNT_UNLINKED": "Đã hủy liên kết tài khoản.",
+    "OAUTH_ACCOUNT_NOT_FOUND": "Tài khoản này chưa liên kết.",
+    "OAUTH_LAST_LOGIN_METHOD": "Không thể hủy — đây là phương thức đăng nhập duy nhất. Hãy đặt mật khẩu trước.",
+    "EMAIL_TEMPLATES_UPDATED": "Đã lưu mẫu email.",
     "INVITE_LINK_EXPIRED": "Link mời đã hết hạn.",
     "INVITE_LINK_EXHAUSTED": "Link mời đã hết lượt sử dụng.",
     "PREFERENCES_UPDATED": "Đã lưu tùy chọn thông báo.",
