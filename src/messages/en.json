@@ -235,7 +235,7 @@
     },
     "analytics": {
       "title": "Analytics",
-      "description": "Daily activity across the whole app. Toggle series off/on, pick any window 1–180 days.",
+      "description": "Daily activity across the whole app. Toggle series off/on, pick any trailing window.",
       "range": "Range",
       "daysN": "Last {n} days",
       "custom": "Custom:",

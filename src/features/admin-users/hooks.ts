@@ -106,10 +106,10 @@ export function useAdminStats() {
   });
 }
 
-export function useAdminAnalytics(days: number) {
+export function useAdminAnalytics(sinceHours: number) {
   return useQuery({
-    queryKey: ["admin-analytics", days],
-    queryFn: () => fetchAdminAnalytics(days),
+    queryKey: ["admin-analytics", sinceHours],
+    queryFn: () => fetchAdminAnalytics(sinceHours),
   });
 }
 

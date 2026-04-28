@@ -235,7 +235,7 @@
     },
     "analytics": {
       "title": "Thống kê",
-      "description": "Hoạt động hằng ngày của toàn app. Tắt/bật biểu đồ, chọn cửa sổ 1–180 ngày.",
+      "description": "Hoạt động hằng ngày của toàn app. Tắt/bật biểu đồ, chọn khoảng thời gian tuỳ ý.",
       "range": "Khoảng",
       "daysN": "{n} ngày qua",
       "custom": "Tùy chọn:",

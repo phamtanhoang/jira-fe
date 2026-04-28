@@ -62,10 +62,10 @@ export async function fetchAdminStats(): Promise<AdminStats> {
 }
 
 export async function fetchAdminAnalytics(
-  days: number,
+  sinceHours: number,
 ): Promise<AdminAnalytics> {
   const res = await api.get<AdminAnalytics>(ENDPOINTS.admin.analytics, {
-    params: { days },
+    params: { sinceHours },
   });
   return res.data;
 }

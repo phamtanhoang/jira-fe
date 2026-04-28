@@ -28,7 +28,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const PRESETS = [7, 14, 30, 90] as const;
+// Trailing-window presets in HOURS — mirrors the metrics page so both
+// admin pages share a unit. Kept human-readable: 1d, 7d, 14d, 30d, 90d.
+const PRESETS = [24, 24 * 7, 24 * 14, 24 * 30, 24 * 90] as const;
 
 type MetricId =
   | "signups"
@@ -51,9 +53,10 @@ const DEFAULT_METRICS: MetricId[] = [
 
 export function AdminAnalyticsClient() {
   const { t } = useAppStore();
-  const [days, setDays] = useState<number>(14);
+  // Window size in hours — matches the BE `sinceHours` param. Default 14d.
+  const [sinceHours, setSinceHours] = useState<number>(24 * 14);
   const [metrics, setMetrics] = useState<MetricId[]>(DEFAULT_METRICS);
-  const { data, isLoading } = useAdminAnalytics(days);
+  const { data, isLoading } = useAdminAnalytics(sinceHours);
 
   const totals = useMemo(() => computeTotals(data), [data]);
 
@@ -84,12 +87,11 @@ export function AdminAnalyticsClient() {
       </div>
 
       <RangePicker
-        value={days}
-        onChange={setDays}
+        value={sinceHours}
+        onChange={setSinceHours}
         presets={PRESETS}
-        unit="days"
+        unit="hours"
         min={1}
-        max={180}
         label={t("admin.analytics.range")}
       />
 

@@ -78,7 +78,6 @@ export function UserActivityPanel() {
           presets={PRESETS}
           unit="hours"
           min={1}
-          max={24 * 90}
           label={t("common.range.range")}
           compact
         />
