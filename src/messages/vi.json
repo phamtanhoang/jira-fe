@@ -506,6 +506,13 @@
         "fallbackHint": "Bỏ trống = dùng mẫu mặc định.",
         "previewMode": "Xem trước",
         "editMode": "Chỉnh sửa",
+        "preview": "Xem trước",
+        "codeMode": "Mã HTML",
+        "editTemplate": "Chỉnh sửa template",
+        "editTitle": "Chỉnh sửa {tab}",
+        "editDesc": "HTML bên trái render thành email bên phải. Bấm Save để áp dụng.",
+        "editHint": "Bấm Edit template để mở trình soạn rộng hơn.",
+        "usingDefault": "Đang dùng mẫu mặc định — để trống để giữ nguyên.",
         "mode": {
           "code": "Code",
           "split": "Chia đôi",
@@ -592,6 +599,7 @@
       "tabAudit": "Audit",
       "tabActivity": "Hoạt động user",
       "tabMail": "Email",
+      "tabWebhooks": "Webhook",
       "empty": "Không có log nào phù hợp.",
       "loadMore": "Tải thêm",
       "meta": {

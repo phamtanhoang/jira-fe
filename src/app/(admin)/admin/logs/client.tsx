@@ -14,10 +14,17 @@ import type { LogsFilters } from "@/features/logs/types";
 import { AuditPanel } from "@/features/admin-audit/components/audit-panel";
 import { UserActivityPanel } from "@/features/admin-users/components/user-activity-panel";
 import { MailLogsPanel } from "@/features/mail-logs/components/mail-logs-panel";
+import { WebhookDeliveriesPanel } from "@/features/webhooks/components/webhook-deliveries-panel";
 import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { useAppStore } from "@/lib/stores/use-app-store";
 
-const TAB_VALUES = ["requests", "audit", "activity", "mail"] as const;
+const TAB_VALUES = [
+  "requests",
+  "audit",
+  "activity",
+  "mail",
+  "webhooks",
+] as const;
 type TabValue = (typeof TAB_VALUES)[number];
 
 export function AdminLogsClient() {
@@ -45,6 +52,9 @@ export function AdminLogsClient() {
             {t("admin.logs.tabActivity")}
           </TabsTrigger>
           <TabsTrigger value="mail">{t("admin.logs.tabMail")}</TabsTrigger>
+          <TabsTrigger value="webhooks">
+            {t("admin.logs.tabWebhooks")}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="requests" className="mt-4">
@@ -61,6 +71,10 @@ export function AdminLogsClient() {
 
         <TabsContent value="mail" className="mt-4">
           <MailLogsPanel />
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="mt-4">
+          <WebhookDeliveriesPanel />
         </TabsContent>
       </Tabs>
     </div>

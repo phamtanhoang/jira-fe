@@ -27,16 +27,22 @@ const PAGE_MAX = 200;
 export function UserActivityPanel() {
   const { t } = useAppStore();
   const [sinceHours, setSinceHours] = useState<number>(168);
-  const [take, setTake] = useState<number>(PAGE_STEP);
-  const { data, isLoading, isFetching } = useUserActivity(sinceHours, take);
+  // Recent feed paginates independently from the Top* aggregations. Top is
+  // capped server-side so it never grows past ~50; only `recentTake` bumps
+  // when the user clicks Load more.
+  const [recentTake, setRecentTake] = useState<number>(PAGE_STEP);
+  const { data, isLoading, isFetching } = useUserActivity(sinceHours, {
+    recent: recentTake,
+    top: 30,
+  });
 
   function handleRangeChange(next: number) {
     setSinceHours(next);
-    setTake(PAGE_STEP);
+    setRecentTake(PAGE_STEP);
   }
 
   function loadMore() {
-    setTake((prev) => Math.min(prev + PAGE_STEP, PAGE_MAX));
+    setRecentTake((prev) => Math.min(prev + PAGE_STEP, PAGE_MAX));
   }
 
   const topUsers = safeArray<UserActivityTopUser>(data, "topUsers");
@@ -50,6 +56,10 @@ export function UserActivityPanel() {
     userEmail: string | null;
     createdAt: string;
   }>;
+  // Mirror of the metrics-page pattern: only show the Recent Load more
+  // spinner while THIS section is expanding — the rendered rows are still
+  // shorter than the newly-requested take.
+  const isLoadingRecent = isFetching && recent.length < recentTake;
 
   const topUsersMax = Math.max(1, ...topUsers.map((u) => u.count));
   const topRoutesMax = Math.max(1, ...topRoutes.map((r) => r.count));
@@ -255,15 +265,15 @@ export function UserActivityPanel() {
               );
             })
           )}
-          {recent.length >= take && take < PAGE_MAX && (
+          {recent.length >= recentTake && recentTake < PAGE_MAX && (
             <div className="flex items-center justify-center border-t bg-muted/20 px-4 py-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={loadMore}
-                disabled={isFetching}
+                disabled={isLoadingRecent}
               >
-                {isFetching ? (
+                {isLoadingRecent ? (
                   <Spinner className="mr-1.5 h-3.5 w-3.5" />
                 ) : (
                   <ChevronDown className="mr-1.5 h-3.5 w-3.5" />

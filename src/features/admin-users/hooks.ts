@@ -126,10 +126,13 @@ export function useAdminMetrics(
   });
 }
 
-export function useUserActivity(sinceHours: number, take = 30) {
+export function useUserActivity(
+  sinceHours: number,
+  takes: { recent: number; top: number } = { recent: 30, top: 30 },
+) {
   return useQuery({
-    queryKey: ["admin-user-activity", sinceHours, take],
-    queryFn: () => fetchUserActivity(sinceHours, take),
+    queryKey: ["admin-user-activity", sinceHours, takes.recent, takes.top],
+    queryFn: () => fetchUserActivity(sinceHours, takes),
   });
 }
 

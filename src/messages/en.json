@@ -506,6 +506,13 @@
         "fallbackHint": "Empty = use the built-in default template.",
         "previewMode": "Preview",
         "editMode": "Edit",
+        "preview": "Preview",
+        "codeMode": "HTML source",
+        "editTemplate": "Edit template",
+        "editTitle": "Edit {tab}",
+        "editDesc": "HTML on the left renders into the email on the right. Save to apply.",
+        "editHint": "Click Edit template to open a wider editor.",
+        "usingDefault": "Using built-in default — leave blank to keep it.",
         "mode": {
           "code": "Code",
           "split": "Split",
@@ -592,6 +599,7 @@
       "tabAudit": "Audit",
       "tabActivity": "User activity",
       "tabMail": "Email",
+      "tabWebhooks": "Webhooks",
       "empty": "No logs match the current filters.",
       "loadMore": "Load more",
       "meta": {

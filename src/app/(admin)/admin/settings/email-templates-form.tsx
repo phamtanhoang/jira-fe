@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mail, Save, Send } from "lucide-react";
+import { Mail, Pencil, Save, Send } from "lucide-react";
 import {
   DEFAULT_EMAIL_TEMPLATES,
   SETTING_KEYS,
@@ -23,6 +23,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,13 +39,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 const TEMPLATE_KEYS: EmailTemplateKey[] = [
+  "welcome",
   "verification",
   "resetPassword",
-  "welcome",
 ];
 
-// Tokens that the BE substitutes when rendering the saved template. Listed
-// here so admins know what they can use in subject + body.
+// Tokens that the BE substitutes when rendering the saved template.
 const PLACEHOLDERS = [
   "{{appName}}",
   "{{logoUrl}}",
@@ -45,6 +52,23 @@ const PLACEHOLDERS = [
   "{{expiryMinutes}}",
   "{{recipientEmail}}",
 ];
+
+// Sample values used in the live preview so admins see real layout instead
+// of literal `{{otp}}` strings. Mirror of MailService.renderTemplate.
+const PREVIEW_VARS: Record<string, string> = {
+  appName: "Acme",
+  logoUrl: "",
+  otp: "123456",
+  expiryMinutes: "10",
+  recipientEmail: "you@example.com",
+};
+
+function renderForPreview(html: string): string {
+  return html.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g, (match, key) => {
+    const v = PREVIEW_VARS[key as string];
+    return v === undefined ? match : v;
+  });
+}
 
 export function EmailTemplatesForm() {
   const { t } = useAppStore();
@@ -68,13 +92,13 @@ export function EmailTemplatesForm() {
         ) : (
           <EmailTemplatesInner
             initial={{
+              welcome: data?.value?.welcome ?? DEFAULT_EMAIL_TEMPLATES.welcome,
               verification:
                 data?.value?.verification ??
                 DEFAULT_EMAIL_TEMPLATES.verification,
               resetPassword:
                 data?.value?.resetPassword ??
                 DEFAULT_EMAIL_TEMPLATES.resetPassword,
-              welcome: data?.value?.welcome ?? DEFAULT_EMAIL_TEMPLATES.welcome,
             }}
           />
         )}
@@ -85,29 +109,15 @@ export function EmailTemplatesForm() {
 
 function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
   const { t } = useAppStore();
-  const [state, setState] = useState<EmailTemplatesValue>(initial);
   const [active, setActive] = useState<EmailTemplateKey>("verification");
-  const update = useUpdateSetting<EmailTemplatesValue>(
-    SETTING_KEYS.APP_EMAIL_TEMPLATES,
-  );
+  const [editing, setEditing] = useState<EmailTemplateKey | null>(null);
 
-  useEffect(() => {
-    setState(initial);
-  }, [initial]);
-
-  const updateField = (
-    key: EmailTemplateKey,
-    field: keyof EmailTemplate,
-    value: string,
-  ) => {
-    setState((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], [field]: value },
-    }));
-  };
+  // Latest persisted value per template — fed back into the preview after a
+  // save commits via React Query refetch (parent passes new `initial`).
+  const current = initial[active];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Tabs
         value={active}
         onValueChange={(v) => v && setActive(v as EmailTemplateKey)}
@@ -122,14 +132,37 @@ function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
 
         {TEMPLATE_KEYS.map((k) => (
           <TabsContent key={k} value={k} className="mt-4 space-y-4">
-            <SubjectField
-              value={state[k].subject}
-              onChange={(v) => updateField(k, "subject", v)}
-            />
-            <BodyField
-              value={state[k].html}
-              onChange={(v) => updateField(k, "html", v)}
-            />
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {t("admin.settings.emailTemplates.subject")}
+                </Label>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditing(k)}
+                  className="gap-1.5"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  {t("admin.settings.emailTemplates.editTemplate")}
+                </Button>
+              </div>
+              <div className="rounded-md border bg-muted/30 px-3 py-2 text-[13px]">
+                {initial[k].subject || (
+                  <span className="text-muted-foreground italic">
+                    {t("admin.settings.emailTemplates.fallbackHint")}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {t("admin.settings.emailTemplates.preview")}
+              </Label>
+              <PreviewFrame html={initial[k].html} className="h-105" />
+            </div>
+
             {(k === "verification" || k === "resetPassword") && (
               <SendTestRow templateKey={k} />
             )}
@@ -137,135 +170,163 @@ function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
         ))}
       </Tabs>
 
-      <div className="rounded-md border bg-muted/30 p-3 text-[11px] text-muted-foreground">
-        <div className="mb-1 font-medium text-foreground">
-          {t("admin.settings.emailTemplates.placeholders")}
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {PLACEHOLDERS.map((p) => (
-            <code
-              key={p}
-              className="rounded bg-background px-1.5 py-0.5 font-mono text-[10px]"
-            >
-              {p}
-            </code>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button onClick={() => update.mutate(state)} disabled={update.isPending}>
-          {update.isPending ? (
-            <Spinner className="h-4 w-4" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-          {t("common.save")}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function SubjectField({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-}) {
-  const { t } = useAppStore();
-  return (
-    <div className="space-y-1.5">
-      <Label>{t("admin.settings.emailTemplates.subject")}</Label>
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={t("admin.settings.emailTemplates.subjectPlaceholder")}
+      <EditTemplateDialog
+        open={!!editing}
+        templateKey={editing}
+        initial={editing ? initial[editing] : null}
+        onClose={() => setEditing(null)}
+        all={initial}
       />
-      <p className="text-[10px] text-muted-foreground">
-        {t("admin.settings.emailTemplates.fallbackHint")}
+
+      <p className="text-[11px] text-muted-foreground">
+        {t("admin.settings.emailTemplates.editHint")} ·{" "}
+        <span className="font-medium">
+          {current.html ? "" : t("admin.settings.emailTemplates.usingDefault")}
+        </span>
       </p>
     </div>
   );
 }
 
-// Sample values used in the live preview so the admin sees real layout
-// instead of literal `{{otp}}` strings. Mirror of MailService.renderTemplate.
-const PREVIEW_VARS: Record<string, string> = {
-  appName: "Acme",
-  logoUrl: "",
-  otp: "123456",
-  expiryMinutes: "10",
-  recipientEmail: "you@example.com",
-};
-
-function renderForPreview(html: string): string {
-  return html.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g, (match, key) => {
-    const v = PREVIEW_VARS[key as string];
-    return v === undefined ? match : v;
-  });
-}
-
-function BodyField({
-  value,
-  onChange,
+function EditTemplateDialog({
+  open,
+  templateKey,
+  initial,
+  all,
+  onClose,
 }: {
-  value: string;
-  onChange: (next: string) => void;
+  open: boolean;
+  templateKey: EmailTemplateKey | null;
+  initial: EmailTemplate | null;
+  all: EmailTemplatesValue;
+  onClose: () => void;
 }) {
   const { t } = useAppStore();
-  const [mode, setMode] = useState<"code" | "preview" | "split">("split");
+  const [draft, setDraft] = useState<EmailTemplate>(
+    initial ?? { subject: "", html: "" },
+  );
+  const update = useUpdateSetting<EmailTemplatesValue>(
+    SETTING_KEYS.APP_EMAIL_TEMPLATES,
+  );
+
+  // Reset the form whenever a new template is opened. The dialog is mounted
+  // once and reused — without this, switching tabs would bleed values across.
+  useEffect(() => {
+    if (open && initial) setDraft(initial);
+  }, [open, initial, templateKey]);
+
+  if (!templateKey) return null;
+
+  const save = () => {
+    update.mutate(
+      { ...all, [templateKey]: draft },
+      { onSuccess: () => onClose() },
+    );
+  };
+
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <Label>{t("admin.settings.emailTemplates.body")}</Label>
-        <div className="flex gap-1 rounded-md border p-0.5">
-          {(["code", "split", "preview"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMode(m)}
-              className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
-                mode === m
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {t(`admin.settings.emailTemplates.mode.${m}`)}
-            </button>
-          ))}
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="flex h-[85vh] max-h-205 w-[calc(100%-2rem)] max-w-275 flex-col gap-4 sm:max-w-275">
+        <DialogHeader>
+          <DialogTitle>
+            {t("admin.settings.emailTemplates.editTitle", {
+              tab: t(`admin.settings.emailTemplates.tab.${templateKey}`),
+            })}
+          </DialogTitle>
+          <DialogDescription>
+            {t("admin.settings.emailTemplates.editDesc")}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-1 flex-col gap-3 overflow-hidden">
+          <div className="space-y-1.5">
+            <Label>{t("admin.settings.emailTemplates.subject")}</Label>
+            <Input
+              value={draft.subject}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, subject: e.target.value }))
+              }
+              placeholder={t("admin.settings.emailTemplates.subjectPlaceholder")}
+            />
+          </div>
+
+          <div className="grid flex-1 gap-3 overflow-hidden md:grid-cols-2">
+            <div className="flex min-h-0 flex-col gap-1.5">
+              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {t("admin.settings.emailTemplates.codeMode")}
+              </Label>
+              <Textarea
+                value={draft.html}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, html: e.target.value }))
+                }
+                placeholder={t("admin.settings.emailTemplates.bodyPlaceholder")}
+                className="min-h-0 flex-1 resize-none font-mono text-[11px] leading-snug"
+                spellCheck={false}
+              />
+            </div>
+            <div className="flex min-h-0 flex-col gap-1.5">
+              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {t("admin.settings.emailTemplates.preview")}
+              </Label>
+              <PreviewFrame html={draft.html} className="flex-1" />
+            </div>
+          </div>
+
+          <div className="rounded-md border bg-muted/30 p-3 text-[11px] text-muted-foreground">
+            <div className="mb-1 font-medium text-foreground">
+              {t("admin.settings.emailTemplates.placeholders")}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {PLACEHOLDERS.map((p) => (
+                <code
+                  key={p}
+                  className="rounded bg-background px-1.5 py-0.5 font-mono text-[10px]"
+                >
+                  {p}
+                </code>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-      <div
-        className={
-          mode === "split"
-            ? "grid gap-2 md:grid-cols-2"
-            : "block"
-        }
-      >
-        {(mode === "code" || mode === "split") && (
-          <Textarea
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={t("admin.settings.emailTemplates.bodyPlaceholder")}
-            className="min-h-90 font-mono text-[11px] leading-snug"
-            spellCheck={false}
-          />
-        )}
-        {(mode === "preview" || mode === "split") && (
-          <PreviewFrame html={value} />
-        )}
-      </div>
-    </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={update.isPending}
+          >
+            {t("common.cancel")}
+          </Button>
+          <Button onClick={save} disabled={update.isPending}>
+            {update.isPending ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            {t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function PreviewFrame({ html }: { html: string }) {
+function PreviewFrame({
+  html,
+  className,
+}: {
+  html: string;
+  className?: string;
+}) {
   const { t } = useAppStore();
   if (!html.trim()) {
     return (
-      <div className="flex min-h-90 items-center justify-center rounded-md border bg-muted/30 p-4 text-xs text-muted-foreground">
+      <div
+        className={`flex items-center justify-center rounded-md border bg-muted/30 p-4 text-xs text-muted-foreground ${
+          className ?? "min-h-90"
+        }`}
+      >
         {t("admin.settings.emailTemplates.fallbackHint")}
       </div>
     );
@@ -279,7 +340,7 @@ function PreviewFrame({ html }: { html: string }) {
       title="Email preview"
       srcDoc={srcDoc}
       sandbox="allow-same-origin"
-      className="min-h-90 w-full rounded-md border bg-white"
+      className={`w-full rounded-md border bg-white ${className ?? "min-h-90"}`}
     />
   );
 }

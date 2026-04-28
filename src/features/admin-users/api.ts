@@ -89,10 +89,27 @@ export async function fetchAdminMetrics(
 
 export async function fetchUserActivity(
   sinceHours: number,
-  take = 30,
+  takes: { recent: number; top: number },
+): Promise<UserActivity>;
+export async function fetchUserActivity(
+  sinceHours: number,
+  take?: number,
+): Promise<UserActivity>;
+export async function fetchUserActivity(
+  sinceHours: number,
+  arg2?: number | { recent: number; top: number },
 ): Promise<UserActivity> {
+  const params: Record<string, number> = { sinceHours };
+  if (typeof arg2 === "number") {
+    params.take = arg2;
+  } else if (arg2) {
+    // Map onto the metrics DTO's per-list params so BE doesn't need a new
+    // contract for this endpoint.
+    params.slowestTake = arg2.recent;
+    params.topRoutesTake = arg2.top;
+  }
   const res = await api.get<UserActivity>(ENDPOINTS.admin.userActivity, {
-    params: { sinceHours, take },
+    params,
   });
   return res.data;
 }

@@ -1,11 +1,8 @@
-import { createGenerateMetadata } from "@/lib/utils/server";
-import { AdminWebhookDeliveriesClient } from "./client";
+import { redirect } from "next/navigation";
+import { ROUTES } from "@/lib/constants";
 
-export const generateMetadata = createGenerateMetadata(
-  "admin.webhookDeliveries.meta.title",
-  "admin.webhookDeliveries.meta.desc",
-);
-
+// The Webhook deliveries view now lives as a tab inside System Logs. Keep
+// this route as a permanent redirect so old bookmarks / docs still resolve.
 export default function AdminWebhookDeliveriesPage() {
-  return <AdminWebhookDeliveriesClient />;
+  redirect(`${ROUTES.ADMIN_LOGS}?tab=webhooks`);
 }

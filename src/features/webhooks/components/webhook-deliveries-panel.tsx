@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, RotateCw, XCircle, Webhook } from "lucide-react";
+import { CheckCircle2, RotateCw, XCircle } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
@@ -25,7 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const STATUS_ANY = "__any__";
 
-export function AdminWebhookDeliveriesClient() {
+export function WebhookDeliveriesPanel() {
   const { t } = useAppStore();
   const [filters, setFilters] = useState<WebhookDeliveryFilters>({
     page: 1,
@@ -36,16 +36,10 @@ export function AdminWebhookDeliveriesClient() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-xl font-semibold tracking-tight">
-          <Webhook className="h-5 w-5" />
-          {t("admin.webhookDeliveries.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("admin.webhookDeliveries.description")}
-        </p>
-      </div>
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        {t("admin.webhookDeliveries.description")}
+      </p>
 
       <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
         <Select
