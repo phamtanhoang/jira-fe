@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -21,7 +21,9 @@ export function ForgotPasswordForm() {
     defaultValues: { email: "" },
   });
 
-  const email = form.watch("email");
+  // `useWatch` keeps the React-Compiler-safe path; `form.watch` returns a
+  // fresh function on every render which the lint rule flags.
+  const email = useWatch({ control: form.control, name: "email" });
 
   const { mutate: forgotPassword, isPending } = useForgotPassword({
     onSuccess: () => {

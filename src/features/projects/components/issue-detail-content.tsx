@@ -73,16 +73,22 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
   const [shareOpen, setShareOpen] = useState(false);
 
   // Track this issue in the Cmd+K "Recent" list whenever its identity loads.
+  // Pre-bind primitives so the deps array stays exhaustive without
+  // snapshotting the whole `issue` object (which churns on every refetch).
+  const recentIssueId = issue?.id;
+  const recentIssueKey = issue?.key;
+  const recentIssueSummary = issue?.summary;
+  const recentIssueType = issue?.type;
   useEffect(() => {
-    if (!issue) return;
+    if (!recentIssueId || !recentIssueKey) return;
     pushRecent({
       type: "ISSUE",
-      id: issue.id,
-      key: issue.key,
-      summary: issue.summary,
-      issueType: issue.type,
+      id: recentIssueId,
+      key: recentIssueKey,
+      summary: recentIssueSummary ?? "",
+      issueType: recentIssueType ?? "TASK",
     });
-  }, [issue?.id, issue?.key, issue?.summary, issue?.type]);
+  }, [recentIssueId, recentIssueKey, recentIssueSummary, recentIssueType]);
 
   function saveSummary() {
     if (issue && summaryDraft.trim() && summaryDraft.trim() !== issue.summary) {

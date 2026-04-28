@@ -26,7 +26,13 @@ export function SignUpForm() {
   });
 
   function onSubmit(data: RegisterForm) {
-    const { confirmPassword: _, ...payload } = data;
+    // Drop confirmPassword — only used by zod schema for client-side
+    // matching, not by the BE register endpoint.
+    const payload = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    };
     registerUser(payload);
   }
 

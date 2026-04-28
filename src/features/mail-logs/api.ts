@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import { ENDPOINTS } from "@/lib/constants";
 import type { MailConfigStatus } from "@/features/admin";
 import type {
+  EmailTemplateSchema,
   MailLogFilters,
   MailLogPage,
   MailLogRow,
@@ -36,5 +37,10 @@ export const mailLogsApi = {
         to,
         template,
       })
+      .then((r) => r.data),
+
+  templateSchema: () =>
+    api
+      .get<EmailTemplateSchema>(ENDPOINTS.admin.mailTemplateSchema)
       .then((r) => r.data),
 };

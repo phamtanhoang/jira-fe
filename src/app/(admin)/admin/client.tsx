@@ -279,6 +279,8 @@ export function AdminOverviewClient() {
             ) : (
               <div className="flex items-center gap-2">
                 {appInfo?.value?.logoUrl && (
+                  // Admin-supplied URL — skip next/image (see sidebar).
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={appInfo.value.logoUrl}
                     alt=""

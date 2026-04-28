@@ -45,6 +45,9 @@ export function Sidebar({
       <div className="flex h-12 items-center justify-between px-4">
         <Link href={ROUTES.DASHBOARD} className="flex items-center gap-2">
           {logoUrl ? (
+            // Admin-supplied logo URL — see admin-layout/sidebar for why we
+            // skip next/image here.
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={appName} className="h-6 w-6 rounded" />
           ) : (
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-[10px] font-bold text-primary-foreground">

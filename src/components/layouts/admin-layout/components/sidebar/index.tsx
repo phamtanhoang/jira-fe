@@ -120,6 +120,9 @@ export function AdminSidebar({
       <div className="flex h-12 items-center justify-between px-4">
         <Link href={ROUTES.DASHBOARD} className="flex items-center gap-2">
           {logoUrl ? (
+            // Logo URL is admin-supplied (Supabase or external) — not worth
+            // wiring next/image's remote-pattern config for a 24x24 nav icon.
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={appName} className="h-6 w-6 rounded" />
           ) : (
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-[10px] font-bold text-primary-foreground">

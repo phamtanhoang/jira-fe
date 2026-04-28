@@ -69,19 +69,19 @@ export type EmailTemplate = {
   html: string;
 };
 
-export type EmailTemplatesValue = {
-  verification: EmailTemplate;
-  resetPassword: EmailTemplate;
-  welcome: EmailTemplate;
-};
+/**
+ * Stored as a flex-keyed map keyed by `EmailTemplateKey` from the BE
+ * schema. We don't pin the names statically because BE owns the list —
+ * adding `welcome` etc. server-side surfaces in the admin UI without a
+ * FE deploy.
+ */
+export type EmailTemplatesValue = Record<string, EmailTemplate>;
 
-export const DEFAULT_EMAIL_TEMPLATES: EmailTemplatesValue = {
-  verification: { subject: "", html: "" },
-  resetPassword: { subject: "", html: "" },
-  welcome: { subject: "", html: "" },
-};
+/** Empty body = "use built-in default" — the BE's `MailService` checks
+ *  for empty subject/html and falls through to the hardcoded template. */
+export const EMPTY_EMAIL_TEMPLATE: EmailTemplate = { subject: "", html: "" };
 
-export type EmailTemplateKey = keyof EmailTemplatesValue;
+export type EmailTemplateKey = string;
 
 export type FeatureFlags = Record<string, boolean>;
 

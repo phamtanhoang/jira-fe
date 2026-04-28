@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Send } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
@@ -87,7 +87,10 @@ export function AppEmailForm() {
     resolver: zodResolver(appEmailSchema),
     defaultValues: EMPTY,
   });
-  const provider = form.watch("provider");
+  // `useWatch` is the React-Compiler-safe subscription API; `form.watch()`
+  // returns a fresh function on every render and trips the
+  // react-hooks/incompatible-library lint.
+  const provider = useWatch({ control: form.control, name: "provider" });
 
   useEffect(() => {
     if (data?.value) {

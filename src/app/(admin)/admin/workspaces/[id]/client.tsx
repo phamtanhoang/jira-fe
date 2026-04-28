@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   ArrowLeft,
-  Briefcase,
   Bug,
   CalendarDays,
   FolderKanban,

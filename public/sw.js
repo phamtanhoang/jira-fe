@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals, no-undef */
 // Minimal service worker — install + push notification handler.
 //
 // Cache strategy is intentionally tiny: stale-while-revalidate for static

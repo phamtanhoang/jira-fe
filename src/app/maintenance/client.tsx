@@ -19,6 +19,8 @@ export function MaintenancePageClient() {
         </div>
         <div className="mb-2 flex items-center justify-center gap-2">
           {logoUrl ? (
+            // Admin-supplied URL — skip next/image (see sidebar).
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={appName} className="h-6 w-6 rounded" />
           ) : null}
           <span className="text-sm font-semibold text-muted-foreground">

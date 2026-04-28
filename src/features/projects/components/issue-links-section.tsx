@@ -96,7 +96,6 @@ export function IssueLinksSection({ issue }: { issue: Issue }) {
             label={tgrp.label}
             icon={tgrp.icon}
             links={rows}
-            issueId={issue.id}
             peerKey="target"
             onRemove={(lid) => removeLink({ id: issue.id, linkId: lid })}
           />
@@ -113,7 +112,6 @@ export function IssueLinksSection({ issue }: { issue: Issue }) {
             label={INBOUND_LABEL[tgrp.value]}
             icon={tgrp.icon}
             links={rows}
-            issueId={issue.id}
             peerKey="source"
             onRemove={(lid) => removeLink({ id: issue.id, linkId: lid })}
           />
@@ -142,14 +140,12 @@ function LinkGroup({
   label,
   icon: Icon,
   links,
-  issueId: _issueId,
   peerKey,
   onRemove,
 }: {
   label: string;
   icon: React.ElementType;
   links: IssueLink[];
-  issueId: string;
   peerKey: "target" | "source";
   onRemove: (linkId: string) => void;
 }) {

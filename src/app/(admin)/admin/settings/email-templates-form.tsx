@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Mail, Pencil, Save, Send } from "lucide-react";
 import {
-  DEFAULT_EMAIL_TEMPLATES,
+  EMPTY_EMAIL_TEMPLATE,
   SETTING_KEYS,
   useSetting,
   useUpdateSetting,
@@ -12,6 +12,7 @@ import {
   type EmailTemplatesValue,
 } from "@/features/admin";
 import { mailLogsApi } from "@/features/mail-logs/api";
+import { useEmailTemplateSchema } from "@/features/mail-logs/hooks";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { handleApiError, showMessage } from "@/lib/utils";
@@ -38,42 +39,31 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-const TEMPLATE_KEYS: EmailTemplateKey[] = [
-  "welcome",
-  "verification",
-  "resetPassword",
-];
-
-// Tokens that the BE substitutes when rendering the saved template.
-const PLACEHOLDERS = [
-  "{{appName}}",
-  "{{logoUrl}}",
-  "{{otp}}",
-  "{{expiryMinutes}}",
-  "{{recipientEmail}}",
-];
-
-// Sample values used in the live preview so admins see real layout instead
-// of literal `{{otp}}` strings. Mirror of MailService.renderTemplate.
-const PREVIEW_VARS: Record<string, string> = {
-  appName: "Acme",
-  logoUrl: "",
-  otp: "123456",
-  expiryMinutes: "10",
-  recipientEmail: "you@example.com",
-};
-
-function renderForPreview(html: string): string {
+/** Substitute `{{var}}` tokens against BE-supplied sample values so the
+ *  preview matches what real recipients see (real appName/logoUrl/expiry,
+ *  sample otp/recipientEmail). Unknown keys are left intact so a typo in
+ *  the template surfaces as `{{xxx}}` literal in the preview. */
+function renderForPreview(
+  html: string,
+  sample: Record<string, string>,
+): string {
   return html.replace(/\{\{\s*([a-zA-Z_]+)\s*\}\}/g, (match, key) => {
-    const v = PREVIEW_VARS[key as string];
+    const v = sample[key as string];
     return v === undefined ? match : v;
   });
 }
 
 export function EmailTemplatesForm() {
   const { t } = useAppStore();
-  const { data, isLoading } =
-    useSetting<EmailTemplatesValue>(SETTING_KEYS.APP_EMAIL_TEMPLATES);
+  // Both fetches run in parallel — the inner component only renders once
+  // BOTH have settled so the schema (template keys + placeholders +
+  // preview sample) is the single source of truth. No FE-side fallbacks.
+  const setting = useSetting<EmailTemplatesValue>(
+    SETTING_KEYS.APP_EMAIL_TEMPLATES,
+  );
+  const schema = useEmailTemplateSchema();
+
+  const ready = !setting.isLoading && !schema.isLoading && !!schema.data;
 
   return (
     <Card>
@@ -87,19 +77,22 @@ export function EmailTemplatesForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {!ready ? (
           <Skeleton className="h-64 w-full" />
         ) : (
           <EmailTemplatesInner
-            initial={{
-              welcome: data?.value?.welcome ?? DEFAULT_EMAIL_TEMPLATES.welcome,
-              verification:
-                data?.value?.verification ??
-                DEFAULT_EMAIL_TEMPLATES.verification,
-              resetPassword:
-                data?.value?.resetPassword ??
-                DEFAULT_EMAIL_TEMPLATES.resetPassword,
-            }}
+            templateKeys={schema.data!.templates}
+            placeholders={schema.data!.placeholders}
+            previewSample={schema.data!.previewSample}
+            // Build the initial map dynamically from the BE template list.
+            // Templates the admin hasn't customized fall back to an empty
+            // shape — BE treats empty subject/html as "use built-in default".
+            initial={Object.fromEntries(
+              schema.data!.templates.map((k) => [
+                k,
+                setting.data?.value?.[k] ?? EMPTY_EMAIL_TEMPLATE,
+              ]),
+            )}
           />
         )}
       </CardContent>
@@ -107,9 +100,25 @@ export function EmailTemplatesForm() {
   );
 }
 
-function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
+function EmailTemplatesInner({
+  initial,
+  templateKeys,
+  placeholders,
+  previewSample,
+}: {
+  initial: EmailTemplatesValue;
+  templateKeys: EmailTemplateKey[];
+  placeholders: readonly string[];
+  previewSample: Record<string, string>;
+}) {
   const { t } = useAppStore();
-  const [active, setActive] = useState<EmailTemplateKey>("verification");
+
+  // Default the active tab to whatever BE listed first so we don't depend
+  // on a hardcoded "verification" key — if BE renames or removes that
+  // template the tab still resolves.
+  const [active, setActive] = useState<EmailTemplateKey>(
+    () => templateKeys[0] ?? "verification",
+  );
   const [editing, setEditing] = useState<EmailTemplateKey | null>(null);
 
   // Latest persisted value per template — fed back into the preview after a
@@ -123,14 +132,16 @@ function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
         onValueChange={(v) => v && setActive(v as EmailTemplateKey)}
       >
         <TabsList>
-          {TEMPLATE_KEYS.map((k) => (
+          {templateKeys.map((k) => (
             <TabsTrigger key={k} value={k}>
-              {t(`admin.settings.emailTemplates.tab.${k}`)}
+              {t(
+                `admin.settings.emailTemplates.tab.${k}` as "admin.settings.emailTemplates.tab.verification",
+              )}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {TEMPLATE_KEYS.map((k) => (
+        {templateKeys.map((k) => (
           <TabsContent key={k} value={k} className="mt-4 space-y-4">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -160,7 +171,11 @@ function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
               <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 {t("admin.settings.emailTemplates.preview")}
               </Label>
-              <PreviewFrame html={initial[k].html} className="h-105" />
+              <PreviewFrame
+                html={initial[k].html}
+                sample={previewSample}
+                className="h-105"
+              />
             </div>
 
             {(k === "verification" || k === "resetPassword") && (
@@ -170,13 +185,21 @@ function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
         ))}
       </Tabs>
 
-      <EditTemplateDialog
-        open={!!editing}
-        templateKey={editing}
-        initial={editing ? initial[editing] : null}
-        onClose={() => setEditing(null)}
-        all={initial}
-      />
+      {/* Mount the dialog only when a target is selected. Keying on
+          `templateKey` resets internal state (draft) on each open — replaces
+          the previous useEffect+setDraft which tripped the
+          react-hooks/set-state-in-effect lint. */}
+      {editing && (
+        <EditTemplateDialog
+          key={editing}
+          templateKey={editing}
+          initial={initial[editing] ?? EMPTY_EMAIL_TEMPLATE}
+          all={initial}
+          placeholders={placeholders}
+          previewSample={previewSample}
+          onClose={() => setEditing(null)}
+        />
+      )}
 
       <p className="text-[11px] text-muted-foreground">
         {t("admin.settings.emailTemplates.editHint")} ·{" "}
@@ -189,33 +212,27 @@ function EmailTemplatesInner({ initial }: { initial: EmailTemplatesValue }) {
 }
 
 function EditTemplateDialog({
-  open,
   templateKey,
   initial,
   all,
+  placeholders,
+  previewSample,
   onClose,
 }: {
-  open: boolean;
-  templateKey: EmailTemplateKey | null;
-  initial: EmailTemplate | null;
+  templateKey: EmailTemplateKey;
+  initial: EmailTemplate;
   all: EmailTemplatesValue;
+  placeholders: readonly string[];
+  previewSample: Record<string, string>;
   onClose: () => void;
 }) {
   const { t } = useAppStore();
-  const [draft, setDraft] = useState<EmailTemplate>(
-    initial ?? { subject: "", html: "" },
-  );
+  // Lazy initial — runs once per mount. Parent re-keys the component when
+  // a different template is selected, so we get a fresh draft for free.
+  const [draft, setDraft] = useState<EmailTemplate>(initial);
   const update = useUpdateSetting<EmailTemplatesValue>(
     SETTING_KEYS.APP_EMAIL_TEMPLATES,
   );
-
-  // Reset the form whenever a new template is opened. The dialog is mounted
-  // once and reused — without this, switching tabs would bleed values across.
-  useEffect(() => {
-    if (open && initial) setDraft(initial);
-  }, [open, initial, templateKey]);
-
-  if (!templateKey) return null;
 
   const save = () => {
     update.mutate(
@@ -225,12 +242,14 @@ function EditTemplateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="flex h-[85vh] max-h-205 w-[calc(100%-2rem)] max-w-275 flex-col gap-4 sm:max-w-275">
         <DialogHeader>
           <DialogTitle>
             {t("admin.settings.emailTemplates.editTitle", {
-              tab: t(`admin.settings.emailTemplates.tab.${templateKey}`),
+              tab: t(
+                `admin.settings.emailTemplates.tab.${templateKey}` as "admin.settings.emailTemplates.tab.verification",
+              ),
             })}
           </DialogTitle>
           <DialogDescription>
@@ -269,7 +288,11 @@ function EditTemplateDialog({
               <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 {t("admin.settings.emailTemplates.preview")}
               </Label>
-              <PreviewFrame html={draft.html} className="flex-1" />
+              <PreviewFrame
+                html={draft.html}
+                sample={previewSample}
+                className="flex-1"
+              />
             </div>
           </div>
 
@@ -278,12 +301,12 @@ function EditTemplateDialog({
               {t("admin.settings.emailTemplates.placeholders")}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {PLACEHOLDERS.map((p) => (
+              {placeholders.map((p) => (
                 <code
                   key={p}
                   className="rounded bg-background px-1.5 py-0.5 font-mono text-[10px]"
                 >
-                  {p}
+                  {`{{${p}}}`}
                 </code>
               ))}
             </div>
@@ -314,9 +337,12 @@ function EditTemplateDialog({
 
 function PreviewFrame({
   html,
+  sample,
   className,
 }: {
   html: string;
+  /** BE-resolved placeholder values — see `EmailTemplateSchema.previewSample`. */
+  sample: Record<string, string>;
   className?: string;
 }) {
   const { t } = useAppStore();
@@ -334,7 +360,7 @@ function PreviewFrame({
   // Wrap in a minimal HTML doc so inline styles + body padding behave like
   // a real email client. `srcDoc` keeps everything sandboxed from the app's
   // own CSS — Tailwind resets, theme variables, dark mode all stay out.
-  const srcDoc = `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>html,body{margin:0;padding:16px;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}</style></head><body>${renderForPreview(html)}</body></html>`;
+  const srcDoc = `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>html,body{margin:0;padding:16px;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}</style></head><body>${renderForPreview(html, sample)}</body></html>`;
   return (
     <iframe
       title="Email preview"
@@ -352,12 +378,11 @@ function SendTestRow({
 }) {
   const { t } = useAppStore();
   const { user } = useCurrentUser();
-  const [to, setTo] = useState(user?.email ?? "");
+  // Lazy init from the auth user — runs once per mount, no useEffect needed.
+  // If the user object isn't ready yet the field starts empty and the admin
+  // can type their own address.
+  const [to, setTo] = useState<string>(() => user?.email ?? "");
   const [pending, setPending] = useState(false);
-
-  useEffect(() => {
-    if (user?.email && !to) setTo(user.email);
-  }, [user?.email, to]);
 
   const send = async () => {
     if (!to.trim()) return;

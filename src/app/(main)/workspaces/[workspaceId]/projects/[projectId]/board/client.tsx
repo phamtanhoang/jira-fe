@@ -89,17 +89,29 @@ export default function BoardPage() {
 
   const activeSprint = board?.sprints.find((s) => s.status === "ACTIVE");
 
-  // Track this project in the Cmd+K "Recent" list. Re-fires on project switch.
+  // Track this project in the Cmd+K "Recent" list. Re-fires only when the
+  // identity-bearing fields change (not on every project re-fetch). We
+  // pre-bind primitives so the dep array is exhaustive without snapshotting
+  // the whole project object.
+  const recentProjectId = project?.id;
+  const recentProjectName = project?.name;
+  const recentProjectKey = project?.key;
+  const recentProjectWsId = project?.workspaceId;
   useEffect(() => {
-    if (!project) return;
+    if (!recentProjectId) return;
     pushRecent({
       type: "PROJECT",
-      id: project.id,
-      name: project.name,
-      key: project.key,
-      workspaceId: project.workspaceId,
+      id: recentProjectId,
+      name: recentProjectName ?? "",
+      key: recentProjectKey ?? "",
+      workspaceId: recentProjectWsId ?? "",
     });
-  }, [project?.id, project?.name, project?.key, project?.workspaceId]);
+  }, [
+    recentProjectId,
+    recentProjectName,
+    recentProjectKey,
+    recentProjectWsId,
+  ]);
 
   const members: UserPreview[] = useMemo(() => {
     if (!project?.members) return [];

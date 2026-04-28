@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";

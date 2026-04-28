@@ -215,6 +215,7 @@ const ADMIN_ENDPOINTS = {
   mailLogConfig: `${ADMIN_BASE}/mail-logs/config-status`,
   mailTest: `${ADMIN_BASE}/mail-logs/test`,
   mailTemplateTest: `${ADMIN_BASE}/mail-logs/template-test`,
+  mailTemplateSchema: `${ADMIN_BASE}/mail-logs/template-schema`,
   usersBulkInvite: `${ADMIN_BASE}/users/bulk-invite`,
   throttleOverrides: `${ADMIN_BASE}/throttle-overrides`,
   throttleOverrideById: (id: string) =>

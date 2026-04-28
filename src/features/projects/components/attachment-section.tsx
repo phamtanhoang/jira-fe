@@ -144,6 +144,10 @@ export function AttachmentSection({
                       onClick={() => setPreview((att.signedUrl ?? att.fileUrl))}
                       className="block h-28 w-full overflow-hidden bg-muted"
                     >
+                      {/* Supabase signed URL with rotating query string —
+                          next/image's loader would re-cache every refresh
+                          for tiny gain. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={(att.signedUrl ?? att.fileUrl)}
                         alt={att.fileName}
@@ -208,6 +212,9 @@ export function AttachmentSection({
           <button onClick={() => setPreview(null)} className="absolute top-4 right-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70">
             <X className="h-5 w-5" />
           </button>
+          {/* Lightbox preview — full-bleed, dimensions intrinsic. next/image
+              would force fixed sizing here. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="Preview" className="max-h-[85vh] max-w-[90vw] rounded-lg shadow-2xl" />
         </div>
       )}

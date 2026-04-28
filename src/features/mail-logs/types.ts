@@ -37,3 +37,14 @@ export interface MailStats {
   failed: number;
   since: string;
 }
+
+/** Mirrors `EMAIL_TEMPLATE_SCHEMA` on the BE. We fetch the list of keys +
+ *  placeholders + sample preview values so the editor never duplicates
+ *  what BE knows. `previewSample` is keyed by placeholder name and
+ *  contains BE-resolved values (real `appName`/`logoUrl`/`expiryMinutes`
+ *  + sample `otp`/`recipientEmail`). */
+export interface EmailTemplateSchema {
+  templates: string[];
+  placeholders: string[];
+  previewSample: Record<string, string>;
+}
