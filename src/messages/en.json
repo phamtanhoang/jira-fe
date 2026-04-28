@@ -508,6 +508,8 @@
         "editMode": "Edit",
         "preview": "Preview",
         "codeMode": "HTML source",
+        "format": "Format",
+        "formatHint": "Pretty-print the HTML so it's easier to read. Doesn't change how the email renders.",
         "editTemplate": "Edit template",
         "editTitle": "Edit {tab}",
         "editDesc": "HTML on the left renders into the email on the right. Save to apply.",

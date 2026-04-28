@@ -508,6 +508,8 @@
         "editMode": "Chỉnh sửa",
         "preview": "Xem trước",
         "codeMode": "Mã HTML",
+        "format": "Định dạng",
+        "formatHint": "Tự động xuống dòng + thụt lề để dễ đọc hơn. Không ảnh hưởng email gửi đi.",
         "editTemplate": "Chỉnh sửa template",
         "editTitle": "Chỉnh sửa {tab}",
         "editDesc": "HTML bên trái render thành email bên phải. Bấm Save để áp dụng.",

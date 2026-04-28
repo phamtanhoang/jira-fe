@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Pencil, Save, Send } from "lucide-react";
+import { Mail, Pencil, Save, Send, Sparkles } from "lucide-react";
 import {
   EMPTY_EMAIL_TEMPLATE,
   SETTING_KEYS,
@@ -15,7 +15,7 @@ import { mailLogsApi } from "@/features/mail-logs/api";
 import { useEmailTemplateSchema } from "@/features/mail-logs/hooks";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { formatHtml, handleApiError, showMessage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -229,7 +229,12 @@ function EditTemplateDialog({
   const { t } = useAppStore();
   // Lazy initial — runs once per mount. Parent re-keys the component when
   // a different template is selected, so we get a fresh draft for free.
-  const [draft, setDraft] = useState<EmailTemplate>(initial);
+  // Pretty-print the saved HTML so admins (often non-tech) see readable
+  // indentation instead of a single minified line on first open.
+  const [draft, setDraft] = useState<EmailTemplate>(() => ({
+    subject: initial.subject,
+    html: formatHtml(initial.html),
+  }));
   const update = useUpdateSetting<EmailTemplatesValue>(
     SETTING_KEYS.APP_EMAIL_TEMPLATES,
   );
@@ -271,9 +276,27 @@ function EditTemplateDialog({
 
           <div className="grid flex-1 gap-3 overflow-hidden md:grid-cols-2">
             <div className="flex min-h-0 flex-col gap-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                {t("admin.settings.emailTemplates.codeMode")}
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {t("admin.settings.emailTemplates.codeMode")}
+                </Label>
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  onClick={() =>
+                    setDraft((prev) => ({
+                      ...prev,
+                      html: formatHtml(prev.html),
+                    }))
+                  }
+                  className="gap-1"
+                  title={t("admin.settings.emailTemplates.formatHint")}
+                >
+                  <Sparkles className="h-3 w-3" />
+                  {t("admin.settings.emailTemplates.format")}
+                </Button>
+              </div>
               <Textarea
                 value={draft.html}
                 onChange={(e) =>
