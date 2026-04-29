@@ -203,17 +203,16 @@ export function SessionsPanel() {
         variant="destructive"
         loading={revokeOne.isPending}
         onConfirm={() => {
-          if (toRevoke) {
-            return new Promise<void>((resolve, reject) =>
-              revokeOne.mutate(toRevoke.id, {
-                onSuccess: () => {
-                  setToRevoke(null);
-                  resolve();
-                },
-                onError: (err) => reject(err),
-              }),
-            );
-          }
+          if (!toRevoke) return;
+          return new Promise<void>((resolve, reject) =>
+            revokeOne.mutate(toRevoke.id, {
+              onSuccess: () => {
+                setToRevoke(null);
+                resolve();
+              },
+              onError: (err) => reject(err),
+            }),
+          );
         }}
       />
 

@@ -22,9 +22,6 @@ export function Header({ className }: { className?: string }) {
           className="rounded"
         />
       ) : null}
-      {name ? (
-        <span className="text-lg font-semibold tracking-tight">{name}</span>
-      ) : null}
     </div>
   );
 }

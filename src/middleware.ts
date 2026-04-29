@@ -97,6 +97,8 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.redirect(new URL(ROUTES.SIGN_IN, request.url));
   }
+
+  return;
 }
 
 export const config = {

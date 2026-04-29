@@ -19,11 +19,10 @@ export default function JoinPage() {
 
   // After successful join, redirect to the workspace.
   useEffect(() => {
-    if (joined?.workspace) {
-      const id = joined.workspace.id;
-      const t = setTimeout(() => router.push(ROUTES.WORKSPACE(id)), 1200);
-      return () => clearTimeout(t);
-    }
+    if (!joined?.workspace) return;
+    const id = joined.workspace.id;
+    const t = setTimeout(() => router.push(ROUTES.WORKSPACE(id)), 1200);
+    return () => clearTimeout(t);
   }, [joined, router]);
 
   if (isLoading) {
