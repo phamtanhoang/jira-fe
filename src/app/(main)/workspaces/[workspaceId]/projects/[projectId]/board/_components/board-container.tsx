@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import {
   CalendarDays,
@@ -38,12 +39,34 @@ import {
   matchesCustomFieldFilters,
   type BoardFilters,
 } from "@/features/projects/components/board-filters";
-import { CalendarView } from "@/features/projects/components/calendar-view";
 import { IssuePreviewModal } from "@/features/projects/components/issue-preview-modal";
 import { EpicView } from "@/features/projects/components/epic-view";
-import { RoadmapView } from "@/features/projects/components/roadmap-view";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// Heavy views (CalendarView ~360 LOC, RoadmapView ~590 LOC + recharts) lazy-
+// loaded — they only render when the user clicks the corresponding tab.
+// Splits ~30KB of JSX/SVG out of the initial board bundle.
+const ViewSkeleton = () => (
+  <div className="space-y-3 p-5">
+    <Skeleton className="h-8 w-64" />
+    <Skeleton className="h-72 w-full" />
+  </div>
+);
+const CalendarView = dynamic(
+  () =>
+    import("@/features/projects/components/calendar-view").then((m) => ({
+      default: m.CalendarView,
+    })),
+  { loading: ViewSkeleton, ssr: false },
+);
+const RoadmapView = dynamic(
+  () =>
+    import("@/features/projects/components/roadmap-view").then((m) => ({
+      default: m.RoadmapView,
+    })),
+  { loading: ViewSkeleton, ssr: false },
+);
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type {
   BoardColumn as BoardColumnType,
