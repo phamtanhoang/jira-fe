@@ -13,6 +13,7 @@ import type { MessageKey } from "@/lib/config/i18n";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { BurndownChart } from "./burndown-chart";
 import { CfdChart } from "./cfd-chart";
+import { ChartErrorBoundary } from "./chart-error-boundary";
 import { VelocityChart } from "./velocity-chart";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -120,7 +121,9 @@ export function SummaryView({ board, allIssues, members }: Props) {
         <Card>
           <CardContent className="p-5">
             <h3 className="mb-4 text-[13px] font-semibold">Burndown Chart</h3>
-            <BurndownChart sprintId={activeSprint.id} />
+            <ChartErrorBoundary>
+              <BurndownChart sprintId={activeSprint.id} />
+            </ChartErrorBoundary>
           </CardContent>
         </Card>
       )}
@@ -128,12 +131,16 @@ export function SummaryView({ board, allIssues, members }: Props) {
       {/* Velocity — past sprints. Hidden if no closed sprints exist (chart
           handles its own empty state, this just keeps SCRUM-only). */}
       {board.type === "SCRUM" && (
-        <VelocityChart boardId={board.id} />
+        <ChartErrorBoundary>
+          <VelocityChart boardId={board.id} />
+        </ChartErrorBoundary>
       )}
 
       {/* CFD — works for both SCRUM and KANBAN since it just plots issue
           flow over time. */}
-      <CfdChart boardId={board.id} days={30} />
+      <ChartErrorBoundary>
+        <CfdChart boardId={board.id} days={30} />
+      </ChartErrorBoundary>
 
       {/* Active sprint + status breakdown */}
       <div className="grid grid-cols-2 gap-4">

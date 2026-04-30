@@ -700,6 +700,7 @@
     "adminTitle": "Trang quản trị gặp sự cố",
     "adminHint": "Một trang quản trị không hiển thị được. Hãy thử lại hoặc quay lại trang chủ.",
     "authHint": "Không thể hiển thị trang đăng nhập/đăng ký. Vui lòng thử lại.",
+    "chartFailed": "Không hiển thị được biểu đồ. Dữ liệu có thể chưa đầy đủ.",
     "tryAgain": "Thử lại"
   },
   "common": {

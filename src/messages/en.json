@@ -700,6 +700,7 @@
     "adminTitle": "Admin page crashed",
     "adminHint": "An admin page failed to render. Try again or return to the home page.",
     "authHint": "Could not render the sign-in / sign-up page. Please try again.",
+    "chartFailed": "Couldn't render this chart. The data may be incomplete.",
     "tryAgain": "Try again"
   },
   "common": {
