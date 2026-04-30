@@ -1,6 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { handleApiError, showMessage } from "@/lib/utils";
 import {
   createWorkspaceWebhook,
@@ -29,49 +30,32 @@ export function useWorkspaceWebhooks(workspaceId: string | undefined) {
 }
 
 export function useCreateWebhook(workspaceId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: CreateWebhookPayload) =>
+  return useInvalidatingMutation(
+    (payload: CreateWebhookPayload) =>
       createWorkspaceWebhook(workspaceId, payload),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: wsKey(workspaceId) });
-    },
-    onError: handleApiError,
-  });
+    wsKey(workspaceId),
+    { successMessage: (r) => r.message },
+  );
 }
 
 export function useUpdateWebhook(workspaceId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      webhookId,
-      payload,
-    }: {
-      webhookId: string;
-      payload: UpdateWebhookPayload;
-    }) => updateWorkspaceWebhook(workspaceId, webhookId, payload),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: wsKey(workspaceId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    ({ webhookId, payload }: { webhookId: string; payload: UpdateWebhookPayload }) =>
+      updateWorkspaceWebhook(workspaceId, webhookId, payload),
+    wsKey(workspaceId),
+    { successMessage: (r) => r.message },
+  );
 }
 
 export function useDeleteWebhook(workspaceId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (webhookId: string) =>
-      deleteWorkspaceWebhook(workspaceId, webhookId),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: wsKey(workspaceId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (webhookId: string) => deleteWorkspaceWebhook(workspaceId, webhookId),
+    wsKey(workspaceId),
+    { successMessage: (r) => r.message },
+  );
 }
 
+// Test endpoint doesn't mutate cache — keeps raw useMutation just for toast.
 export function useTestWebhook(workspaceId: string) {
   return useMutation({
     mutationFn: (webhookId: string) =>
@@ -92,13 +76,9 @@ export function useWebhookDeliveries(filters: WebhookDeliveryFilters) {
 }
 
 export function useRetryDelivery() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (deliveryId: string) => retryWebhookDelivery(deliveryId),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: DELIVERIES_KEY });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (deliveryId: string) => retryWebhookDelivery(deliveryId),
+    DELIVERIES_KEY,
+    { successMessage: (r) => r.message },
+  );
 }

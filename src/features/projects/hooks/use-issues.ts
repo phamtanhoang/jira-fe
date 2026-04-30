@@ -79,6 +79,8 @@ export function useIssue(key: string) {
 export function useCreateIssue() {
   const queryClient = useQueryClient();
 
+  // Can't use `useInvalidatingMutation` here — invalidate keys depend on
+  // the response payload (projectId is in the result, not the input vars).
   return useMutation({
     mutationFn: (data: CreateIssuePayload) => issuesApi.create(data),
     onSuccess: (result) => {

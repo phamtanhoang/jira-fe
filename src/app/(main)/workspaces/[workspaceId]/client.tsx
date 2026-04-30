@@ -269,7 +269,7 @@ export default function WorkspaceDetailPage() {
                   key={proj.id}
                   href={ROUTES.BOARD(workspaceId, proj.id)}
                 >
-                  <div className="group overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/20 hover:shadow-md">
+                  <div className="group overflow-hidden rounded-xl border bg-card shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md">
                     {/* Gradient top */}
                     <div className={`h-1 bg-linear-to-r ${PROJECT_COLORS[i % PROJECT_COLORS.length]}`} />
 

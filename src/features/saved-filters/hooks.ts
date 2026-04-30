@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { savedFiltersApi } from "./api";
 
 const KEY = (projectId: string) => ["saved-filters", projectId] as const;
@@ -15,21 +15,14 @@ export function useSavedFilters(projectId: string | undefined) {
 }
 
 export function useCreateSavedFilter(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: savedFiltersApi.create,
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: KEY(projectId) });
-    },
-    onError: handleApiError,
+  return useInvalidatingMutation(savedFiltersApi.create, KEY(projectId), {
+    successMessage: (r) => r.message,
   });
 }
 
 export function useUpdateSavedFilter(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
+  return useInvalidatingMutation(
+    ({
       id,
       ...data
     }: {
@@ -38,22 +31,15 @@ export function useUpdateSavedFilter(projectId: string) {
       payload?: Record<string, unknown>;
       shared?: boolean;
     }) => savedFiltersApi.update(id, data),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: KEY(projectId) });
-    },
-    onError: handleApiError,
-  });
+    KEY(projectId),
+    { successMessage: (r) => r.message },
+  );
 }
 
 export function useDeleteSavedFilter(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => savedFiltersApi.delete(id),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: KEY(projectId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (id: string) => savedFiltersApi.delete(id),
+    KEY(projectId),
+    { successMessage: (r) => r.message },
+  );
 }

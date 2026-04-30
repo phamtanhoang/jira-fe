@@ -113,13 +113,13 @@ export const IssueCard = memo(function IssueCard({
             }
           : undefined
       }
-      className={`group relative cursor-grab rounded-md border bg-card p-2.5 shadow-sm transition-all duration-150
+      className={`group relative cursor-grab rounded-md border bg-card p-2.5 shadow-xs transition-all duration-150
         ${dragging
           ? "rotate-2 scale-105 border-primary/40 opacity-60 shadow-lg"
-          : "border-transparent hover:border-primary/30 hover:bg-accent/50 hover:shadow-md dark:hover:bg-accent/20"
+          : "border-transparent hover:-translate-y-0.5 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md dark:hover:bg-accent/20"
         }
         ${isPending ? "pointer-events-none opacity-60" : ""}
-        active:cursor-grabbing active:shadow-sm`}
+        active:translate-y-0 active:cursor-grabbing active:shadow-sm`}
     >
       {isPending && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-background/40 backdrop-blur-[1px]">

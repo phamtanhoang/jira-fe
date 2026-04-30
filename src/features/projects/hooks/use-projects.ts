@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { projectsApi } from "../api";
 import type {
@@ -55,15 +56,10 @@ export function useUpdateProject() {
 }
 
 export function useDeleteProject() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => projectsApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (id: string) => projectsApi.delete(id),
+    ["projects"],
+  );
 }
 
 export function useProjectMembers(projectId: string) {
@@ -75,62 +71,47 @@ export function useProjectMembers(projectId: string) {
 }
 
 export function useBulkAddProjectMembers(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: {
-      userIds: string[];
-      role?: "ADMIN" | "DEVELOPER" | "VIEWER";
-    }) => projectsApi.bulkAddMembers(projectId, data),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["projectMembers", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+  return useInvalidatingMutation(
+    (data: { userIds: string[]; role?: "ADMIN" | "DEVELOPER" | "VIEWER" }) =>
+      projectsApi.bulkAddMembers(projectId, data),
+    ["projectMembers", projectId],
+    {
+      successMessage: (r) => r.message,
+      extraInvalidateKeys: [["project", projectId]],
     },
-    onError: handleApiError,
-  });
+  );
 }
 
 export function useAddProjectMember(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: AddProjectMemberPayload) =>
+  return useInvalidatingMutation(
+    (data: AddProjectMemberPayload) =>
       projectsApi.addMember(projectId, data),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["projectMembers", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+    ["projectMembers", projectId],
+    {
+      successMessage: (r) => r.message,
+      extraInvalidateKeys: [["project", projectId]],
     },
-    onError: handleApiError,
-  });
+  );
 }
 
 export function useUpdateProjectMember(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ memberId, ...data }: UpdateProjectMemberPayload & { memberId: string }) =>
+  return useInvalidatingMutation(
+    ({ memberId, ...data }: UpdateProjectMemberPayload & { memberId: string }) =>
       projectsApi.updateMember(projectId, memberId, data),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["projectMembers", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+    ["projectMembers", projectId],
+    {
+      successMessage: (r) => r.message,
+      extraInvalidateKeys: [["project", projectId]],
     },
-    onError: handleApiError,
-  });
+  );
 }
 
 export function useRemoveProjectMember(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (memberId: string) =>
-      projectsApi.removeMember(projectId, memberId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projectMembers", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+  return useInvalidatingMutation(
+    (memberId: string) => projectsApi.removeMember(projectId, memberId),
+    ["projectMembers", projectId],
+    {
+      extraInvalidateKeys: [["project", projectId]],
     },
-    onError: handleApiError,
-  });
+  );
 }

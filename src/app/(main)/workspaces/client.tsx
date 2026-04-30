@@ -114,7 +114,7 @@ export default function WorkspacesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {workspaces.map((ws, i) => (
             <Link key={ws.id} href={ROUTES.WORKSPACE(ws.id)}>
-              <div className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/20 hover:shadow-md">
+              <div className="group relative overflow-hidden rounded-xl border bg-card shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md">
                 {/* Gradient strip */}
                 <div className={`h-1.5 bg-linear-to-r ${GRADIENT_COLORS[i % GRADIENT_COLORS.length]}`} />
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import {
   createCustomField,
   deleteCustomField,
@@ -24,42 +24,24 @@ export function useCustomFields(projectId: string | undefined) {
 }
 
 export function useCreateCustomField(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: CreateCustomFieldPayload) =>
-      createCustomField(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: key(projectId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (payload: CreateCustomFieldPayload) => createCustomField(payload),
+    key(projectId),
+  );
 }
 
 export function useUpdateCustomField(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: UpdateCustomFieldPayload;
-    }) => updateCustomField(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: key(projectId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    ({ id, payload }: { id: string; payload: UpdateCustomFieldPayload }) =>
+      updateCustomField(id, payload),
+    key(projectId),
+  );
 }
 
 export function useDeleteCustomField(projectId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => deleteCustomField(id),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: key(projectId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (id: string) => deleteCustomField(id),
+    key(projectId),
+    { successMessage: (r) => r.message },
+  );
 }

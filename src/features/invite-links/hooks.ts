@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { inviteLinksApi, type CreateInviteLinkPayload } from "./api";
 
 const KEY = (workspaceId: string) => ["invite-links", workspaceId] as const;
@@ -15,28 +15,19 @@ export function useInviteLinks(workspaceId: string | undefined) {
 }
 
 export function useCreateInviteLink(workspaceId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (body: CreateInviteLinkPayload) =>
-      inviteLinksApi.create(workspaceId, body),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: KEY(workspaceId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (body: CreateInviteLinkPayload) => inviteLinksApi.create(workspaceId, body),
+    KEY(workspaceId),
+    { successMessage: (r) => r.message },
+  );
 }
 
 export function useRevokeInviteLink(workspaceId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (linkId: string) => inviteLinksApi.revoke(workspaceId, linkId),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: KEY(workspaceId) });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (linkId: string) => inviteLinksApi.revoke(workspaceId, linkId),
+    KEY(workspaceId),
+    { successMessage: (r) => r.message },
+  );
 }
 
 export function useInvitePreview(token: string | undefined) {
@@ -49,13 +40,9 @@ export function useInvitePreview(token: string | undefined) {
 }
 
 export function useJoinViaInvite() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (token: string) => inviteLinksApi.join(token),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    (token: string) => inviteLinksApi.join(token),
+    ["workspaces"],
+    { successMessage: (r) => r.message },
+  );
 }

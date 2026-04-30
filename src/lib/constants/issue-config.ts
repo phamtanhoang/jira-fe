@@ -12,16 +12,18 @@ import {
 } from "lucide-react";
 
 // ─── Issue Type ────────────────────────────────────────
+// Colors map to design tokens in globals.css — `bg-issue-*` resolves
+// via the `@theme inline` mapping. Dark-mode contrast handled there.
 
 export const TYPE_CONFIG: Record<
   string,
   { icon: React.ElementType; bg: string }
 > = {
-  EPIC: { icon: Zap, bg: "bg-purple-600" },
-  STORY: { icon: BookOpen, bg: "bg-emerald-500" },
-  BUG: { icon: Bug, bg: "bg-red-500" },
-  TASK: { icon: CheckSquare, bg: "bg-blue-500" },
-  SUBTASK: { icon: Layers, bg: "bg-sky-400" },
+  EPIC: { icon: Zap, bg: "bg-issue-epic" },
+  STORY: { icon: BookOpen, bg: "bg-issue-story" },
+  BUG: { icon: Bug, bg: "bg-issue-bug" },
+  TASK: { icon: CheckSquare, bg: "bg-issue-task" },
+  SUBTASK: { icon: Layers, bg: "bg-issue-subtask" },
 };
 
 // ─── Issue Priority ────────────────────────────────────
@@ -30,27 +32,27 @@ export const PRIORITY_CONFIG: Record<
   string,
   { icon: React.ElementType; color: string }
 > = {
-  HIGHEST: { icon: ChevronsUp, color: "text-red-600" },
-  HIGH: { icon: ArrowUp, color: "text-red-500" },
-  MEDIUM: { icon: Minus, color: "text-orange-400" },
-  LOW: { icon: ArrowDown, color: "text-blue-500" },
-  LOWEST: { icon: ChevronsDown, color: "text-blue-400" },
+  HIGHEST: { icon: ChevronsUp, color: "text-priority-highest" },
+  HIGH: { icon: ArrowUp, color: "text-priority-high" },
+  MEDIUM: { icon: Minus, color: "text-priority-medium" },
+  LOW: { icon: ArrowDown, color: "text-priority-low" },
+  LOWEST: { icon: ChevronsDown, color: "text-priority-lowest" },
 };
 
 // ─── Status Category Colors ───────────────────────────
 
 /** Dot indicator (board column headers, summary charts) */
 export const STATUS_DOT_COLORS: Record<string, string> = {
-  TODO: "bg-gray-400",
-  IN_PROGRESS: "bg-blue-500",
-  DONE: "bg-green-500",
+  TODO: "bg-status-todo",
+  IN_PROGRESS: "bg-status-progress",
+  DONE: "bg-status-done",
 };
 
 /** Badge styling (issue row, status badges) */
 export const STATUS_BADGE_COLORS: Record<string, string> = {
-  TODO: "bg-gray-100 text-gray-600",
-  IN_PROGRESS: "bg-blue-100 text-blue-700",
-  DONE: "bg-green-100 text-green-700",
+  TODO: "bg-status-todo/15 text-status-todo",
+  IN_PROGRESS: "bg-status-progress/15 text-status-progress",
+  DONE: "bg-status-done/15 text-status-done",
 };
 
 // ─── Enum Arrays (for filters, selects) ───────────────
