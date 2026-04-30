@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { cn, sanitizeRichHtml } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RichEditorProps } from "./editor.client";
@@ -41,13 +42,33 @@ export function RichContent({
   html: string;
   className?: string;
 }) {
+  const router = useRouter();
   const safeHtml = useMemo(() => sanitizeRichHtml(html), [html]);
+
+  // Delegated click handler — finds the closest mention span and routes to
+  // the user's profile page. The click is fired on the inner span produced
+  // by Tiptap (`<span data-mention data-id="UUID">@Name</span>`); using
+  // `closest()` survives nested formatting like bold/italic mentions.
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = (e.target as HTMLElement).closest<HTMLElement>(
+        "[data-mention][data-id]",
+      );
+      if (!target) return;
+      const id = target.dataset.id;
+      if (!id) return;
+      e.preventDefault();
+      router.push(`/u/${id}`);
+    },
+    [router],
+  );
 
   if (!safeHtml || safeHtml === "<p></p>") return null;
 
   return (
     <div
       className={cn("prose prose-sm dark:prose-invert max-w-none", className)}
+      onClick={handleClick}
       dangerouslySetInnerHTML={{ __html: safeHtml }}
     />
   );

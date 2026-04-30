@@ -1293,6 +1293,13 @@
     "PASSWORD_MISMATCH": "Passwords do not match",
     "TOKEN_LENGTH": "Verification code must be 6 characters"
   },
+  "userProfile": {
+    "unavailableTitle": "Profile unavailable",
+    "unavailableDesc": "This user is not part of any workspace you can access.",
+    "joined": "Joined",
+    "sharedWorkspaces": "Shared workspaces",
+    "editProfile": "Edit profile"
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your account, security, notifications, and privacy settings.",
@@ -1358,7 +1365,9 @@
     "issueDetailTitle": "Issue",
     "issueDetailDesc": "View and manage issue details",
     "profileTitle": "Profile",
-    "profileDesc": "Manage your profile and account settings"
+    "profileDesc": "Manage your profile and account settings",
+    "userProfileTitle": "User profile",
+    "userProfileDesc": "View basic profile information for a workspace member"
   },
   "email": {
     "subject": "Verification Code - {name}",

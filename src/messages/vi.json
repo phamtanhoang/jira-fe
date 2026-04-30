@@ -1293,6 +1293,13 @@
     "PASSWORD_MISMATCH": "Mật khẩu không khớp",
     "TOKEN_LENGTH": "Mã xác thực phải có 6 ký tự"
   },
+  "userProfile": {
+    "unavailableTitle": "Hồ sơ không khả dụng",
+    "unavailableDesc": "Người dùng này không nằm trong workspace nào bạn có thể truy cập.",
+    "joined": "Tham gia",
+    "sharedWorkspaces": "Workspace chung",
+    "editProfile": "Sửa hồ sơ"
+  },
   "profile": {
     "title": "Hồ sơ cá nhân",
     "subtitle": "Quản lý tài khoản, bảo mật, thông báo và quyền riêng tư.",
@@ -1358,7 +1365,9 @@
     "issueDetailTitle": "Công việc",
     "issueDetailDesc": "Xem và quản lý chi tiết công việc",
     "profileTitle": "Hồ sơ",
-    "profileDesc": "Quản lý hồ sơ và tài khoản của bạn"
+    "profileDesc": "Quản lý hồ sơ và tài khoản của bạn",
+    "userProfileTitle": "Hồ sơ người dùng",
+    "userProfileDesc": "Xem thông tin cơ bản của thành viên trong workspace"
   },
   "email": {
     "subject": "Mã xác thực - {name}",

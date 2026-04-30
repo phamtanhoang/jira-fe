@@ -94,7 +94,7 @@ export default function RichEditor({
               HTMLAttributes: {
                 "data-mention": "",
                 class:
-                  "rounded bg-primary/10 px-1 py-0.5 text-primary font-medium",
+                  "rounded bg-primary/10 px-1 py-0.5 text-primary font-medium cursor-pointer hover:bg-primary/20 transition-colors",
               },
               renderHTML({ options, node }) {
                 const id = String(node.attrs.id ?? "");

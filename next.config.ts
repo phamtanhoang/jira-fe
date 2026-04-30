@@ -1,5 +1,12 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
 import { ENV } from "./src/lib/constants/env";
+
+// Enable with: ANALYZE=true npm run build
+// Output: .next/analyze/{client,server}.html — open in browser to inspect.
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -38,4 +45,4 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

@@ -145,6 +145,7 @@ const USERS_BASE = "/users";
 const USERS_ENDPOINTS = {
   base: USERS_BASE,
   byId: (id: string) => `${USERS_BASE}/${id}`,
+  profile: (id: string) => `${USERS_BASE}/${id}/profile`,
   role: (id: string) => `${USERS_BASE}/${id}/role`,
   status: (id: string) => `${USERS_BASE}/${id}/status`,
   sessions: (id: string) => `${USERS_BASE}/${id}/sessions`,
