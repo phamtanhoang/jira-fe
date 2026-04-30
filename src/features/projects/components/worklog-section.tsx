@@ -137,10 +137,18 @@ export function WorklogSection({
                   </span>
                   {w.userId === currentUserId && (
                     <div className="flex gap-0.5">
-                      <button onClick={() => startEdit(w)} className="text-muted-foreground/50 hover:text-foreground">
+                      <button
+                        onClick={() => startEdit(w)}
+                        aria-label={t("common.edit")}
+                        className="rounded p-1 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
+                      >
                         <Pencil className="h-3 w-3" />
                       </button>
-                      <button onClick={() => deleteWorklog(w.id)} className="text-muted-foreground/50 hover:text-destructive">
+                      <button
+                        onClick={() => deleteWorklog(w.id)}
+                        aria-label={t("common.delete")}
+                        className="rounded p-1 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-destructive"
+                      >
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>

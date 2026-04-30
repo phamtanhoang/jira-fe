@@ -11,7 +11,9 @@ import {
   parseDuration,
 } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useBoard, useMoveIssue, useIssues, useWatchers, useWorklogs } from "../hooks";
+import { useBoard, useMoveIssue, useIssues } from "../hooks";
+import { IssueWatchersBlock } from "./issue-watchers-block";
+import { TimeEstimateDisplay } from "./time-estimate-display";
 import { WorklogSection } from "./worklog-section";
 import { IssueLinksSection } from "./issue-links-section";
 import { Input } from "@/components/ui/input";
@@ -350,7 +352,7 @@ export function IssueDetailSidebar({
               onBlur={(e) => { onUpdate("storyPoints", e.target.value || null); close(); }}
               onKeyDown={(e) => { if (e.key === "Enter") { onUpdate("storyPoints", (e.target as HTMLInputElement).value || null); close(); } }}
               className="h-8 w-24 text-[12px]"
-              placeholder="—"
+              placeholder={t("issue.emptyDash")}
               autoFocus
             />
           )}
@@ -378,7 +380,7 @@ export function IssueDetailSidebar({
                 }
               }}
               className="h-8 w-32 text-[12px]"
-              placeholder="2h 30m"
+              placeholder={t("issue.estimatePlaceholder")}
               autoFocus
             />
           )}
@@ -483,7 +485,7 @@ export function IssueDetailSidebar({
 
         <Separator />
 
-        <WatchersBlock issueId={issue.id} />
+        <IssueWatchersBlock issueId={issue.id} />
 
         <Separator />
 
@@ -503,78 +505,3 @@ export function IssueDetailSidebar({
   );
 }
 
-// Display "Xh Ym" string for a seconds value; null/0 → em-dash. Pulls
-// worklog totals from the same hook the worklog section uses so a
-// progress bar appears once any time is logged.
-function TimeEstimateDisplay({
-  issueId,
-  estimate,
-}: {
-  issueId: string;
-  estimate: number | null;
-}) {
-  const { data: worklogs } = useWorklogs(issueId);
-  const spent = (worklogs ?? []).reduce(
-    (s, w) => s + (w.timeSpent ?? 0),
-    0,
-  );
-  if (!estimate && !spent) return <span>—</span>;
-  const pct = estimate ? Math.min(100, Math.round((spent / estimate) * 100)) : 0;
-  return (
-    <span className="flex flex-col">
-      <span className="text-[12px]">
-        {formatDuration(spent) || "0m"}
-        {estimate ? ` / ${formatDuration(estimate)}` : ""}
-      </span>
-      {estimate ? (
-        <span className="mt-1 h-1 w-24 overflow-hidden rounded-full bg-muted">
-          <span
-            className={`block h-full ${
-              spent > estimate ? "bg-red-500" : "bg-primary"
-            }`}
-            style={{ width: `${pct}%` }}
-          />
-        </span>
-      ) : null}
-    </span>
-  );
-}
-
-
-// Stacked avatars of users currently watching this issue. Hides itself when
-// nobody is watching to avoid an empty-looking section in the sidebar.
-function WatchersBlock({ issueId }: { issueId: string }) {
-  const { t } = useAppStore();
-  const { data: watchers } = useWatchers(issueId);
-  const list = watchers ?? [];
-  if (list.length === 0) return null;
-  const visible = list.slice(0, 6);
-  const overflow = list.length - visible.length;
-  return (
-    <div className="px-2 py-1">
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-muted-foreground">
-          {t("issue.watchers")}
-        </span>
-        <span className="text-[10px] text-muted-foreground/70 tabular-nums">
-          {list.length}
-        </span>
-      </div>
-      <div className="flex -space-x-1.5">
-        {visible.map((u) => (
-          <UserAvatar
-            key={u.id}
-            user={u}
-            className="h-6 w-6 ring-2 ring-background"
-            fallbackClassName="text-[9px]"
-          />
-        ))}
-        {overflow > 0 && (
-          <span className="flex h-6 w-6 items-center justify-center rounded-full border bg-muted text-[10px] font-medium text-muted-foreground ring-2 ring-background">
-            +{overflow}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -64,6 +64,12 @@ const EMPTY_FORM: FormState = {
   workspaceIds: "",
 };
 
+/**
+ * Flag keys are used directly in code (`featureFlags.beta_boards`) so we
+ * accept lowercase letters, digits, dot, hyphen, underscore. Length 2-50.
+ */
+const KEY_REGEX = /^[a-z0-9._-]{2,50}$/;
+
 export function AdminFlagsClient() {
   const { t } = useAppStore();
   const { data: flags, isLoading } = useFlags();
@@ -74,6 +80,23 @@ export function AdminFlagsClient() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<FeatureFlag | null>(null);
+
+  // Validate the create-form key client-side: format + uniqueness against
+  // existing flags. Skipped on edit (key field is locked via `disabled`).
+  const keyError = useMemo<string | null>(() => {
+    if (form.id) return null;
+    const key = form.key.trim();
+    if (!key) return null;
+    if (!KEY_REGEX.test(key)) return t("admin.flags.keyInvalid");
+    if (flags?.some((f) => f.key === key)) return t("admin.flags.keyDuplicate");
+    return null;
+  }, [flags, form.id, form.key, t]);
+
+  const nameError = !form.name.trim()
+    ? t("admin.flags.nameRequired")
+    : null;
+  const canSubmit =
+    !keyError && !nameError && (form.id || form.key.trim().length > 0);
 
   function openCreate() {
     setForm(EMPTY_FORM);
@@ -207,10 +230,15 @@ export function AdminFlagsClient() {
                 onChange={(e) => setForm({ ...form, key: e.target.value })}
                 placeholder={t("admin.flags.keyPlaceholder")}
                 disabled={!!form.id}
+                aria-invalid={!!keyError}
               />
-              <p className="text-[11px] text-muted-foreground">
-                {t("admin.flags.keyHint")}
-              </p>
+              {keyError ? (
+                <p className="text-[11px] text-destructive">{keyError}</p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("admin.flags.keyHint")}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -220,7 +248,8 @@ export function AdminFlagsClient() {
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Beta boards"
+                placeholder={t("admin.flags.namePlaceholder")}
+                aria-invalid={!!nameError && form.name.length > 0}
               />
             </div>
 
@@ -320,7 +349,9 @@ export function AdminFlagsClient() {
             </Button>
             <Button
               onClick={save}
-              disabled={createFlag.isPending || updateFlag.isPending}
+              disabled={
+                !canSubmit || createFlag.isPending || updateFlag.isPending
+              }
             >
               {t("common.save")}
             </Button>

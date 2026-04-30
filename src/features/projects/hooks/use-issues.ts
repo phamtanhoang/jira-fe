@@ -303,11 +303,55 @@ export function useDeleteIssue(projectId: string) {
 
   return useMutation({
     mutationFn: (id: string) => issuesApi.delete(id),
-    onSuccess: () => {
+    // Optimistic remove from board + issue list — feels instant. Snapshot
+    // taken in `onMutate`, restored in `onError` if BE rejects.
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["board", projectId] });
+      await queryClient.cancelQueries({ queryKey: ["issues", projectId] });
+
+      const boardSnapshot = queryClient.getQueriesData<Board>({
+        queryKey: ["board", projectId],
+      });
+      const issuesSnapshot = queryClient.getQueriesData<Issue[]>({
+        queryKey: ["issues", projectId],
+      });
+
+      queryClient.setQueriesData<Board>(
+        { queryKey: ["board", projectId] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            columns: old.columns.map((col) => ({
+              ...col,
+              issues: col.issues.filter((i) => i.id !== id),
+            })),
+          };
+        },
+      );
+      queryClient.setQueriesData<Issue[]>(
+        { queryKey: ["issues", projectId] },
+        (old) => (Array.isArray(old) ? old.filter((i) => i.id !== id) : old),
+      );
+
+      return { boardSnapshot, issuesSnapshot };
+    },
+    onError: (err, _id, context) => {
+      // Rollback both caches on failure.
+      if (context) {
+        for (const [key, data] of context.boardSnapshot) {
+          queryClient.setQueryData(key, data);
+        }
+        for (const [key, data] of context.issuesSnapshot) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+      handleApiError(err);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["board", projectId] });
       queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
     },
-    onError: handleApiError,
   });
 }
 

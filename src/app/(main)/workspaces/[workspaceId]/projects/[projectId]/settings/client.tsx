@@ -54,6 +54,7 @@ import type { ProjectMember } from "@/features/projects/types";
 import { ProjectTemplates } from "@/features/issue-templates/components/project-templates";
 import { CustomFieldsManager } from "@/features/custom-fields";
 import { ProjectColumnsManager } from "@/features/projects/components/project-columns-manager";
+import { RecurringRulesPanel } from "@/features/recurring-issues";
 
 const ROLE_COLORS: Record<string, string> = {
   LEAD: "bg-purple-100 text-purple-700",
@@ -68,6 +69,7 @@ const PROJECT_SETTINGS_TABS = [
   "templates",
   "fields",
   "columns",
+  "recurring",
 ] as const;
 type ProjectSettingsTab = (typeof PROJECT_SETTINGS_TABS)[number];
 
@@ -252,6 +254,10 @@ export default function ProjectSettingsPage() {
           <TabsTrigger value="columns">
             <Settings className="mr-1.5 h-3.5 w-3.5" />
             {t("project.columns.tab")}
+          </TabsTrigger>
+          <TabsTrigger value="recurring">
+            <Settings className="mr-1.5 h-3.5 w-3.5" />
+            {t("recurring.tab")}
           </TabsTrigger>
         </TabsList>
 
@@ -575,6 +581,11 @@ export default function ProjectSettingsPage() {
         {/* Columns Tab — custom statuses (Phase 8.1) */}
         <TabsContent value="columns">
           <ProjectColumnsManager projectId={projectId} canManage={canManage} />
+        </TabsContent>
+
+        {/* Recurring Issues Tab — automation (Phase 8.2 FE integration) */}
+        <TabsContent value="recurring">
+          <RecurringRulesPanel projectId={projectId} />
         </TabsContent>
       </Tabs>
 

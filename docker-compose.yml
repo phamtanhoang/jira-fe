@@ -5,3 +5,14 @@ services:
     restart: unless-stopped
     ports:
       - "3030:3000"
+    # Liveness probe — Next.js standalone server responds 200 on `/`. We
+    # don't depend on the BE being up here (pages render even when API
+    # rewrite target is down).
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "wget -qO- http://localhost:3000/ > /dev/null || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

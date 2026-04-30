@@ -4,11 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { issuesApi } from "../api";
 
+/**
+ * Activity feed — server defaults to 20 most-recent rows. UI just renders
+ * `data.data` for now; pagination plumbing exists in `getActivity` if a
+ * future "Load older" button needs it.
+ */
 export function useActivity(issueId: string) {
   return useQuery({
     queryKey: ["activity", issueId],
     queryFn: () => issuesApi.getActivity(issueId),
     enabled: !!issueId,
+    select: (response) => response.data,
   });
 }
 

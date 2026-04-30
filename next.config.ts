@@ -1,4 +1,5 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 import { ENV } from "./src/lib/constants/env";
 
@@ -45,4 +46,22 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default withBundleAnalyzer(nextConfig);
+// Sentry build-plugin wrap. When `SENTRY_AUTH_TOKEN` + `SENTRY_ORG` +
+// `SENTRY_PROJECT` are set at build time (production CI), the plugin
+// uploads sourcemaps + tags the release with the git SHA so Sentry shows
+// readable stack frames. Missing env vars → plugin no-ops, no build error.
+// `silent` keeps dev build logs clean.
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  release: {
+    name: process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA,
+  },
+  // Smaller bundles for end users — sourcemaps stay on the server side.
+  widenClientFileUpload: true,
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
+  disableLogger: true,
+});
+

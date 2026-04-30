@@ -34,6 +34,7 @@ import { AttachmentSection } from "./attachment-section";
 import { ActivityFeed } from "./activity-feed";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -71,6 +72,15 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
   const [descDraft, setDescDraft] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(modal ? 280 : 320);
   const [shareOpen, setShareOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  function handleConfirmDelete() {
+    if (!issue) return;
+    deleteIssue(issue.id);
+    setDeleteOpen(false);
+    if (modal) onClose?.();
+    else router.back();
+  }
 
   // Track this issue in the Cmd+K "Recent" list whenever its identity loads.
   // Pre-bind primitives so the deps array stays exhaustive without
@@ -246,7 +256,7 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             </Button>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => { deleteIssue(issue.id); if (modal) { onClose?.(); } else { router.back(); } }}
+                onClick={() => setDeleteOpen(true)}
                 className="text-destructive"
               >
                 <Trash2 className="mr-2 h-3.5 w-3.5" />
@@ -319,9 +329,9 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
                 {issue.description ? (
                   <RichContent html={issue.description} />
                 ) : (
-                  <p className="text-sm italic text-muted-foreground/50">{t("issue.clickToAddDesc")}</p>
+                  <p className="text-sm italic text-muted-foreground/70">{t("issue.clickToAddDesc")}</p>
                 )}
-                <span className="mt-1 block text-[10px] text-muted-foreground/40 opacity-0 transition-opacity group-hover/desc:opacity-100">
+                <span className="mt-1 block text-[10px] text-muted-foreground/60 opacity-0 transition-opacity group-hover/desc:opacity-100">
                   <Pencil className="mr-1 inline h-3 w-3" />{t("common.edit")}
                 </span>
               </div>
@@ -402,6 +412,22 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
           issueId={issue.id}
           open={shareOpen}
           onOpenChange={setShareOpen}
+        />
+      )}
+
+      {issue && (
+        <ConfirmDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          title={t("issue.deleteConfirmTitle")}
+          description={t("issue.deleteConfirmDesc", {
+            key: issue.key,
+            summary: issue.summary,
+          })}
+          confirmLabel={t("common.delete")}
+          cancelLabel={t("common.cancel")}
+          variant="destructive"
+          onConfirm={handleConfirmDelete}
         />
       )}
     </div>

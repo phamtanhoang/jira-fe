@@ -1,4 +1,45 @@
+# ─── Build artefacts (rebuilt inside the image) ──────────────────────────
 node_modules
 .next
+.swc
+out
+build
+*.tsbuildinfo
+
+# ─── Local-only state ─────────────────────────────────────────────────────
 .git
+.gitignore
+.gitattributes
+.github
+
+# Secrets — NEVER ship into a layer
 .env
+.env.*
+!.env.example
+
+# Editor / IDE
+.vscode
+.idea
+.kiro
+.claude
+*.swp
+*.swo
+
+# Test / CI scratch
+test-results
+playwright-report
+playwright-cache
+tests
+.husky
+eslint-out.json
+
+# Docs
+README.md
+CONTRIBUTING.md
+SECURITY.md
+CHANGELOG.md
+LICENSE
+
+# OS junk
+.DS_Store
+Thumbs.db

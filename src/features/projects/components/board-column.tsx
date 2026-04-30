@@ -100,7 +100,8 @@ export function BoardColumn({
           {onQuickCreate && (
             <button
               onClick={() => setShowQuickCreate(true)}
-              className="rounded p-0.5 text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+              aria-label={t("board.quickCreateIssue")}
+              className="rounded p-1 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
@@ -111,7 +112,8 @@ export function BoardColumn({
                 render={<DropdownMenuTrigger />}
                 variant="ghost"
                 size="icon-xs"
-                className="h-5 w-5 text-muted-foreground/50 hover:text-foreground"
+                aria-label={t("common.moreActions")}
+                className="h-5 w-5 text-muted-foreground/70 hover:text-foreground"
               >
                 <MoreHorizontal className="h-3.5 w-3.5" />
               </Button>
@@ -210,7 +212,7 @@ export function BoardColumn({
         ) : onQuickCreate ? (
           <button
             onClick={() => setShowQuickCreate(true)}
-            className="flex w-full items-center gap-1.5 rounded-sm p-2 text-[12px] text-muted-foreground/50 transition-colors hover:bg-muted/60 hover:text-muted-foreground"
+            className="flex w-full items-center gap-1.5 rounded-sm p-2 text-[12px] text-muted-foreground/70 transition-colors hover:bg-muted/60 hover:text-foreground"
           >
             <Plus className="h-3 w-3" />
             {t("board.createIssue")}

@@ -201,9 +201,18 @@ export const issuesApi = {
   deleteComment: (commentId: string) =>
     api.delete(ENDPOINTS.comments.byId(commentId)).then((r) => r.data),
 
-  getActivity: (issueId: string) =>
+  getActivity: (
+    issueId: string,
+    opts?: { cursor?: string; take?: number },
+  ) =>
     api
-      .get<Activity[]>(ENDPOINTS.issues.activity(issueId))
+      .get<{
+        data: Activity[];
+        nextCursor: string | null;
+        hasMore: boolean;
+      }>(ENDPOINTS.issues.activity(issueId), {
+        params: opts ? { cursor: opts.cursor, take: opts.take } : undefined,
+      })
       .then((r) => r.data),
 
   getWorklogs: (issueId: string) =>

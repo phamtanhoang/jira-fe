@@ -1,16 +1,29 @@
-# Jira Frontend
+# Jira Clone — Frontend
 
-A modern Next.js application for Jira frontend with authentication, internationalization, and responsive UI components.
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)](https://www.typescriptlang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+A modern Next.js 16 (App Router) frontend for the [Jira Clone backend](../jira-be) — authentication, project boards (Kanban + Scrum), sprint planning, custom fields, real-time mentions, and PWA-ready mobile experience.
+
+🤝 **[CONTRIBUTING.md](./CONTRIBUTING.md)** — quick start + PR checklist + conventions.
+🔒 **[SECURITY.md](./SECURITY.md)** — responsible disclosure policy.
+📝 **[CHANGELOG.md](../CHANGELOG.md)** — recent changes grouped by phase.
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ with TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Form Handling**: React Hook Form
-- **API Client**: Axios
-- **Internationalization**: i18n (EN, VI)
-- **UI Components**: Custom component library
+- **Framework**: Next.js 16 (App Router) + React 19 + TypeScript 5 (strict + noUnused/Implicit/Fallthrough flags)
+- **Styling**: TailwindCSS 4 + tw-animate-css + clsx/tailwind-merge
+- **UI primitives**: @base-ui/react (shadcn-style) + lucide-react icons
+- **State**: Zustand (settings + locale) + TanStack Query 5 (server state)
+- **Forms**: react-hook-form + Zod resolvers
+- **HTTP**: single axios instance with GET dedupe + 401 auto-refresh + 429 retry
+- **Rich text**: Tiptap (lazy-loaded, ~80 KB chunk)
+- **i18n**: vi (default) + en — both via JSON message files
+- **Observability**: Sentry (production only) + breadcrumb buffer + `/logs/client` ingest
+- **PWA**: manifest + service worker + Web Push subscriptions
 
 ## Features
 

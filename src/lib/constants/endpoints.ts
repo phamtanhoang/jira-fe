@@ -199,6 +199,12 @@ const CUSTOM_FIELDS_ENDPOINTS = {
   byId: (id: string) => `${CUSTOM_FIELDS_BASE}/${id}`,
 } as const;
 
+const RECURRING_ISSUES_BASE = "/recurring-issues";
+const RECURRING_ISSUES_ENDPOINTS = {
+  base: RECURRING_ISSUES_BASE,
+  byId: (id: string) => `${RECURRING_ISSUES_BASE}/${id}`,
+} as const;
+
 const ADMIN_BASE = "/admin";
 const ADMIN_ENDPOINTS = {
   stats: `${ADMIN_BASE}/stats`,
@@ -246,6 +252,7 @@ export const ENDPOINTS = {
   savedFilters: SAVED_FILTERS_ENDPOINTS,
   issueTemplates: ISSUE_TEMPLATES_ENDPOINTS,
   customFields: CUSTOM_FIELDS_ENDPOINTS,
+  recurringIssues: RECURRING_ISSUES_ENDPOINTS,
   push: PUSH_ENDPOINTS,
   public: PUBLIC_ENDPOINTS,
 } as const;
