@@ -53,15 +53,71 @@ export function showMessage(key: MsgKey | string) {
 }
 
 /**
+ * Maps stable BE `errorCode` (set by `BaseAppException` subclasses) to a
+ * frontend i18n key under `messages.errorCode.*`. Lets us show a more
+ * specific toast — e.g. PROJECT_ACCESS_DENIED → "You're not a member of
+ * this project. Ask the project lead to invite you." — instead of the raw
+ * BE message constant.
+ *
+ * Falls back to the BE `message` field when the code isn't mapped, so
+ * existing toasts keep working unchanged. Mapping is additive — add an
+ * entry only when the per-code UX should differ from the generic message.
+ */
+const ERROR_CODE_OVERRIDES: Record<string, string> = {
+  WORKSPACE_ACCESS_DENIED: "messages.errorCode.WORKSPACE_ACCESS_DENIED",
+  PROJECT_ACCESS_DENIED: "messages.errorCode.PROJECT_ACCESS_DENIED",
+  INSUFFICIENT_PERMISSIONS: "messages.errorCode.INSUFFICIENT_PERMISSIONS",
+  QUOTA_EXCEEDED: "messages.errorCode.QUOTA_EXCEEDED",
+  ISSUE_LINK_SELF: "messages.errorCode.ISSUE_LINK_SELF",
+  ISSUE_LINK_EXISTS: "messages.errorCode.ISSUE_LINK_EXISTS",
+  SHARE_TOKEN_EXPIRED: "messages.errorCode.SHARE_TOKEN_EXPIRED",
+};
+
+/**
  * Extract message key from an Axios error and show toast.
+ *
+ * Resolution order:
+ * 1. `errorCode` (machine-stable, from `BaseAppException`) → look up override
+ * 2. `message` field (i18n key from MSG.ERROR.*) → translate
+ * 3. UNKNOWN_ERROR fallback
+ *
  * Returns the translated message string for inline display if needed.
  */
 export function handleApiError(error: unknown): string {
-  const key =
-    error instanceof AxiosError
-      ? (error.response?.data?.message ?? error.response?.data?.error ?? "UNKNOWN_ERROR")
-      : "UNKNOWN_ERROR";
-  const message = translate(key);
+  if (!(error instanceof AxiosError)) {
+    const fallback = translate("UNKNOWN_ERROR");
+    toast.error(fallback);
+    return fallback;
+  }
+
+  const data = (error.response?.data ?? {}) as {
+    errorCode?: string;
+    message?: string;
+    error?: string;
+  };
+  const errorCode = typeof data.errorCode === "string" ? data.errorCode : null;
+  const messageKey =
+    typeof data.message === "string"
+      ? data.message
+      : typeof data.error === "string"
+        ? data.error
+        : "UNKNOWN_ERROR";
+
+  // Prefer the per-code override when one is registered. Fall back to the
+  // BE message key (already i18n) so untouched toasts keep working.
+  if (errorCode && ERROR_CODE_OVERRIDES[errorCode]) {
+    const overrideKey = ERROR_CODE_OVERRIDES[errorCode] as MessageKey;
+    const { t } = useAppStore.getState();
+    const translated = t(overrideKey);
+    // Sentinel: translation returns the key itself when missing — fall
+    // through to legacy translate(messageKey) which has its own fallback.
+    if (translated !== overrideKey) {
+      toast.error(translated);
+      return translated;
+    }
+  }
+
+  const message = translate(messageKey);
   toast.error(message);
   return message;
 }

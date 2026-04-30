@@ -41,6 +41,26 @@ const nextConfig: NextConfig = {
           key: "Permissions-Policy",
           value: "camera=(), microphone=(), geolocation=()",
         },
+        // Pragmatic CSP — relaxes `script-src` enough for Next.js inline
+        // hydration scripts (`'unsafe-inline'`), but still blocks third-party
+        // scripts. `connect-src` allows the rewrite target + Sentry + a wide
+        // `https:` for Supabase signed URLs whose hostname rotates. Tightening
+        // to nonces would require app-router CSP middleware — defer.
+        {
+          key: "Content-Security-Policy",
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://browser.sentry-cdn.com",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' data:",
+            "connect-src 'self' https: wss:",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "object-src 'none'",
+          ].join("; "),
+        },
       ],
     },
   ],

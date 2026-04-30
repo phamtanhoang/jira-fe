@@ -1226,6 +1226,15 @@
     "descOptional": "Description (optional)"
   },
   "messages": {
+    "errorCode": {
+      "WORKSPACE_ACCESS_DENIED": "You're not a member of this workspace. Ask the workspace owner to invite you.",
+      "PROJECT_ACCESS_DENIED": "You're not a member of this project. Ask the project lead to add you.",
+      "INSUFFICIENT_PERMISSIONS": "Your role doesn't allow this action. Ask an admin to grant you the required permission.",
+      "QUOTA_EXCEEDED": "Workspace quota reached. Ask an admin to upgrade or remove unused items.",
+      "ISSUE_LINK_SELF": "You can't link an issue to itself.",
+      "ISSUE_LINK_EXISTS": "This link already exists.",
+      "SHARE_TOKEN_EXPIRED": "This share link has expired. Ask the issue author for a new one."
+    },
     "REGISTER_SUCCESS": "Registration successful! Please check your email.",
     "EMAIL_VERIFIED": "Email verified successfully!",
     "LOGOUT_SUCCESS": "Logged out successfully.",

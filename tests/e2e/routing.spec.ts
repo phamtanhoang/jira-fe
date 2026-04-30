@@ -33,4 +33,26 @@ test.describe("Routing & auth guard", () => {
       page.getByRole("heading", { name: /sign up/i }),
     ).toBeVisible();
   });
+
+  test("unauthenticated visit to user profile redirects to sign-in", async ({
+    page,
+  }) => {
+    // The /u/[userId] route is auth-gated — middleware should bounce the
+    // request to /sign-in regardless of whether the user id is valid.
+    await page.goto("/u/2ca34996-9116-4eb8-ad51-f9e8dbdfeb9e");
+    await expect(page).toHaveURL(/\/sign-in$/);
+  });
+
+  test("public share-link route bypasses auth guard", async ({ page }) => {
+    // Token routes must reach the page even without COOKIE_AUTH so external
+    // recipients can open shared issues. We only assert the URL stays put;
+    // the page itself fetches and may render an "expired" state.
+    await page.goto("/share/issue/test-token-not-real");
+    await expect(page).toHaveURL(/\/share\/issue\/test-token-not-real$/);
+  });
+
+  test("maintenance page reachable without auth", async ({ page }) => {
+    await page.goto("/maintenance");
+    await expect(page).toHaveURL(/\/maintenance$/);
+  });
 });

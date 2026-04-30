@@ -1226,6 +1226,15 @@
     "descOptional": "Mô tả (tùy chọn)"
   },
   "messages": {
+    "errorCode": {
+      "WORKSPACE_ACCESS_DENIED": "Bạn không phải thành viên của workspace này. Liên hệ chủ workspace để được mời vào.",
+      "PROJECT_ACCESS_DENIED": "Bạn không phải thành viên của project này. Liên hệ project lead để được thêm vào.",
+      "INSUFFICIENT_PERMISSIONS": "Quyền hiện tại không đủ thực hiện hành động này. Liên hệ admin để cấp quyền.",
+      "QUOTA_EXCEEDED": "Workspace đã đạt giới hạn quota. Admin cần nâng quota hoặc xóa bớt mục không dùng.",
+      "ISSUE_LINK_SELF": "Không thể link issue tới chính nó.",
+      "ISSUE_LINK_EXISTS": "Link này đã tồn tại.",
+      "SHARE_TOKEN_EXPIRED": "Link chia sẻ đã hết hạn. Yêu cầu người tạo issue cấp link mới."
+    },
     "REGISTER_SUCCESS": "Đăng ký thành công! Vui lòng kiểm tra email.",
     "EMAIL_VERIFIED": "Xác thực email thành công!",
     "LOGOUT_SUCCESS": "Đăng xuất thành công.",
