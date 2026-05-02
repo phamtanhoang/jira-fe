@@ -1,18 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { Download } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { cn, toggleArrayItem } from "@/lib/utils";
@@ -27,6 +16,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+const SimpleLineChart = dynamic(() => import("./_components/simple-line-chart"), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[200px] w-full" />,
+});
+const BarLevelChart = dynamic(() => import("./_components/bar-level-chart"), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[200px] w-full" />,
+});
 
 // Trailing-window presets in HOURS — mirrors the metrics page so both
 // admin pages share a unit. Kept human-readable: 1d, 7d, 14d, 30d, 90d.
@@ -139,7 +137,7 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <SimpleLine data={data?.signups ?? []} color="#10b981" />
+              <SimpleLineChart data={data?.signups ?? []} color="var(--color-chart-3)" />
             )}
           </ChartCard>
         )}
@@ -148,7 +146,7 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <SimpleLine data={data?.activeUsers ?? []} color="#8b5cf6" />
+              <SimpleLineChart data={data?.activeUsers ?? []} color="var(--color-chart-5)" />
             )}
           </ChartCard>
         )}
@@ -157,7 +155,7 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <SimpleLine data={data?.issuesCreated ?? []} color="#3b82f6" />
+              <SimpleLineChart data={data?.issuesCreated ?? []} color="var(--color-chart-1)" />
             )}
           </ChartCard>
         )}
@@ -166,7 +164,7 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <SimpleLine data={data?.newWorkspaces ?? []} color="#f59e0b" />
+              <SimpleLineChart data={data?.newWorkspaces ?? []} color="var(--color-chart-4)" />
             )}
           </ChartCard>
         )}
@@ -175,7 +173,7 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <SimpleLine data={data?.comments ?? []} color="#ec4899" />
+              <SimpleLineChart data={data?.comments ?? []} color="var(--color-chart-2)" />
             )}
           </ChartCard>
         )}
@@ -184,7 +182,7 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <SimpleLine data={data?.worklogs ?? []} color="#14b8a6" />
+              <SimpleLineChart data={data?.worklogs ?? []} color="var(--color-chart-2)" />
             )}
           </ChartCard>
         )}
@@ -196,49 +194,12 @@ export function AdminAnalyticsClient() {
             {isLoading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={data?.requestsByLevel ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="date" fontSize={11} tickFormatter={shortDate} />
-                  <YAxis fontSize={11} allowDecimals={false} />
-                  <Tooltip labelFormatter={shortDate} />
-                  <Legend />
-                  <Bar dataKey="INFO" stackId="a" fill="#3b82f6" />
-                  <Bar dataKey="WARN" stackId="a" fill="#f59e0b" />
-                  <Bar dataKey="ERROR" stackId="a" fill="#ef4444" />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarLevelChart data={data?.requestsByLevel ?? []} />
             )}
           </ChartCard>
         )}
       </div>
     </div>
-  );
-}
-
-function SimpleLine({
-  data,
-  color,
-}: {
-  data: { date: string; count: number }[];
-  color: string;
-}) {
-  return (
-    <ResponsiveContainer width="100%" height={200}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-        <XAxis dataKey="date" fontSize={11} tickFormatter={shortDate} />
-        <YAxis fontSize={11} allowDecimals={false} />
-        <Tooltip labelFormatter={shortDate} />
-        <Line
-          type="monotone"
-          dataKey="count"
-          stroke={color}
-          strokeWidth={2}
-          dot={false}
-        />
-      </LineChart>
-    </ResponsiveContainer>
   );
 }
 
@@ -333,16 +294,4 @@ function downloadCsv(data: AdminAnalytics, filename: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-}
-
-/** "2026-04-23" → "Apr 23" */
-function shortDate(raw: unknown): string {
-  if (typeof raw !== "string") return String(raw ?? "");
-  const d = new Date(`${raw}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return raw;
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
 }

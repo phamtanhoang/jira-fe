@@ -14,7 +14,7 @@ export function MaintenancePageClient() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-amber-50 via-background to-background p-6 dark:from-amber-950/30 dark:via-background dark:to-background">
       <div className="w-full max-w-md text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400">
           <Wrench className="h-7 w-7" />
         </div>
         <div className="mb-2 flex items-center justify-center gap-2">

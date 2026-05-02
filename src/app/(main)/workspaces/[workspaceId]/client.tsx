@@ -36,9 +36,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useUrlTab } from "@/lib/hooks/use-url-tab";
-
-const WS_TABS = ["projects", "members", "settings"] as const;
-type WsTab = (typeof WS_TABS)[number];
 import {
   Dialog,
   DialogContent,
@@ -53,6 +50,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ProjectCard } from "./_components/project-card";
+
+const WS_TABS = ["projects", "members", "settings"] as const;
+type WsTab = (typeof WS_TABS)[number];
 
 const PROJECT_COLORS = [
   "from-blue-500 to-cyan-500",
@@ -143,7 +144,7 @@ export default function WorkspaceDetailPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">{workspace?.name}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{workspace?.name}</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
           {workspace?.description || t("workspace.manageDesc")}
         </p>
@@ -265,57 +266,12 @@ export default function WorkspaceDetailPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((proj, i) => (
-                <Link
+                <ProjectCard
                   key={proj.id}
-                  href={ROUTES.BOARD(workspaceId, proj.id)}
-                >
-                  <div className="group overflow-hidden rounded-xl border bg-card shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md">
-                    {/* Gradient top */}
-                    <div className={`h-1 bg-linear-to-r ${PROJECT_COLORS[i % PROJECT_COLORS.length]}`} />
-
-                    <div className="p-4">
-                      <div className="mb-3 flex items-center gap-3">
-                        <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br ${PROJECT_COLORS[i % PROJECT_COLORS.length]} text-[11px] font-bold text-white shadow-sm`}>
-                          {proj.key}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="truncate text-[14px] font-semibold group-hover:text-primary">
-                            {proj.name}
-                          </h3>
-                          <div className="mt-0.5 flex items-center gap-1.5">
-                            <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[10px]">
-                              {proj.type === "SCRUM" ? (
-                                <><Kanban className="h-2.5 w-2.5" /> Scrum</>
-                              ) : (
-                                <><LayoutGrid className="h-2.5 w-2.5" /> Kanban</>
-                              )}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-
-                      {proj.description && (
-                        <p className="mb-3 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
-                          {proj.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between border-t pt-3 text-[11px] text-muted-foreground">
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            {proj._count?.members ?? 0}
-                          </span>
-                          {proj.lead && (
-                            <span className="truncate">
-                              Lead: {proj.lead.name || "—"}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                  proj={proj}
+                  workspaceId={workspaceId}
+                  colorClass={PROJECT_COLORS[i % PROJECT_COLORS.length]}
+                />
               ))}
             </div>
           )}

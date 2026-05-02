@@ -48,7 +48,7 @@ export default function WorkspacesPage() {
     <div className="mx-auto max-w-5xl px-8 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("workspace.title")}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("workspace.title")}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
             {t("workspace.subtitle")}
           </p>

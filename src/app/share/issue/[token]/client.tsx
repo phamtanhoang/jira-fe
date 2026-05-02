@@ -73,7 +73,7 @@ export default function PublicIssuePage() {
           )}
         </div>
 
-        <h1 className="mb-4 text-2xl font-bold tracking-tight">
+        <h1 className="mb-4 text-2xl font-semibold tracking-tight">
           {issue.summary}
         </h1>
 

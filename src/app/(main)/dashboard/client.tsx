@@ -34,7 +34,7 @@ export default function DashboardPage() {
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-semibold tracking-tight">
               {greeting}{user?.name ? `, ${user.name}` : ""}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">

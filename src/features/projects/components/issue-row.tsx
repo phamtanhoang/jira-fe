@@ -28,7 +28,7 @@ export const IssueRow = memo(function IssueRow({
     <div
       onClick={onClick}
       className={cn(
-        "relative flex cursor-pointer items-center gap-3 border-b px-4 py-2.5 transition-colors last:border-b-0 hover:bg-muted/50",
+        "relative flex cursor-pointer items-center gap-3 border-b px-4 py-2.5 transition-colors transition-shadow transition-transform last:border-b-0 hover:bg-muted/50 hover:shadow-sm dark:hover:shadow-black/30 hover:-translate-y-0.5 active:translate-y-0",
         isPending && "opacity-60",
       )}
     >

@@ -11,6 +11,7 @@ import {
 import { isEqual } from "lodash";
 import { STALE_DASHBOARD_WIDGET } from "@/lib/constants/query-stale";
 import { handleApiError, showMessage } from "@/lib/utils";
+import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
 import { issuesApi } from "../api";
 import type { Board, CreateIssuePayload, Issue, MoveIssuePayload } from "../types";
 
@@ -358,32 +359,26 @@ export function useDeleteIssue(projectId: string) {
 }
 
 export function useBulkUpdateIssues(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: { issueIds: string[]; sprintId?: string | null; assigneeId?: string | null; priority?: string }) =>
+  return useInvalidatingMutation(
+    (data: { issueIds: string[]; sprintId?: string | null; assigneeId?: string | null; priority?: string }) =>
       issuesApi.bulkUpdate(data),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+    ["board", projectId],
+    {
+      successMessage: (result) => result.message,
+      extraInvalidateKeys: [["issues", projectId]],
     },
-    onError: handleApiError,
-  });
+  );
 }
 
 export function useBulkDeleteIssues(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (issueIds: string[]) => issuesApi.bulkDelete(issueIds),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
-      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+  return useInvalidatingMutation(
+    (issueIds: string[]) => issuesApi.bulkDelete(issueIds),
+    ["board", projectId],
+    {
+      successMessage: (result) => result.message,
+      extraInvalidateKeys: [["issues", projectId]],
     },
-    onError: handleApiError,
-  });
+  );
 }
 
 // ─── Star / Favorite ────────────────────────────────────────────────────────
@@ -402,35 +397,21 @@ export function useMyStarredIssueIds(projectId?: string) {
 // ─── Issue Links ────────────────────────────────────────────────────────────
 
 export function useAddIssueLink(issueKey: string | undefined) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      targetIssueId,
-      type,
-    }: {
-      id: string;
-      targetIssueId: string;
-      type: import("../types").IssueLinkType;
-    }) => issuesApi.addLink(id, { targetIssueId, type }),
-    onSuccess: (result) => {
-      showMessage(result.message);
-      if (issueKey) queryClient.invalidateQueries({ queryKey: ["issue", issueKey] });
+  return useInvalidatingMutation(
+    ({ id, targetIssueId, type }: { id: string; targetIssueId: string; type: import("../types").IssueLinkType }) =>
+      issuesApi.addLink(id, { targetIssueId, type }),
+    ["issue", issueKey ?? ""],
+    {
+      successMessage: (result) => result.message,
     },
-    onError: handleApiError,
-  });
+  );
 }
 
 export function useRemoveIssueLink(issueKey: string | undefined) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, linkId }: { id: string; linkId: string }) =>
-      issuesApi.removeLink(id, linkId),
-    onSuccess: () => {
-      if (issueKey) queryClient.invalidateQueries({ queryKey: ["issue", issueKey] });
-    },
-    onError: handleApiError,
-  });
+  return useInvalidatingMutation(
+    ({ id, linkId }: { id: string; linkId: string }) => issuesApi.removeLink(id, linkId),
+    ["issue", issueKey ?? ""],
+  );
 }
 
 // ─── Watch / Subscribe ──────────────────────────────────────────────────────

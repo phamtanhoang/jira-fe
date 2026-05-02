@@ -44,6 +44,9 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning className={cn("font-sans", geist.variable)}>
+      <head>
+        <meta name="view-transition" content="same-origin" />
+      </head>
       <body suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AppProvider initialLocale={locale} initialSettings={appSettings}>

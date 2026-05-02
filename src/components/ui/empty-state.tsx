@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 export interface EmptyStateProps {
   /** Optional icon to render centered above the title. */
   icon?: LucideIcon;
+  /** Optional illustration node (e.g. an SVG component). Takes precedence over icon. */
+  illustration?: React.ReactNode;
   title?: string;
   description?: string;
   /** Extra content (e.g. a button) rendered below the description. */
@@ -24,6 +26,7 @@ export interface EmptyStateProps {
  */
 export function EmptyState({
   icon: Icon,
+  illustration,
   title,
   description,
   action,
@@ -38,7 +41,12 @@ export function EmptyState({
         className,
       )}
     >
-      {Icon && (
+      {illustration && (
+        <div className={cn("text-muted-foreground", compact ? "h-16 w-16" : "h-24 w-24")}>
+          {illustration}
+        </div>
+      )}
+      {!illustration && Icon && (
         <Icon
           className={cn(
             "text-muted-foreground/40",
