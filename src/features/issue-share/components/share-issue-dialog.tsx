@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Copy, Link2, Trash2 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { INVITE_EXPIRY_SEC, CLIPBOARD_FEEDBACK_MS } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,13 +28,6 @@ import {
   useShareTokens,
 } from "../hooks";
 
-const EXPIRY_OPTIONS: { label: string; value: number | undefined }[] = [
-  { label: "Never", value: undefined },
-  { label: "1 day", value: 24 * 3600 },
-  { label: "7 days", value: 7 * 24 * 3600 },
-  { label: "30 days", value: 30 * 24 * 3600 },
-];
-
 const NEVER_VALUE = "__never__";
 
 export function ShareIssueDialog({
@@ -47,7 +41,7 @@ export function ShareIssueDialog({
 }) {
   const { t } = useAppStore();
   const [expiresInSec, setExpiresInSec] = useState<number | undefined>(
-    7 * 24 * 3600,
+    INVITE_EXPIRY_SEC.SEVEN_DAYS,
   );
   const [copied, setCopied] = useState<string | null>(null);
   const { data: tokens, isLoading } = useShareTokens(open ? issueId : undefined);
@@ -60,7 +54,7 @@ export function ShareIssueDialog({
     const url = `${origin}${ROUTES.SHARE_ISSUE(token)}`;
     void navigator.clipboard.writeText(url);
     setCopied(token);
-    setTimeout(() => setCopied(null), 1500);
+    setTimeout(() => setCopied(null), CLIPBOARD_FEEDBACK_MS);
   }
 
   return (
@@ -90,12 +84,17 @@ export function ShareIssueDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {EXPIRY_OPTIONS.map((o) => (
+                {[
+                  { labelKey: "invite.expiryNever", value: undefined },
+                  { labelKey: "invite.expiry1Day", value: INVITE_EXPIRY_SEC.ONE_DAY },
+                  { labelKey: "invite.expiry7Days", value: INVITE_EXPIRY_SEC.SEVEN_DAYS },
+                  { labelKey: "invite.expiry30Days", value: INVITE_EXPIRY_SEC.THIRTY_DAYS },
+                ].map((o) => (
                   <SelectItem
-                    key={o.label}
+                    key={o.labelKey}
                     value={o.value === undefined ? NEVER_VALUE : String(o.value)}
                   >
-                    {o.label}
+                    {t(o.labelKey as "invite.expiryNever")}
                   </SelectItem>
                 ))}
               </SelectContent>

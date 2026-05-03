@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, FileText, Lock, Paperclip } from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
 import { formatDateTime } from "@/lib/utils";
+import { useAppStore } from "@/lib/stores/use-app-store";
 import { issueShareApi } from "@/features/issue-share/api";
 import { RichContent } from "@/components/shared/rich-editor";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -12,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PublicIssuePage() {
   const { token } = useParams<{ token: string }>();
+  const { t } = useAppStore();
   const { data: issue, isLoading, error } = useQuery({
     queryKey: ["public-issue", token],
     queryFn: () => issueShareApi.fetchPublic(token),
@@ -32,9 +34,11 @@ export default function PublicIssuePage() {
     return (
       <div className="mx-auto max-w-md px-6 py-20 text-center">
         <Lock className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
-        <h1 className="mb-1 text-lg font-semibold">Link unavailable</h1>
+        <h1 className="mb-1 text-lg font-semibold">
+          {t("share.publicPage.linkUnavailable")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          This share link is invalid, expired, or has been revoked.
+          {t("share.publicPage.linkUnavailableDesc")}
         </p>
       </div>
     );
@@ -53,7 +57,7 @@ export default function PublicIssuePage() {
       {/* Read-only banner */}
       <div className="border-b bg-amber-50 px-4 py-2 text-center text-[12px] text-amber-900 dark:bg-amber-950 dark:text-amber-200">
         <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-        Read-only public view — sign in for full access
+        {t("share.publicPage.readOnlyBanner")}
       </div>
 
       <article className="mx-auto max-w-3xl px-6 py-8">
@@ -99,7 +103,7 @@ export default function PublicIssuePage() {
         <div className="mb-6 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-muted-foreground">
           {issue.reporter && (
             <span className="flex items-center gap-2">
-              Reported by
+              {t("share.publicPage.reportedBy")}
               <UserAvatar
                 user={issue.reporter}
                 className="h-5 w-5"
@@ -110,7 +114,7 @@ export default function PublicIssuePage() {
           )}
           {issue.assignee && (
             <span className="flex items-center gap-2">
-              Assigned to
+              {t("share.publicPage.assignedTo")}
               <UserAvatar
                 user={issue.assignee}
                 className="h-5 w-5"
@@ -119,7 +123,11 @@ export default function PublicIssuePage() {
               <span className="text-foreground">{issue.assignee.name}</span>
             </span>
           )}
-          <span>Created {formatDateTime(issue.createdAt)}</span>
+          <span>
+            {t("share.publicPage.created", {
+              date: formatDateTime(issue.createdAt),
+            })}
+          </span>
         </div>
 
         {/* Description */}
@@ -134,7 +142,9 @@ export default function PublicIssuePage() {
           <section className="mb-8">
             <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
               <Paperclip className="mr-1 inline h-3.5 w-3.5" />
-              Attachments ({issue.attachments.length})
+              {t("share.publicPage.attachments", {
+                count: String(issue.attachments.length),
+              })}
             </h2>
             <ul className="space-y-1">
               {issue.attachments.map((a) => (
@@ -157,7 +167,9 @@ export default function PublicIssuePage() {
         {issue.comments && issue.comments.length > 0 && (
           <section>
             <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Comments ({issue.comments.length})
+              {t("share.publicPage.comments", {
+                count: String(issue.comments.length),
+              })}
             </h2>
             <div className="space-y-4">
               {issue.comments.map((c) => (

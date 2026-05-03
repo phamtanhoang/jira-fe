@@ -13,6 +13,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { Plus, ChevronDown, ChevronRight, Inbox, Square, CheckSquare2, Download } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { ENDPOINTS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -263,15 +264,25 @@ export function BacklogView({
                   emptyText={t("sprint.emptyHint")}
                   dropHereText={t("backlog.dropHere")}
                 >
-                  {issueList.map((issue) => (
-                    <DraggableIssueRow
-                      key={issue.id}
-                      issue={issue}
-                      onClick={() => onClickIssue(issue.key)}
-                      selected={selectedIds.has(issue.id)}
-                      onToggleSelect={toggleSelect}
-                    />
-                  ))}
+                  <AnimatePresence mode="popLayout">
+                    {issueList.map((issue) => (
+                      <motion.div
+                        key={issue.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <DraggableIssueRow
+                          issue={issue}
+                          onClick={() => onClickIssue(issue.key)}
+                          selected={selectedIds.has(issue.id)}
+                          onToggleSelect={toggleSelect}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </DroppableZone>
               )}
             />
@@ -341,15 +352,25 @@ export function BacklogView({
               emptyText={t("backlog.empty")}
               dropHereText={t("backlog.dropHere")}
             >
-              {backlogIssues.map((issue) => (
-                <DraggableIssueRow
-                  key={issue.id}
-                  issue={issue}
-                  onClick={() => onClickIssue(issue.key)}
-                  selected={selectedIds.has(issue.id)}
-                  onToggleSelect={toggleSelect}
-                />
-              ))}
+              <AnimatePresence mode="popLayout">
+                {backlogIssues.map((issue) => (
+                  <motion.div
+                    key={issue.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <DraggableIssueRow
+                      issue={issue}
+                      onClick={() => onClickIssue(issue.key)}
+                      selected={selectedIds.has(issue.id)}
+                      onToggleSelect={toggleSelect}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </DroppableZone>
           )}
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, RotateCw, XCircle } from "lucide-react";
+import { RotateCw } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
@@ -10,10 +10,10 @@ import {
   type WebhookDelivery,
   type WebhookDeliveryFilters,
 } from "@/features/webhooks";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Select,
   SelectContent,
@@ -25,7 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const STATUS_ANY = "__any__";
 
-export function WebhookDeliveriesPanel() {
+export function WebhookDeliveriesPanel({ density = "comfortable" }: { density?: "compact" | "comfortable" }) {
   const { t } = useAppStore();
   const [filters, setFilters] = useState<WebhookDeliveryFilters>({
     page: 1,
@@ -62,9 +62,15 @@ export function WebhookDeliveriesPanel() {
             <SelectItem value={STATUS_ANY}>
               {t("admin.webhookDeliveries.allStatuses")}
             </SelectItem>
-            <SelectItem value="PENDING">PENDING</SelectItem>
-            <SelectItem value="SUCCESS">SUCCESS</SelectItem>
-            <SelectItem value="FAILED">FAILED</SelectItem>
+            <SelectItem value="PENDING">
+              {t("admin.webhookDeliveries.statusPending")}
+            </SelectItem>
+            <SelectItem value="SUCCESS">
+              {t("admin.webhookDeliveries.statusSuccess")}
+            </SelectItem>
+            <SelectItem value="FAILED">
+              {t("admin.webhookDeliveries.statusFailed")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -104,6 +110,7 @@ export function WebhookDeliveriesPanel() {
               }
               onRetry={() => retry.mutate(d.id)}
               retrying={retry.isPending}
+              density={density}
             />
           ))
         )}
@@ -126,26 +133,23 @@ function DeliveryRow({
   onToggleExpand,
   onRetry,
   retrying,
+  density = "comfortable",
 }: {
   row: WebhookDelivery;
   expanded: boolean;
   onToggleExpand: () => void;
   onRetry: () => void;
   retrying: boolean;
+  density?: "compact" | "comfortable";
 }) {
   const { t } = useAppStore();
-  const statusColor =
-    row.status === "SUCCESS"
-      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-      : row.status === "FAILED"
-        ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
-        : "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300";
+  const rowPadding = density === "compact" ? "py-1" : "py-2";
   return (
     <>
       <button
         type="button"
         onClick={onToggleExpand}
-        className="grid w-full grid-cols-[1fr_2fr_1fr_1fr_1fr_auto] items-center gap-2 border-b px-4 py-2 text-left text-xs hover:bg-muted/30"
+        className={`grid w-full grid-cols-[1fr_2fr_1fr_1fr_1fr_auto] items-center gap-2 border-b px-4 text-left text-xs hover:bg-muted/30 ${rowPadding}`}
       >
         <code className="truncate font-mono text-[11px]">{row.eventType}</code>
         <div className="min-w-0">
@@ -155,16 +159,7 @@ function DeliveryRow({
           </div>
         </div>
         <div>
-          <Badge variant="secondary" className={statusColor}>
-            {row.status === "SUCCESS" && (
-              <CheckCircle2 className="mr-1 h-3 w-3" />
-            )}
-            {row.status === "FAILED" && <XCircle className="mr-1 h-3 w-3" />}
-            {row.status}
-            {row.statusCode != null && row.statusCode > 0 && (
-              <span className="ml-1 tabular-nums">{row.statusCode}</span>
-            )}
-          </Badge>
+          <StatusBadge status={row.status} statusCode={row.statusCode} />
         </div>
         <span className="tabular-nums">{row.attempts}</span>
         <span className="text-[11px] text-muted-foreground">

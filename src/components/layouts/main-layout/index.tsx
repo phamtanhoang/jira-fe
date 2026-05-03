@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Sidebar, Header } from "./components";
+import { BottomNav } from "./components/bottom-nav";
 import { AnnouncementBanner } from "@/components/shared/announcement-banner";
 
 const STORAGE_KEY = "sidebar-collapsed";
@@ -26,7 +27,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header collapsed={collapsed} onToggleSidebar={toggle} />
         <AnnouncementBanner />
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
+        <BottomNav />
       </div>
     </div>
   );

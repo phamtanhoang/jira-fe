@@ -108,6 +108,11 @@
     "admin": "Admin",
     "adminLogs": "Request Logs"
   },
+  "bottomNav": {
+    "myIssues": "My Issues",
+    "search": "Search",
+    "profile": "Profile"
+  },
   "admin": {
     "badge": "Admin",
     "exit": "Back to app",
@@ -182,6 +187,11 @@
       "selfBadge": "(you)",
       "empty": "No users match the current filters.",
       "loadMore": "Load more",
+      "density": {
+        "label": "Density",
+        "compact": "Compact",
+        "comfortable": "Comfortable"
+      },
       "bulkInvite": {
         "openButton": "Bulk invite",
         "title": "Bulk-invite users",
@@ -658,6 +668,9 @@
       "actions": "Actions",
       "retry": "Retry",
       "allStatuses": "All statuses",
+      "statusPending": "Pending",
+      "statusSuccess": "Success",
+      "statusFailed": "Failed",
       "emptyTitle": "No deliveries yet",
       "emptyDesc": "When events fire and workspaces have webhooks subscribed, attempts will appear here.",
       "error": "Error",
@@ -1125,7 +1138,17 @@
     "revoke": "Revoke",
     "views": "views",
     "expired": "Expired",
-    "empty": "No share links yet."
+    "empty": "No share links yet.",
+    "publicPage": {
+      "linkUnavailable": "Link unavailable",
+      "linkUnavailableDesc": "This share link is invalid, expired, or has been revoked.",
+      "readOnlyBanner": "Read-only public view — sign in for full access",
+      "reportedBy": "Reported by",
+      "assignedTo": "Assigned to",
+      "created": "Created {date}",
+      "attachments": "Attachments ({count})",
+      "comments": "Comments ({count})"
+    }
   },
   "invite": {
     "title": "Invite links",
@@ -1139,7 +1162,14 @@
     "revoke": "Revoke",
     "empty": "No invite links yet.",
     "confirmRevokeTitle": "Revoke this invite link?",
-    "confirmRevokeDesc": "Anyone who hasn't joined yet will be blocked. People who already joined remain members."
+    "confirmRevokeDesc": "Anyone who hasn't joined yet will be blocked. People who already joined remain members.",
+    "expiryNever": "Never",
+    "expiry1Day": "1 day",
+    "expiry7Days": "7 days",
+    "expiry30Days": "30 days",
+    "roleAdmin": "ADMIN",
+    "roleMember": "MEMBER",
+    "roleViewer": "VIEWER"
   },
   "notifPrefs": {
     "title": "Notification preferences",

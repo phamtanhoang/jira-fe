@@ -15,6 +15,7 @@ import {
 import { AVATAR_GRADIENT } from "@/lib/constants/issue-config";
 import { cn, formatDate, formatDateTime, getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import type { TableDensity } from "@/lib/hooks/use-table-density";
 import {
   useUserSessions,
   useRevokeSession,
@@ -38,6 +39,7 @@ export function UserRow({
   user,
   isSelf,
   expanded,
+  density = "comfortable",
   onToggleExpand,
   onPromote,
   onToggleActive,
@@ -47,6 +49,7 @@ export function UserRow({
   user: AdminUser;
   isSelf: boolean;
   expanded: boolean;
+  density?: TableDensity;
   onToggleExpand: () => void;
   onPromote: () => void;
   onToggleActive: () => void;
@@ -56,10 +59,11 @@ export function UserRow({
   const { t } = useAppStore();
   const verified = !!user.emailVerified;
   const initials = getInitials(user.name, user.email);
+  const rowPadding = density === "compact" ? "py-1" : "py-2.5";
 
   return (
     <div className="border-b last:border-b-0">
-      <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted/30">
+      <div className={cn("grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-center gap-2 px-4 text-sm hover:bg-muted/30", rowPadding)}>
       <div className="flex min-w-0 items-center gap-2.5">
         <button
           type="button"

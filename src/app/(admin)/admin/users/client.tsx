@@ -5,9 +5,11 @@ import {
   Trash2,
   Search,
   UserPlus,
+  LayoutGrid,
 } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
+import { useTableDensity } from "@/lib/hooks/use-table-density";
 import {
   useInfiniteAdminUsers,
   useUpdateUserRole,
@@ -36,6 +38,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { UserRow } from "./_components/user-row";
 
 const VERIFIED_ANY = "__any_verified__";
@@ -44,6 +52,7 @@ const ROLE_ANY = "__any_role__";
 export function AdminUsersClient() {
   const { t } = useAppStore();
   const { user: currentUser } = useCurrentUser();
+  const { density, setDensity } = useTableDensity();
 
   const [filters, setFilters] = useState<
     Omit<AdminUsersFilters, "cursor">
@@ -77,10 +86,30 @@ export function AdminUsersClient() {
             {t("admin.users.description")}
           </p>
         </div>
-        <Button onClick={() => setBulkInviteOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          {t("admin.users.bulkInvite.openButton")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <LayoutGrid className="h-4 w-4" />
+                {t("admin.users.density.label")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setDensity("compact")}>
+                {density === "compact" && "✓ "}
+                {t("admin.users.density.compact")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDensity("comfortable")}>
+                {density === "comfortable" && "✓ "}
+                {t("admin.users.density.comfortable")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={() => setBulkInviteOpen(true)} className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            {t("admin.users.bulkInvite.openButton")}
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -156,7 +185,7 @@ export function AdminUsersClient() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border bg-card">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-2 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="sticky top-0 bg-background/95 backdrop-blur z-10 grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-2 border-b px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>{t("admin.users.columns.user")}</span>
           <span>{t("admin.users.columns.role")}</span>
           <span>{t("admin.users.columns.status")}</span>
@@ -182,6 +211,7 @@ export function AdminUsersClient() {
               user={u}
               isSelf={u.id === currentUser?.id}
               expanded={expandedId === u.id}
+              density={density}
               onToggleExpand={() =>
                 setExpandedId((prev) => (prev === u.id ? null : u.id))
               }

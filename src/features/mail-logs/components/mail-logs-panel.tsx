@@ -55,7 +55,7 @@ const TYPE_LABELS: Record<MailType, string> = {
   OTHER: "Other",
 };
 
-export function MailLogsPanel() {
+export function MailLogsPanel({ density = "comfortable" }: { density?: "compact" | "comfortable" }) {
   const { t } = useAppStore();
   const [filters, setFilters] = useState<MailLogFilters>({
     page: 1,
@@ -170,7 +170,7 @@ export function MailLogsPanel() {
             description={t("admin.mail.emptyDesc")}
           />
         ) : (
-          data.data.map((row) => <MailRow key={row.id} row={row} onClick={setSelectedId} />)
+          data.data.map((row) => <MailRow key={row.id} row={row} onClick={setSelectedId} density={density} />)
         )}
       </div>
 
@@ -191,16 +191,19 @@ export function MailLogsPanel() {
 function MailRow({
   row,
   onClick,
+  density = "comfortable",
 }: {
   row: MailLogRow;
   onClick: (id: string) => void;
+  density?: "compact" | "comfortable";
 }) {
   const failed = row.status === "FAILED";
+  const rowPadding = density === "compact" ? "py-1" : "py-2.5";
   return (
     <button
       type="button"
       onClick={() => onClick(row.id)}
-      className="grid w-full grid-cols-[80px_minmax(0,1.4fr)_minmax(0,1.6fr)_minmax(0,2fr)_minmax(0,1.2fr)] items-center gap-3 border-b px-4 py-2.5 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
+      className={`grid w-full grid-cols-[80px_minmax(0,1.4fr)_minmax(0,1.6fr)_minmax(0,2fr)_minmax(0,1.2fr)] items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30 ${rowPadding}`}
     >
       <Badge
         variant="outline"

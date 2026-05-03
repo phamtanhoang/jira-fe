@@ -24,7 +24,7 @@ const PRESETS = [24, 72, 168, 24 * 30] as const;
 const PAGE_STEP = 30;
 const PAGE_MAX = 200;
 
-export function UserActivityPanel() {
+export function UserActivityPanel({ density = "comfortable" }: { density?: "compact" | "comfortable" }) {
   const { t } = useAppStore();
   const [sinceHours, setSinceHours] = useState<number>(168);
   // Recent feed paginates independently from the Top* aggregations. Top is
@@ -35,6 +35,7 @@ export function UserActivityPanel() {
     recent: recentTake,
     top: 30,
   });
+  const rowPadding = density === "compact" ? "py-1" : "py-2";
 
   function handleRangeChange(next: number) {
     setSinceHours(next);
@@ -233,7 +234,7 @@ export function UserActivityPanel() {
               return (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[70px_70px_minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0 hover:bg-muted/30"
+                  className={`grid grid-cols-[70px_70px_minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b px-4 text-sm last:border-b-0 hover:bg-muted/30 ${rowPadding}`}
                 >
                   <span className="shrink-0 rounded bg-muted px-1.5 py-px font-mono text-[10px] text-muted-foreground">
                     {r.method}

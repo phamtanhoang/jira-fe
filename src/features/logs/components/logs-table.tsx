@@ -28,11 +28,14 @@ function statusBadgeClass(code: number | null): string {
 export function LogsTable({
   logs,
   onRowClick,
+  density = "comfortable",
 }: {
   logs: RequestLog[];
   onRowClick: (id: string) => void;
+  density?: "compact" | "comfortable";
 }) {
   const { t } = useAppStore();
+  const rowPadding = density === "compact" ? "py-1" : "py-2";
 
   if (logs.length === 0) {
     return (
@@ -57,7 +60,7 @@ export function LogsTable({
           <col className="w-[200px]" />
           <col className="w-[96px]" />
         </colgroup>
-        <thead className="bg-muted/50 text-muted-foreground">
+        <thead className="sticky top-0 bg-background/95 backdrop-blur z-10 text-muted-foreground">
           <tr>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.time")}</th>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.level")}</th>
@@ -70,7 +73,7 @@ export function LogsTable({
         </thead>
         <tbody>
           {logs.map((log) => (
-            <LogRow key={log.id} log={log} onClick={onRowClick} />
+            <LogRow key={log.id} log={log} onClick={onRowClick} rowPadding={rowPadding} />
           ))}
         </tbody>
       </table>
@@ -82,14 +85,16 @@ export function LogsTable({
 const LogRow = memo(function LogRow({
   log,
   onClick,
+  rowPadding,
 }: {
   log: RequestLog;
   onClick: (id: string) => void;
+  rowPadding: string;
 }) {
   return (
     <tr
       onClick={() => onClick(log.id)}
-      className="cursor-pointer border-t transition-colors hover:bg-muted/50"
+      className={`cursor-pointer border-t transition-colors hover:bg-muted/50 ${rowPadding}`}
     >
       <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
         <TruncatedText text={formatDateTime(log.createdAt)} />

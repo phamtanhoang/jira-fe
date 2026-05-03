@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, Pencil, Trash2, MessageSquare } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useComments, useAddComment, useUpdateComment, useDeleteComment } from "../hooks";
@@ -82,59 +83,69 @@ export function IssueComments({
 
       {/* Comment list */}
       <div className="space-y-4">
-        {comments?.map((comment) => (
-          <div key={comment.id} className="group flex gap-3">
-            <UserAvatar
-              user={comment.author}
-              className="mt-0.5 h-7 w-7 shrink-0"
-              fallbackClassName="text-[10px]"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="mb-0.5 flex items-baseline gap-2">
-                <span className="text-[13px] font-semibold">{comment.author.name}</span>
-                <span className="text-[11px] text-muted-foreground">
-                  {formatDateTime(comment.createdAt)}
-                </span>
-                {comment.authorId === currentUser.id && (
-                  <div className="ml-auto flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <button
-                      onClick={() => { setEditingId(comment.id); setEditDraft(comment.content); }}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </button>
-                    <button
-                      onClick={() => deleteComment(comment.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
+        <AnimatePresence mode="popLayout">
+          {comments?.map((comment) => (
+            <motion.div
+              key={comment.id}
+              layout
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="group flex gap-3"
+            >
+              <UserAvatar
+                user={comment.author}
+                className="mt-0.5 h-7 w-7 shrink-0"
+                fallbackClassName="text-[10px]"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="mb-0.5 flex items-baseline gap-2">
+                  <span className="text-[13px] font-semibold">{comment.author.name}</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {formatDateTime(comment.createdAt)}
+                  </span>
+                  {comment.authorId === currentUser.id && (
+                    <div className="ml-auto flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <button
+                        onClick={() => { setEditingId(comment.id); setEditDraft(comment.content); }}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={() => deleteComment(comment.id)}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {editingId === comment.id ? (
+                  <div className="space-y-2">
+                    <RichEditor
+                      content={editDraft}
+                      onChange={setEditDraft}
+                      minimal
+                      autoFocus
+                      mentionMembers={members}
+                      onUploadFile={uploadInlineImage}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="xs" onClick={() => { updateComment({ commentId: comment.id, content: editDraft }); setEditingId(null); }}>
+                        {t("common.save")}
+                      </Button>
+                      <Button size="xs" variant="ghost" onClick={() => setEditingId(null)}>{t("common.cancel")}</Button>
+                    </div>
                   </div>
+                ) : (
+                  <RichContent html={comment.content} className="text-[13px] text-foreground/80" />
                 )}
               </div>
-              {editingId === comment.id ? (
-                <div className="space-y-2">
-                  <RichEditor
-                    content={editDraft}
-                    onChange={setEditDraft}
-                    minimal
-                    autoFocus
-                    mentionMembers={members}
-                    onUploadFile={uploadInlineImage}
-                  />
-                  <div className="flex gap-2">
-                    <Button size="xs" onClick={() => { updateComment({ commentId: comment.id, content: editDraft }); setEditingId(null); }}>
-                      {t("common.save")}
-                    </Button>
-                    <Button size="xs" variant="ghost" onClick={() => setEditingId(null)}>{t("common.cancel")}</Button>
-                  </div>
-                </div>
-              ) : (
-                <RichContent html={comment.content} className="text-[13px] text-foreground/80" />
-              )}
-            </div>
-          </div>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );

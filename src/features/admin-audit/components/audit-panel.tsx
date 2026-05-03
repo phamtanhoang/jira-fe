@@ -37,7 +37,7 @@ import {
 const ACTIONS = Object.keys(AUDIT_ACTION_CONFIG) as AuditAction[];
 const ANY = "__any__";
 
-export function AuditPanel() {
+export function AuditPanel({ density = "comfortable" }: { density?: "compact" | "comfortable" }) {
   const { t } = useAppStore();
   const [filters, setFilters] = useState<AuditLogFilters>({
     take: 50,
@@ -45,6 +45,7 @@ export function AuditPanel() {
   });
   const [selected, setSelected] = useState<AuditLogRow | null>(null);
   const { data, isLoading } = useAuditLog(filters);
+  const rowPadding = density === "compact" ? "py-1" : "py-2.5";
 
   return (
     <div className="space-y-4">
@@ -85,7 +86,7 @@ export function AuditPanel() {
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-card">
-        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="sticky top-0 bg-background/95 backdrop-blur z-10 grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>{t("admin.audit.columns.action")}</span>
           <span>{t("admin.audit.columns.actor")}</span>
           <span>{t("admin.audit.columns.target")}</span>
@@ -108,7 +109,7 @@ export function AuditPanel() {
                 key={row.id}
                 type="button"
                 onClick={() => setSelected(row)}
-                className="grid w-full grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b px-4 py-2.5 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30"
+                className={`grid w-full grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0 hover:bg-muted/30 ${rowPadding}`}
               >
                 <span className="flex min-w-0 items-center gap-2">
                   <span

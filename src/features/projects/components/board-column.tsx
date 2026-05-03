@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, MoreHorizontal, Trash2, Gauge } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { STATUS_DOT_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
@@ -174,23 +175,33 @@ export function BoardColumn({
 
       {/* Cards */}
       <div className="flex-1 space-y-1.5 overflow-auto px-1.5 pb-1.5">
-        {column.issues.map((issue) => (
-          <IssueCard
-            key={issue.id}
-            issue={issue}
-            onClick={() => onClickIssue(issue.key)}
-            onSwipeLeft={
-              prevColumnId
-                ? () => onMoveIssue(issue.id, prevColumnId)
-                : undefined
-            }
-            onSwipeRight={
-              nextColumnId
-                ? () => onMoveIssue(issue.id, nextColumnId)
-                : undefined
-            }
-          />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {column.issues.map((issue) => (
+            <motion.div
+              key={issue.id}
+              layout
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+            >
+              <IssueCard
+                issue={issue}
+                onClick={() => onClickIssue(issue.key)}
+                onSwipeLeft={
+                  prevColumnId
+                    ? () => onMoveIssue(issue.id, prevColumnId)
+                    : undefined
+                }
+                onSwipeRight={
+                  nextColumnId
+                    ? () => onMoveIssue(issue.id, nextColumnId)
+                    : undefined
+                }
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
         {/* Quick create */}
         {showQuickCreate && onQuickCreate ? (

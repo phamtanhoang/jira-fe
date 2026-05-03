@@ -108,6 +108,11 @@
     "admin": "Quản trị",
     "adminLogs": "Nhật ký request"
   },
+  "bottomNav": {
+    "myIssues": "Issues của tôi",
+    "search": "Tìm kiếm",
+    "profile": "Hồ sơ"
+  },
   "admin": {
     "badge": "Quản trị",
     "exit": "Quay lại ứng dụng",
@@ -182,6 +187,11 @@
       "selfBadge": "(bạn)",
       "empty": "Không có người dùng nào phù hợp.",
       "loadMore": "Tải thêm",
+      "density": {
+        "label": "Mật độ",
+        "compact": "Thu gọn",
+        "comfortable": "Thoải mái"
+      },
       "bulkInvite": {
         "openButton": "Mời hàng loạt",
         "title": "Mời người dùng theo lô",
@@ -658,6 +668,9 @@
       "actions": "Hành động",
       "retry": "Thử lại",
       "allStatuses": "Tất cả trạng thái",
+      "statusPending": "Đang chờ",
+      "statusSuccess": "Thành công",
+      "statusFailed": "Thất bại",
       "emptyTitle": "Chưa có delivery",
       "emptyDesc": "Khi có sự kiện trigger và workspace có webhook subscribed, các attempts sẽ xuất hiện ở đây.",
       "error": "Error",
@@ -1125,7 +1138,17 @@
     "revoke": "Hủy",
     "views": "lượt xem",
     "expired": "Đã hết hạn",
-    "empty": "Chưa có link chia sẻ nào."
+    "empty": "Chưa có link chia sẻ nào.",
+    "publicPage": {
+      "linkUnavailable": "Link không khả dụng",
+      "linkUnavailableDesc": "Link chia sẻ này không hợp lệ, đã hết hạn hoặc đã bị thu hồi.",
+      "readOnlyBanner": "Chế độ xem công khai — đăng nhập để truy cập đầy đủ",
+      "reportedBy": "Báo cáo bởi",
+      "assignedTo": "Được giao cho",
+      "created": "Tạo lúc {date}",
+      "attachments": "Tệp đính kèm ({count})",
+      "comments": "Bình luận ({count})"
+    }
   },
   "invite": {
     "title": "Link mời",
@@ -1139,7 +1162,14 @@
     "revoke": "Hủy",
     "empty": "Chưa có link mời nào.",
     "confirmRevokeTitle": "Hủy link mời này?",
-    "confirmRevokeDesc": "Người chưa dùng link sẽ không vào được nữa. Người đã join trước đó vẫn ở lại."
+    "confirmRevokeDesc": "Người chưa dùng link sẽ không vào được nữa. Người đã join trước đó vẫn ở lại.",
+    "expiryNever": "Không hết hạn",
+    "expiry1Day": "1 ngày",
+    "expiry7Days": "7 ngày",
+    "expiry30Days": "30 ngày",
+    "roleAdmin": "ADMIN",
+    "roleMember": "MEMBER",
+    "roleViewer": "VIEWER"
   },
   "notifPrefs": {
     "title": "Tùy chọn thông báo",

@@ -11,6 +11,7 @@ import {
   Webhook,
 } from "lucide-react";
 import { toggleArrayItem } from "@/lib/utils";
+import { CLIPBOARD_FEEDBACK_MS } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   useCreateWebhook,
@@ -165,7 +166,7 @@ function WebhookListRow({
     try {
       await navigator.clipboard.writeText(row.secret);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => setCopied(false), CLIPBOARD_FEEDBACK_MS);
     } catch {
       // clipboard unavailable — silent
     }

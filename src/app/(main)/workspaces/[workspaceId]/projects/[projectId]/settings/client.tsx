@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ChevronRight,
   Settings,
   Users,
   FileText,
@@ -18,6 +17,7 @@ import { useProject } from "@/features/projects/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Breadcrumb } from "@/components/shared/breadcrumb";
 
 const TabGeneral = dynamic(
   () => import("./_components/tab-general").then((m) => m.TabGeneral),
@@ -102,15 +102,15 @@ export default function ProjectSettingsPage() {
   return (
     <div className="mx-auto max-w-3xl px-8 py-8">
       {/* Breadcrumb */}
-      <div className="mb-1 flex items-center gap-1 text-[12px] text-muted-foreground">
-        <Link href={ROUTES.WORKSPACES} className="hover:text-foreground hover:underline">{t("nav.workspaces")}</Link>
-        <ChevronRight className="h-3 w-3" />
-        <Link href={ROUTES.WORKSPACE(workspaceId)} className="hover:text-foreground hover:underline">{workspace?.name ?? "..."}</Link>
-        <ChevronRight className="h-3 w-3" />
-        <Link href={ROUTES.BOARD(workspaceId, projectId)} className="hover:text-foreground hover:underline">{project?.key ?? "..."}</Link>
-        <ChevronRight className="h-3 w-3" />
-        <span className="font-medium text-foreground">{t("project.settings")}</span>
-      </div>
+      <Breadcrumb
+        className="mb-1"
+        items={[
+          { label: t("nav.workspaces"), href: ROUTES.WORKSPACES },
+          { label: workspace?.name ?? "...", href: ROUTES.WORKSPACE(workspaceId) },
+          { label: project?.key ?? "...", href: ROUTES.BOARD(workspaceId, projectId) },
+          { label: t("project.settings") },
+        ]}
+      />
 
       <div className="mb-8">
         <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">

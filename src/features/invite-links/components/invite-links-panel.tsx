@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Copy, Link2, Trash2, Users } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { INVITE_EXPIRY_SEC, CLIPBOARD_FEEDBACK_MS } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -23,20 +24,13 @@ import {
 } from "../hooks";
 import type { InviteLink } from "../api";
 
-const EXPIRY_OPTIONS: { label: string; value: number | undefined }[] = [
-  { label: "Never", value: undefined },
-  { label: "1 day", value: 24 * 3600 },
-  { label: "7 days", value: 7 * 24 * 3600 },
-  { label: "30 days", value: 30 * 24 * 3600 },
-];
-
 const NEVER_VALUE = "__never__";
 
 export function InviteLinksPanel({ workspaceId }: { workspaceId: string }) {
   const { t } = useAppStore();
   const [role, setRole] = useState<"ADMIN" | "MEMBER" | "VIEWER">("MEMBER");
   const [expiresInSec, setExpiresInSec] = useState<number | undefined>(
-    7 * 24 * 3600,
+    INVITE_EXPIRY_SEC.SEVEN_DAYS,
   );
   const [maxUses, setMaxUses] = useState<string>("");
   const [revokeId, setRevokeId] = useState<string | null>(null);
@@ -45,6 +39,14 @@ export function InviteLinksPanel({ workspaceId }: { workspaceId: string }) {
   const { mutate: create, isPending: creating } =
     useCreateInviteLink(workspaceId);
   const { mutate: revoke } = useRevokeInviteLink(workspaceId);
+
+  // Expiry options built from constants + i18n labels
+  const expiryOptions: { labelKey: string; value: number | undefined }[] = [
+    { labelKey: "invite.expiryNever", value: undefined },
+    { labelKey: "invite.expiry1Day", value: INVITE_EXPIRY_SEC.ONE_DAY },
+    { labelKey: "invite.expiry7Days", value: INVITE_EXPIRY_SEC.SEVEN_DAYS },
+    { labelKey: "invite.expiry30Days", value: INVITE_EXPIRY_SEC.THIRTY_DAYS },
+  ];
 
   function handleCreate() {
     const parsedMax = maxUses ? parseInt(maxUses) : undefined;
@@ -83,9 +85,9 @@ export function InviteLinksPanel({ workspaceId }: { workspaceId: string }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ADMIN">ADMIN</SelectItem>
-              <SelectItem value="MEMBER">MEMBER</SelectItem>
-              <SelectItem value="VIEWER">VIEWER</SelectItem>
+              <SelectItem value="ADMIN">{t("invite.roleAdmin")}</SelectItem>
+              <SelectItem value="MEMBER">{t("invite.roleMember")}</SelectItem>
+              <SelectItem value="VIEWER">{t("invite.roleViewer")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -106,12 +108,12 @@ export function InviteLinksPanel({ workspaceId }: { workspaceId: string }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {EXPIRY_OPTIONS.map((o) => (
+              {expiryOptions.map((o) => (
                 <SelectItem
-                  key={o.label}
+                  key={o.labelKey}
                   value={o.value === undefined ? NEVER_VALUE : String(o.value)}
                 >
-                  {o.label}
+                  {t(o.labelKey as "invite.expiryNever")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -196,14 +198,13 @@ function InviteLinkRow({
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const url = `${origin}${ROUTES.JOIN(link.token)}`;
   const expired = link.expiresAt && new Date(link.expiresAt) < new Date();
-  const exhausted =
-    link.maxUses != null && link.usedCount >= link.maxUses;
+  const exhausted = link.maxUses != null && link.usedCount >= link.maxUses;
   const dead = expired || exhausted;
 
   function copy() {
     void navigator.clipboard.writeText(url);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setCopied(false), CLIPBOARD_FEEDBACK_MS);
   }
 
   return (
@@ -229,7 +230,12 @@ function InviteLinkRow({
           </>
         )}
       </span>
-      <Button variant="ghost" size="icon-xs" onClick={copy} title={t("share.copy")}>
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        onClick={copy}
+        title={t("share.copy")}
+      >
         {copied ? (
           <Check className="h-3.5 w-3.5 text-green-600" />
         ) : (

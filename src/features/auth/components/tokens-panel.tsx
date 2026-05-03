@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
+import { CLIPBOARD_FEEDBACK_MS } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -217,7 +218,7 @@ function CreateTokenDialog({
     try {
       await navigator.clipboard.writeText(rawToken);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => setCopied(false), CLIPBOARD_FEEDBACK_MS);
     } catch {
       // Clipboard API may be unavailable in non-HTTPS dev — silent.
     }
