@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import {
   Settings,
   Users,

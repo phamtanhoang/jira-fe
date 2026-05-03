@@ -88,7 +88,7 @@ export function AdminUsersClient() {
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button variant="outline" size="sm" className="gap-2">
                 <LayoutGrid className="h-4 w-4" />
                 {t("admin.users.density.label")}

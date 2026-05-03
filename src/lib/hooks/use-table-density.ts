@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export type TableDensity = "compact" | "comfortable";
 
 export function useTableDensity() {
-  const [density, setDensityState] = useState<TableDensity>("comfortable");
-
-  // Load from localStorage on mount
-  useEffect(() => {
+  // Initialize state from localStorage
+  const [density, setDensityState] = useState<TableDensity>(() => {
+    if (typeof window === "undefined") return "comfortable";
     const stored = localStorage.getItem("table-density");
     if (stored === "compact" || stored === "comfortable") {
-      setDensityState(stored);
+      return stored;
     }
-  }, []);
+    return "comfortable";
+  });
 
   // Save to localStorage when changed
   const setDensity = (value: TableDensity) => {
