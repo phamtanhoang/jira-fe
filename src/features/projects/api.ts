@@ -338,6 +338,16 @@ export const labelsApi = {
         color,
       })
       .then((r) => r.data),
+
+  update: (id: string, data: { name?: string; color?: string }) =>
+    api
+      .patch<{ message: string; label: Label }>(ENDPOINTS.labels.byId(id), data)
+      .then((r) => r.data),
+
+  delete: (id: string) =>
+    api
+      .delete<{ message: string }>(ENDPOINTS.labels.byId(id))
+      .then((r) => r.data),
 };
 
 export const sprintsApi = {

@@ -173,6 +173,7 @@ export type Label = {
   projectId: string;
   name: string;
   color: string;
+  _count?: { issues: number };
 };
 
 export type CreateIssuePayload = {

@@ -6,6 +6,7 @@ import {
   Settings,
   Users,
   FileText,
+  Tag,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { useUrlTab } from "@/lib/hooks/use-url-tab";
@@ -48,10 +49,16 @@ const TabRecurring = dynamic(
   { loading: () => <Skeleton className="h-64 w-full" /> },
 );
 
+const TabLabels = dynamic(
+  () => import("./_components/tab-labels").then((m) => m.TabLabels),
+  { loading: () => <Skeleton className="h-64 w-full" /> },
+);
+
 const PROJECT_SETTINGS_TABS = [
   "general",
   "members",
   "templates",
+  "labels",
   "fields",
   "columns",
   "recurring",
@@ -139,6 +146,10 @@ export default function ProjectSettingsPage() {
             <FileText className="mr-1.5 h-3.5 w-3.5" />
             {t("templates.tab")}
           </TabsTrigger>
+          <TabsTrigger value="labels">
+            <Tag className="mr-1.5 h-3.5 w-3.5" />
+            {t("label.tab")}
+          </TabsTrigger>
           <TabsTrigger value="fields">
             <Settings className="mr-1.5 h-3.5 w-3.5" />
             {t("customFields.tab")}
@@ -163,6 +174,10 @@ export default function ProjectSettingsPage() {
 
         <TabsContent value="templates">
           <TabTemplates projectId={projectId} canManage={canManage} />
+        </TabsContent>
+
+        <TabsContent value="labels">
+          <TabLabels projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="fields">

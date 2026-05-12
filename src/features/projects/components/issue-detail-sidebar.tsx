@@ -8,6 +8,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { IssueWatchersBlock } from "./issue-watchers-block";
 import { WorklogSection } from "./worklog-section";
 import { IssueLinksSection } from "./issue-links-section";
+import { IssueLabelsSection } from "./issue-labels-section";
 import { IssueDetailFields } from "./issue-detail-fields";
 import type { Issue, ProjectMember } from "../types";
 
@@ -60,6 +61,12 @@ export function IssueDetailSidebar({
           currentUserId={currentUserId}
           onUpdate={onUpdate}
         />
+
+        <Separator />
+
+        <CollapsibleSection title={t("label.title")}>
+          <IssueLabelsSection issue={issue} />
+        </CollapsibleSection>
 
         <Separator />
 

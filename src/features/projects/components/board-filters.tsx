@@ -7,6 +7,7 @@ import { toggleArrayItem } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCustomFields } from "@/features/custom-fields/hooks";
 import type { CustomFieldDef } from "@/features/custom-fields/types";
+import { useLabels } from "../hooks";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,11 @@ export type BoardFilters = {
   types: string[];
   priorities: string[];
   assigneeIds: string[];
+  /**
+   * Issue labels by ID. OR semantics — issue matches if it carries ANY of
+   * the selected labels (matches BE `findAll(..., labelIds)` behaviour).
+   */
+  labelIds: string[];
   /**
    * Per custom-field filter values, keyed by `CustomFieldDef.id`.
    * - TEXT: substring (case-insensitive)
@@ -35,6 +41,7 @@ const EMPTY_FILTERS: BoardFilters = {
   types: [],
   priorities: [],
   assigneeIds: [],
+  labelIds: [],
   customFields: {},
 };
 
@@ -53,6 +60,7 @@ export function BoardFilterBar({
   const { t } = useAppStore();
   const [showFilters, setShowFilters] = useState(false);
   const { data: customFields } = useCustomFields(projectId);
+  const { data: labels } = useLabels(projectId ?? "");
 
   const customFieldCount = Object.values(filters.customFields ?? {}).filter(
     (v) => (Array.isArray(v) ? v.length > 0 : !!v),
@@ -61,6 +69,7 @@ export function BoardFilterBar({
     filters.types.length > 0 ||
     filters.priorities.length > 0 ||
     filters.assigneeIds.length > 0 ||
+    (filters.labelIds?.length ?? 0) > 0 ||
     customFieldCount > 0;
 
   return (
@@ -90,6 +99,7 @@ export function BoardFilterBar({
               {filters.types.length +
                 filters.priorities.length +
                 filters.assigneeIds.length +
+                (filters.labelIds?.length ?? 0) +
                 customFieldCount}
             </Badge>
           )}
@@ -194,6 +204,47 @@ export function BoardFilterBar({
               ))}
             </div>
           </div>
+
+          {labels && labels.length > 0 && (
+            <div>
+              <span className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+                {t("filter.labels")}
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {labels.map((l) => {
+                  const active = filters.labelIds?.includes(l.id);
+                  return (
+                    <button
+                      key={l.id}
+                      onClick={() =>
+                        onChange({
+                          ...filters,
+                          labelIds: toggleArrayItem(
+                            filters.labelIds ?? [],
+                            l.id,
+                          ),
+                        })
+                      }
+                      className="rounded-md px-2 py-1 text-[11px] font-medium transition-all"
+                      style={
+                        active
+                          ? {
+                              backgroundColor: l.color,
+                              color: "white",
+                            }
+                          : {
+                              backgroundColor: `${l.color}20`,
+                              color: l.color,
+                            }
+                      }
+                    >
+                      {l.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {customFields && customFields.length > 0 && (
             <CustomFieldFilters

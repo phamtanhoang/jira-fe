@@ -165,6 +165,11 @@ export function BoardContainer() {
           (!issue.assigneeId || !filters.assigneeIds.includes(issue.assigneeId))
         )
           return false;
+        if (
+          filters.labelIds?.length > 0 &&
+          !issue.labels?.some((il) => filters.labelIds.includes(il.label.id))
+        )
+          return false;
         if (!matchesCustomFieldFilters(issue, filters.customFields))
           return false;
         return true;
