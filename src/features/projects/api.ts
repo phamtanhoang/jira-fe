@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { ENDPOINTS } from "@/lib/constants";
+import { ENDPOINTS, UPLOAD_LIMITS } from "@/lib/constants";
 import type {
   Project,
   ProjectMember,
@@ -259,6 +259,88 @@ export const issuesApi = {
         { headers: { "Content-Type": "multipart/form-data" } },
       )
       .then((r) => r.data);
+  },
+
+  /**
+   * Chunked upload for a single large file. Splits the file into
+   * `LARGE_ATTACHMENT.chunkSize` slices, uploads them sequentially with
+   * per-chunk progress, and finalizes the upload to create the Attachment
+   * row. On any failure mid-upload, best-effort aborts the server-side
+   * session so leftover chunks are cleaned up.
+   */
+  uploadLargeAttachment: async (
+    issueId: string,
+    file: File,
+    options: {
+      onProgress?: (bytesUploaded: number, totalBytes: number) => void;
+      signal?: AbortSignal;
+    } = {},
+  ) => {
+    const { chunkSize } = UPLOAD_LIMITS.LARGE_ATTACHMENT;
+    const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
+
+    const init = await api
+      .post<{
+        message: string;
+        sessionId: string;
+        chunkSize: number;
+        totalChunks: number;
+        expiresAt: string;
+      }>(ENDPOINTS.attachments.largeInit, {
+        issueId,
+        fileName: file.name,
+        mimeType: file.type || "application/octet-stream",
+        fileSize: file.size,
+        totalChunks,
+      })
+      .then((r) => r.data);
+
+    const sessionId = init.sessionId;
+    // Aggregate progress across chunks. We keep one slot per chunk so
+    // re-entrant onUploadProgress events update only their own slot and
+    // never double-count.
+    const chunkBytes = new Array<number>(init.totalChunks).fill(0);
+    const reportProgress = () => {
+      if (!options.onProgress) return;
+      const total = chunkBytes.reduce((a, b) => a + b, 0);
+      options.onProgress(Math.min(total, file.size), file.size);
+    };
+
+    try {
+      for (let i = 0; i < init.totalChunks; i++) {
+        if (options.signal?.aborted) throw new Error("Upload aborted");
+        const start = i * init.chunkSize;
+        const end = Math.min(start + init.chunkSize, file.size);
+        const blob = file.slice(start, end);
+        const form = new FormData();
+        form.append("chunk", blob, `chunk-${i}`);
+
+        await api.post(ENDPOINTS.attachments.largeChunk(sessionId), form, {
+          params: { index: i },
+          headers: { "Content-Type": "multipart/form-data" },
+          signal: options.signal,
+          onUploadProgress: (e) => {
+            chunkBytes[i] = Math.min(e.loaded, blob.size);
+            reportProgress();
+          },
+        });
+        // Server acknowledged: lock the slot at full chunk size so a late
+        // progress event from another chunk can't shrink the total.
+        chunkBytes[i] = blob.size;
+        reportProgress();
+      }
+
+      return await api
+        .post<{ message: string; attachment: Attachment }>(
+          ENDPOINTS.attachments.largeComplete(sessionId),
+        )
+        .then((r) => r.data);
+    } catch (err) {
+      // Best-effort cleanup so abandoned chunks don't sit on the server
+      // until the TTL cron sweeps them.
+      api.delete(ENDPOINTS.attachments.largeAbort(sessionId)).catch(() => {});
+      throw err;
+    }
   },
 
   deleteAttachment: (attachmentId: string) =>

@@ -13,7 +13,18 @@ import {
 } from "lucide-react";
 import { formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useAttachments, useUploadAttachments, useDeleteAttachment } from "../hooks";
+import {
+  UPLOAD_LIMITS,
+  exceedsLargeAttachment,
+  isLargeAttachment,
+} from "@/lib/constants";
+import { toast } from "sonner";
+import {
+  useAttachments,
+  useUploadAttachments,
+  useDeleteAttachment,
+  useUploadLargeAttachment,
+} from "../hooks";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +37,9 @@ import {
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 function isImage(mimeType: string): boolean {
@@ -44,18 +57,40 @@ export function AttachmentSection({
   const { data: attachments } = useAttachments(issueId);
   const { mutate: upload, isPending: uploading } = useUploadAttachments(issueId);
   const { mutate: deleteAttachment } = useDeleteAttachment(issueId);
+  const { upload: uploadLarge, uploads: largeUploads, dismiss: dismissLarge } =
+    useUploadLargeAttachment(issueId);
   const [expanded, setExpanded] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
   const count = attachments?.length ?? 0;
+  const largeUploading = largeUploads.length > 0;
 
   const handleFiles = useCallback(
     (fileList: FileList | File[]) => {
-      const files = Array.from(fileList).filter((f) => f.size <= 10 * 1024 * 1024);
-      if (files.length > 0) upload(files);
+      const files = Array.from(fileList);
+      const small: File[] = [];
+      for (const file of files) {
+        if (exceedsLargeAttachment(file)) {
+          // Pre-flight check matches BE LARGE_ATTACHMENT.maxSize so we fail
+          // fast with a friendly toast instead of paying for the init round-trip.
+          toast.error(
+            t("issue.uploadTooLarge", {
+              max: formatSize(UPLOAD_LIMITS.LARGE_ATTACHMENT.maxSize),
+            }),
+          );
+          continue;
+        }
+        if (isLargeAttachment(file)) {
+          // Chunked path. Fire-and-forget; the hook surfaces progress + errors.
+          void uploadLarge(file);
+        } else {
+          small.push(file);
+        }
+      }
+      if (small.length > 0) upload(small);
     },
-    [upload],
+    [upload, uploadLarge, t],
   );
 
   function handleDrop(e: React.DragEvent) {
@@ -116,12 +151,16 @@ export function AttachmentSection({
           >
             {/* Upload hint */}
             <label className="mb-3 flex cursor-pointer items-center justify-center gap-2 rounded-md py-2 text-[12px] text-muted-foreground transition-colors hover:bg-muted/40">
-              {uploading ? (
+              {uploading || largeUploading ? (
                 <Spinner className="h-4 w-4" />
               ) : (
                 <Paperclip className="h-4 w-4" />
               )}
-              <span>{uploading ? t("common.loading") : t("issue.dropOrClick")}</span>
+              <span>
+                {uploading || largeUploading
+                  ? t("common.loading")
+                  : t("issue.dropOrClick")}
+              </span>
               <input
                 type="file"
                 multiple
@@ -129,6 +168,56 @@ export function AttachmentSection({
                 onChange={(e) => e.target.files && handleFiles(e.target.files)}
               />
             </label>
+
+            {/* Large upload hint — surfaced under the drop zone so users know
+                what's happening when a big file is selected. */}
+            <p className="mb-2 text-center text-[10px] text-muted-foreground/70">
+              {t("issue.largeUploadHint", {
+                soft: formatSize(UPLOAD_LIMITS.ATTACHMENT.maxSize),
+                max: formatSize(UPLOAD_LIMITS.LARGE_ATTACHMENT.maxSize),
+              })}
+            </p>
+
+            {/* In-flight chunked uploads — one row per file with a progress
+                bar. Removed automatically on success; errored rows surface a
+                dismiss button. */}
+            {largeUploads.length > 0 && (
+              <div className="mb-3 space-y-1.5">
+                {largeUploads.map((u) => (
+                  <div
+                    key={u.id}
+                    className={`rounded-md border bg-card p-2 ${
+                      u.status === "error" ? "border-red-300 dark:border-red-700" : ""
+                    }`}
+                  >
+                    <div className="mb-1 flex items-center justify-between gap-2 text-[11px]">
+                      <span className="truncate font-medium">{u.fileName}</span>
+                      <span className="shrink-0 text-muted-foreground">
+                        {u.status === "error"
+                          ? t("issue.uploadFailed")
+                          : `${u.pct}% · ${formatSize(u.bytesUploaded)} / ${formatSize(u.totalBytes)}`}
+                      </span>
+                      {u.status === "error" && (
+                        <button
+                          onClick={() => dismissLarge(u.id)}
+                          className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`h-full transition-all duration-200 ${
+                          u.status === "error" ? "bg-red-500" : "bg-primary"
+                        }`}
+                        style={{ width: `${u.status === "error" ? 100 : u.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Attachment grid inside drop zone */}
             {count > 0 && (
