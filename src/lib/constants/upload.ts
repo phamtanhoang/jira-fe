@@ -16,11 +16,13 @@ export const UPLOAD_LIMITS = {
     maxFiles: 10,
   },
   /** Chunked / resumable attachment limits — POST /attachments/large/*.
-   *  MUST stay in sync with BE `UPLOAD_LIMITS.LARGE_ATTACHMENT`. Sized at
-   *  512 KB so each chunk + multipart envelope stays well under nginx's
-   *  default 1 MB body limit — no reverse-proxy config change required. */
+   *  MUST stay in sync with BE `UPLOAD_LIMITS.LARGE_ATTACHMENT`.
+   *  - 512 KB chunk fits comfortably under nginx default 1 MB body limit.
+   *  - 30 MB total cap is a VPS-RAM budget — peak BE RSS at `complete`
+   *    time is ~3× file size (concat buffer + Supabase serializer copy).
+   *    Bump together with BE when VPS grows or BE switches to streaming. */
   LARGE_ATTACHMENT: {
-    maxSize: 100 * MB,
+    maxSize: 30 * MB,
     chunkSize: 512 * 1024,
     /** Concurrency cap when uploading chunks in parallel. */
     parallelChunks: 3,
