@@ -16,12 +16,12 @@ export const UPLOAD_LIMITS = {
     maxFiles: 10,
   },
   /** Chunked / resumable attachment limits — POST /attachments/large/*.
-   *  MUST stay in sync with BE `UPLOAD_LIMITS.LARGE_ATTACHMENT`. Reduced
-   *  to 1 MB chunks so they fit under nginx's default 1 MB body limit
-   *  without server-side config changes. */
+   *  MUST stay in sync with BE `UPLOAD_LIMITS.LARGE_ATTACHMENT`. Sized at
+   *  512 KB so each chunk + multipart envelope stays well under nginx's
+   *  default 1 MB body limit — no reverse-proxy config change required. */
   LARGE_ATTACHMENT: {
     maxSize: 100 * MB,
-    chunkSize: 1 * MB,
+    chunkSize: 512 * 1024,
     /** Concurrency cap when uploading chunks in parallel. */
     parallelChunks: 3,
   },
