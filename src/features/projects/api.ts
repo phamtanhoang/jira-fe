@@ -76,7 +76,48 @@ async function postChunkWithRetry(args: {
   }
 }
 
-async function postCompleteWithRetry(sessionId: string) {
+/**
+ * Call `/complete` with self-healing: if BE reports missing chunks
+ * (409 + `missingChunks` array), re-upload those chunks and retry.
+ * Caps at 2 self-heal cycles to bound worst-case duration.
+ */
+async function postCompleteWithSelfHeal(args: {
+  sessionId: string;
+  file: File;
+  chunkSize: number;
+  signal?: AbortSignal;
+  onChunkBytes: (index: number, bytes: number) => void;
+}): Promise<{ message: string; attachment: Attachment }> {
+  const MAX_SELF_HEAL = 2;
+  for (let healAttempt = 0; healAttempt <= MAX_SELF_HEAL; healAttempt++) {
+    try {
+      // Transient 5xx still gets a basic retry round on top of self-heal.
+      return await postCompleteRetryTransient(args.sessionId);
+    } catch (err) {
+      const missing = extractMissingChunks(err);
+      if (!missing || healAttempt >= MAX_SELF_HEAL) throw err;
+      // Re-upload only the chunks BE says it doesn't have.
+      for (const idx of missing) {
+        if (args.signal?.aborted) throw new Error("Upload aborted");
+        const start = idx * args.chunkSize;
+        const end = Math.min(start + args.chunkSize, args.file.size);
+        const blob = args.file.slice(start, end);
+        await postChunkWithRetry({
+          sessionId: args.sessionId,
+          index: idx,
+          blob,
+          signal: args.signal,
+          onProgress: (loaded) =>
+            args.onChunkBytes(idx, Math.min(loaded, blob.size)),
+        });
+        args.onChunkBytes(idx, blob.size);
+      }
+    }
+  }
+  throw new Error("Complete self-heal exited without resolving");
+}
+
+async function postCompleteRetryTransient(sessionId: string) {
   for (let attempt = 0; attempt <= RETRY_BACKOFF_MS.length; attempt++) {
     try {
       const res = await api.post<{ message: string; attachment: Attachment }>(
@@ -84,12 +125,28 @@ async function postCompleteWithRetry(sessionId: string) {
       );
       return res.data;
     } catch (err) {
+      // 409 with missing chunks is self-heal territory — bubble up
+      // immediately so the outer loop can re-upload, not retry blindly.
+      if (extractMissingChunks(err)) throw err;
       if (attempt >= RETRY_BACKOFF_MS.length || !isRetryable(err)) throw err;
       await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS[attempt]));
     }
   }
-  // Unreachable — loop either returns or throws.
   throw new Error("Complete retry loop exited without resolving");
+}
+
+function extractMissingChunks(err: unknown): number[] | null {
+  if (!(err instanceof AxiosError)) return null;
+  if (err.response?.status !== 409) return null;
+  const data = err.response.data as
+    | { missingChunks?: unknown; message?: unknown }
+    | undefined;
+  if (!data || !Array.isArray(data.missingChunks)) return null;
+  const out: number[] = [];
+  for (const v of data.missingChunks) {
+    if (typeof v === "number" && Number.isInteger(v) && v >= 0) out.push(v);
+  }
+  return out.length > 0 ? out : null;
 }
 
 export const projectsApi = {
@@ -398,11 +455,21 @@ export const issuesApi = {
         reportProgress();
       }
 
-      // `/complete` is also worth retrying — BE retries chunk DOWNLOADS
-      // internally but the assembly + storage write at /complete can still
-      // hit transient errors (Supabase blip, DB cold). Two extra attempts
-      // is enough without burning user patience.
-      return await postCompleteWithRetry(sessionId);
+      // `/complete` is self-healing: BE inspects Supabase, finds chunks
+      // it thought it received but were silently dropped (free-tier
+      // gremlins), and replies 409 + `missingChunks`. We re-upload only
+      // those, then call /complete again. Capped at 2 cycles plus the
+      // transient 5xx retries inside.
+      return await postCompleteWithSelfHeal({
+        sessionId,
+        file,
+        chunkSize: init.chunkSize,
+        signal: options.signal,
+        onChunkBytes: (idx, bytes) => {
+          chunkBytes[idx] = bytes;
+          reportProgress();
+        },
+      });
     } catch (err) {
       // Best-effort cleanup so abandoned chunks don't sit on the server
       // until the TTL cron sweeps them.
