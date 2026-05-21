@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { api } from "@/lib/api";
 import { ENDPOINTS, UPLOAD_LIMITS } from "@/lib/constants";
 import type {
@@ -22,6 +23,74 @@ import type {
   Attachment,
   UserPreview,
 } from "./types";
+
+// ─── Large upload helpers ────────────────────────────────────────────
+// Module-level so the `issuesApi.uploadLargeAttachment` method (defined
+// below) can reference them. Both retry the wrapped request on transient
+// failure (network drop, 5xx, 408 timeout) — BE already retries chunk
+// PUTs to Supabase internally, but a flaky reverse proxy or the
+// `/complete` assembly step can still fail, so a second tier of retries
+// on FE turns a hard error into a slow upload.
+
+const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+const RETRY_BACKOFF_MS = [400, 1200, 3000] as const; // exponential-ish
+
+function isRetryable(err: unknown): boolean {
+  if (!(err instanceof AxiosError)) return false;
+  // Aborted by user / signal — never retry.
+  if (err.code === "ERR_CANCELED" || err.name === "CanceledError") return false;
+  // Pure network failure (no response yet) — likely transient.
+  if (!err.response) return true;
+  return RETRYABLE_STATUS.has(err.response.status);
+}
+
+async function postChunkWithRetry(args: {
+  sessionId: string;
+  index: number;
+  blob: Blob;
+  signal?: AbortSignal;
+  onProgress: (bytesLoaded: number) => void;
+}): Promise<void> {
+  for (let attempt = 0; attempt <= RETRY_BACKOFF_MS.length; attempt++) {
+    if (args.signal?.aborted) throw new Error("Upload aborted");
+    const form = new FormData();
+    form.append("chunk", args.blob, `chunk-${args.index}`);
+    try {
+      await api.post(
+        ENDPOINTS.attachments.largeChunk(args.sessionId),
+        form,
+        {
+          params: { index: args.index },
+          headers: { "Content-Type": "multipart/form-data" },
+          signal: args.signal,
+          onUploadProgress: (e) => args.onProgress(e.loaded),
+        },
+      );
+      return;
+    } catch (err) {
+      if (attempt >= RETRY_BACKOFF_MS.length || !isRetryable(err)) throw err;
+      // Reset progress for this slot — re-upload will report from zero.
+      args.onProgress(0);
+      await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS[attempt]));
+    }
+  }
+}
+
+async function postCompleteWithRetry(sessionId: string) {
+  for (let attempt = 0; attempt <= RETRY_BACKOFF_MS.length; attempt++) {
+    try {
+      const res = await api.post<{ message: string; attachment: Attachment }>(
+        ENDPOINTS.attachments.largeComplete(sessionId),
+      );
+      return res.data;
+    } catch (err) {
+      if (attempt >= RETRY_BACKOFF_MS.length || !isRetryable(err)) throw err;
+      await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS[attempt]));
+    }
+  }
+  // Unreachable — loop either returns or throws.
+  throw new Error("Complete retry loop exited without resolving");
+}
 
 export const projectsApi = {
   list: (workspaceId: string) =>
@@ -312,15 +381,14 @@ export const issuesApi = {
         const start = i * init.chunkSize;
         const end = Math.min(start + init.chunkSize, file.size);
         const blob = file.slice(start, end);
-        const form = new FormData();
-        form.append("chunk", blob, `chunk-${i}`);
 
-        await api.post(ENDPOINTS.attachments.largeChunk(sessionId), form, {
-          params: { index: i },
-          headers: { "Content-Type": "multipart/form-data" },
+        await postChunkWithRetry({
+          sessionId,
+          index: i,
+          blob,
           signal: options.signal,
-          onUploadProgress: (e) => {
-            chunkBytes[i] = Math.min(e.loaded, blob.size);
+          onProgress: (loaded) => {
+            chunkBytes[i] = Math.min(loaded, blob.size);
             reportProgress();
           },
         });
@@ -330,11 +398,11 @@ export const issuesApi = {
         reportProgress();
       }
 
-      return await api
-        .post<{ message: string; attachment: Attachment }>(
-          ENDPOINTS.attachments.largeComplete(sessionId),
-        )
-        .then((r) => r.data);
+      // `/complete` is also worth retrying — BE retries chunk DOWNLOADS
+      // internally but the assembly + storage write at /complete can still
+      // hit transient errors (Supabase blip, DB cold). Two extra attempts
+      // is enough without burning user patience.
+      return await postCompleteWithRetry(sessionId);
     } catch (err) {
       // Best-effort cleanup so abandoned chunks don't sit on the server
       // until the TTL cron sweeps them.
