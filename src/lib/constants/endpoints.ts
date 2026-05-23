@@ -122,11 +122,15 @@ const ATTACHMENTS_LARGE_BASE = `${ATTACHMENTS_BASE}/large`;
 const ATTACHMENTS_ENDPOINTS = {
   byId: (id: string) => `${ATTACHMENTS_BASE}/${id}`,
   largeInit: `${ATTACHMENTS_LARGE_BASE}/init`,
+  largeStatus: (sessionId: string) =>
+    `${ATTACHMENTS_LARGE_BASE}/${sessionId}/status`,
   largeChunk: (sessionId: string) =>
     `${ATTACHMENTS_LARGE_BASE}/${sessionId}/chunk`,
   largeComplete: (sessionId: string) =>
     `${ATTACHMENTS_LARGE_BASE}/${sessionId}/complete`,
   largeAbort: (sessionId: string) => `${ATTACHMENTS_LARGE_BASE}/${sessionId}`,
+  largeAbortBeacon: (sessionId: string) =>
+    `${ATTACHMENTS_LARGE_BASE}/${sessionId}/abort-beacon`,
 } as const;
 
 const LABELS_ENDPOINTS = {

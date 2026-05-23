@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   Paperclip,
   Trash2,
@@ -10,6 +10,8 @@ import {
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
+  RotateCw,
+  Upload,
 } from "lucide-react";
 import { formatDateShort } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -57,14 +59,26 @@ export function AttachmentSection({
   const { data: attachments } = useAttachments(issueId);
   const { mutate: upload, isPending: uploading } = useUploadAttachments(issueId);
   const { mutate: deleteAttachment } = useDeleteAttachment(issueId);
-  const { upload: uploadLarge, uploads: largeUploads, dismiss: dismissLarge } =
-    useUploadLargeAttachment(issueId);
+  const {
+    upload: uploadLarge,
+    uploads: largeUploads,
+    dismiss: dismissLarge,
+    orphans,
+    resume: resumeLarge,
+    retry: retryLarge,
+    dismissOrphan,
+  } = useUploadLargeAttachment(issueId);
   const [expanded, setExpanded] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
+  // Hidden file input + the orphan currently waiting on a file re-pick.
+  // Resume flow: user clicks "Resume" on an orphan row → we open the
+  // picker; on file selected, we hand it to the hook's `resume()`.
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const [resumingOrphanId, setResumingOrphanId] = useState<string | null>(null);
+
   const count = attachments?.length ?? 0;
-  const largeUploading = largeUploads.length > 0;
 
   const handleFiles = useCallback(
     (fileList: FileList | File[]) => {
@@ -91,6 +105,28 @@ export function AttachmentSection({
       if (small.length > 0) upload(small);
     },
     [upload, uploadLarge, t],
+  );
+
+  // User clicked "Resume" on an orphaned upload → remember which one,
+  // then trigger the hidden file input so they can re-pick the file.
+  const handleResumeClick = useCallback((sessionId: string) => {
+    setResumingOrphanId(sessionId);
+    resumeInputRef.current?.click();
+  }, []);
+
+  // File picked for resume → verify match (hook does this) + kick off
+  // resume. Reset the input so the same file can be picked twice in a row.
+  const handleResumeFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      const sessionId = resumingOrphanId;
+      // Reset both inputs and state immediately so a second click works.
+      if (resumeInputRef.current) resumeInputRef.current.value = "";
+      setResumingOrphanId(null);
+      if (!file || !sessionId) return;
+      void resumeLarge(file, sessionId);
+    },
+    [resumingOrphanId, resumeLarge],
   );
 
   function handleDrop(e: React.DragEvent) {
@@ -149,17 +185,19 @@ export function AttachmentSection({
                 : "border-muted-foreground/20 hover:border-muted-foreground/30"
             }`}
           >
-            {/* Upload hint */}
+            {/* Upload hint — the global "Loading…" only appears for the
+                small single-shot upload because that path has no per-file
+                progress UI. Large uploads have their own per-row progress
+                bars below, so leaving this header static keeps the UI
+                from looking permanently "busy" while chunks stream. */}
             <label className="mb-3 flex cursor-pointer items-center justify-center gap-2 rounded-md py-2 text-[12px] text-muted-foreground transition-colors hover:bg-muted/40">
-              {uploading || largeUploading ? (
+              {uploading ? (
                 <Spinner className="h-4 w-4" />
               ) : (
                 <Paperclip className="h-4 w-4" />
               )}
               <span>
-                {uploading || largeUploading
-                  ? t("common.loading")
-                  : t("issue.dropOrClick")}
+                {uploading ? t("common.loading") : t("issue.dropOrClick")}
               </span>
               <input
                 type="file"
@@ -178,6 +216,57 @@ export function AttachmentSection({
               })}
             </p>
 
+            {/* Orphaned uploads — sessions persisted to localStorage
+                that the server still considers PENDING. Surface a
+                "Resume" CTA so the user can pick the file again from
+                disk and continue from where they left off. */}
+            {orphans.length > 0 && (
+              <div className="mb-3 space-y-1.5">
+                {orphans.map((o) => (
+                  <div
+                    key={o.sessionId}
+                    className="flex items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 p-2 text-[11px] dark:border-amber-700 dark:bg-amber-950/40"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate font-medium">{o.fileName}</div>
+                      <div className="text-muted-foreground">
+                        {t("issue.resumeUploadAvailable", {
+                          size: formatSize(o.fileSize),
+                        })}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleResumeClick(o.sessionId)}
+                        className="h-7 text-[11px]"
+                      >
+                        <Upload className="mr-1 h-3 w-3" />
+                        {t("issue.resume")}
+                      </Button>
+                      <button
+                        onClick={() => dismissOrphan(o.sessionId)}
+                        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        title={t("issue.uploadCancel")}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {/* Hidden input shared by all resume buttons — single
+                    DOM node, value reset after each pick so the same
+                    file can be selected twice in a row. */}
+                <input
+                  ref={resumeInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleResumeFile}
+                />
+              </div>
+            )}
+
             {/* In-flight chunked uploads — one row per file with a progress
                 bar. Removed automatically on success; errored rows surface a
                 dismiss button. */}
@@ -192,24 +281,43 @@ export function AttachmentSection({
                   >
                     <div className="mb-1 flex items-center justify-between gap-2 text-[11px]">
                       <span className="truncate font-medium">{u.fileName}</span>
-                      <span className="shrink-0 text-muted-foreground">
+                      <span className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
+                        {u.status === "finalizing" && (
+                          <Spinner className="h-3 w-3" />
+                        )}
                         {u.status === "error"
                           ? t("issue.uploadFailed")
-                          : `${u.pct}% · ${formatSize(u.bytesUploaded)} / ${formatSize(u.totalBytes)}`}
+                          : u.status === "finalizing"
+                            ? t("issue.finalizing")
+                            : `${u.pct}% · ${formatSize(u.bytesUploaded)} / ${formatSize(u.totalBytes)}`}
                       </span>
                       {u.status === "error" && (
-                        <button
-                          onClick={() => dismissLarge(u.id)}
-                          className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => retryLarge(u.id)}
+                            className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            title={t("issue.uploadRetry")}
+                          >
+                            <RotateCw className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => dismissLarge(u.id)}
+                            className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            title={t("issue.uploadCancel")}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
                       )}
                     </div>
                     <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
                       <div
                         className={`h-full transition-all duration-200 ${
-                          u.status === "error" ? "bg-red-500" : "bg-primary"
+                          u.status === "error"
+                            ? "bg-red-500"
+                            : u.status === "finalizing"
+                              ? "animate-pulse bg-primary/80"
+                              : "bg-primary"
                         }`}
                         style={{ width: `${u.status === "error" ? 100 : u.pct}%` }}
                       />

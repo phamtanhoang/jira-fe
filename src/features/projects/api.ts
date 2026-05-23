@@ -394,47 +394,147 @@ export const issuesApi = {
    * row. On any failure mid-upload, best-effort aborts the server-side
    * session so leftover chunks are cleaned up.
    */
+  /**
+   * Fetch the BE-side progress of an in-flight large upload. Used by FE
+   * resume — given a sessionId stored in localStorage, ask the server
+   * which chunks are already persisted so we only re-upload the rest.
+   */
+  largeUploadStatus: (sessionId: string) =>
+    api
+      .get<{
+        sessionId: string;
+        issueId: string;
+        fileName: string;
+        fileSize: number;
+        mimeType: string;
+        totalChunks: number;
+        chunkSize: number;
+        receivedChunks: number[];
+        bytesReceived: number;
+        status: string;
+        expiresAt: string;
+      }>(ENDPOINTS.attachments.largeStatus(sessionId))
+      .then((r) => r.data),
+
   uploadLargeAttachment: async (
     issueId: string,
     file: File,
     options: {
       onProgress?: (bytesUploaded: number, totalBytes: number) => void;
+      /**
+       * Fired once when all chunks are uploaded and we're about to call
+       * `/complete`. The /complete step (server-side download + concat +
+       * Supabase final upload + DB write) commonly takes 5–15s, during
+       * which chunk progress is already at 100% — the UI should switch
+       * to a "Finalizing…" indicator so the user knows something is
+       * still happening.
+       */
+      onFinalize?: () => void;
+      /**
+       * Resume an existing session (created earlier, persisted to
+       * localStorage). When set, we skip /init and instead query
+       * /status to learn which chunks are already on storage, then
+       * upload only the missing ones.
+       */
+      resumeSessionId?: string;
+      /**
+       * Fired right after /init (or /status for resume) returns, with
+       * the sessionId. Lets the caller persist the sessionId so it can
+       * be recovered after a tab close.
+       */
+      onSessionReady?: (info: {
+        sessionId: string;
+        expiresAt: string;
+        chunkSize: number;
+        totalChunks: number;
+      }) => void;
       signal?: AbortSignal;
     } = {},
   ) => {
     const { chunkSize } = UPLOAD_LIMITS.LARGE_ATTACHMENT;
     const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
 
-    const init = await api
-      .post<{
-        message: string;
-        sessionId: string;
-        chunkSize: number;
-        totalChunks: number;
-        expiresAt: string;
-      }>(ENDPOINTS.attachments.largeInit, {
-        issueId,
-        fileName: file.name,
-        mimeType: file.type || "application/octet-stream",
-        fileSize: file.size,
-        totalChunks,
-      })
-      .then((r) => r.data);
+    // Resume path: skip /init, pull existing progress from /status.
+    // Normal path: /init to allocate a fresh session.
+    type InitShape = {
+      sessionId: string;
+      chunkSize: number;
+      totalChunks: number;
+      expiresAt: string;
+    };
+    let init: InitShape;
+    let alreadyUploaded: Set<number>;
+    if (options.resumeSessionId) {
+      const status = await api
+        .get<{
+          sessionId: string;
+          chunkSize: number;
+          totalChunks: number;
+          expiresAt: string;
+          receivedChunks: number[];
+          fileSize: number;
+          fileName: string;
+        }>(ENDPOINTS.attachments.largeStatus(options.resumeSessionId))
+        .then((r) => r.data);
+      // Sanity check — refuse to resume if the persisted file doesn't
+      // match what the server expects. Prevents accidental corruption
+      // if the user re-picks a different file.
+      if (status.fileSize !== file.size || status.fileName !== file.name) {
+        throw new Error("Resumed file does not match the original");
+      }
+      init = {
+        sessionId: status.sessionId,
+        chunkSize: status.chunkSize,
+        totalChunks: status.totalChunks,
+        expiresAt: status.expiresAt,
+      };
+      alreadyUploaded = new Set(status.receivedChunks);
+    } else {
+      init = await api
+        .post<{
+          message: string;
+          sessionId: string;
+          chunkSize: number;
+          totalChunks: number;
+          expiresAt: string;
+        }>(ENDPOINTS.attachments.largeInit, {
+          issueId,
+          fileName: file.name,
+          mimeType: file.type || "application/octet-stream",
+          fileSize: file.size,
+          totalChunks,
+        })
+        .then((r) => r.data);
+      alreadyUploaded = new Set();
+    }
+    options.onSessionReady?.(init);
 
     const sessionId = init.sessionId;
     // Aggregate progress across chunks. We keep one slot per chunk so
     // re-entrant onUploadProgress events update only their own slot and
     // never double-count.
     const chunkBytes = new Array<number>(init.totalChunks).fill(0);
+    // Pre-fill slots for already-uploaded chunks so the progress bar
+    // starts at the right percentage on resume (instead of jumping
+    // from 0% to "almost full" when we skip ahead).
+    for (let i = 0; i < init.totalChunks; i++) {
+      if (alreadyUploaded.has(i)) {
+        const start = i * init.chunkSize;
+        const end = Math.min(start + init.chunkSize, file.size);
+        chunkBytes[i] = end - start;
+      }
+    }
     const reportProgress = () => {
       if (!options.onProgress) return;
       const total = chunkBytes.reduce((a, b) => a + b, 0);
       options.onProgress(Math.min(total, file.size), file.size);
     };
+    reportProgress(); // surface the resumed-from progress before any upload
 
     try {
       for (let i = 0; i < init.totalChunks; i++) {
         if (options.signal?.aborted) throw new Error("Upload aborted");
+        if (alreadyUploaded.has(i)) continue; // chunk already on storage
         const start = i * init.chunkSize;
         const end = Math.min(start + init.chunkSize, file.size);
         const blob = file.slice(start, end);
@@ -454,6 +554,10 @@ export const issuesApi = {
         chunkBytes[i] = blob.size;
         reportProgress();
       }
+
+      // All chunks landed — flip UI to "finalizing" before the
+      // potentially-long /complete request runs.
+      options.onFinalize?.();
 
       // `/complete` is self-healing: BE inspects Supabase, finds chunks
       // it thought it received but were silently dropped (free-tier
