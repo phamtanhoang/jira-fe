@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import type { LogLevel, LogsFilters } from "../types";
+import { EVENT_NAMES, type LogLevel, type LogsFilters } from "../types";
 
 const LEVELS: LogLevel[] = ["INFO", "WARN", "ERROR"];
 const METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE"];
@@ -50,6 +50,23 @@ export function LogsFiltersBar({
           })
         }
       />
+      <Select
+        value={filters.event ?? ""}
+        onValueChange={(v) =>
+          onChange({ ...filters, event: v || undefined, page: 1 })
+        }
+      >
+        <SelectTrigger className="h-8 w-56">
+          <SelectValue placeholder={t("admin.logs.filters.event")} />
+        </SelectTrigger>
+        <SelectContent>
+          {EVENT_NAMES.map((e) => (
+            <SelectItem key={e} value={e} className="font-mono text-[11px]">
+              {e}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Select
         value={filters.level ?? ""}
         onValueChange={(v) =>

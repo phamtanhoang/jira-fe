@@ -641,6 +641,7 @@
       "columns": {
         "time": "Thời gian",
         "level": "Mức độ",
+        "event": "Sự kiện",
         "method": "Method",
         "url": "URL",
         "status": "Status",
@@ -650,6 +651,7 @@
       "filters": {
         "searchPlaceholder": "Tìm theo URL…",
         "emailPlaceholder": "Email user…",
+        "event": "Sự kiện",
         "level": "Mức độ",
         "method": "Method",
         "statusCode": "Status"

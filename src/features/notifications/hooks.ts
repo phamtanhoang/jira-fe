@@ -7,15 +7,18 @@ import { notificationsApi } from "./api";
 const KEY = ["notifications"] as const;
 const UNREAD_KEY = ["notifications", "unread-count"] as const;
 
-// Bell badge: poll every 60s when the tab is active. Backend marks this
-// route as log-skip so polling doesn't bloat the request log.
-const UNREAD_REFETCH_MS = 60_000;
+// Bell badge: poll every 5 min when the tab is active. We deliberately
+// pick a long interval — each unread-count query keeps the Neon free-tier
+// compute warm, and a stale-by-a-few-minutes badge is a fine trade-off
+// for a personal/dev deployment. Window focus still triggers an immediate
+// refetch, so opening a fresh tab gets the latest number.
+const UNREAD_REFETCH_MS = 5 * 60_000;
 
 export function useUnreadCount() {
   return useQuery({
     queryKey: UNREAD_KEY,
     queryFn: () => notificationsApi.unreadCount(),
-    staleTime: 30_000,
+    staleTime: 2 * 60_000,
     refetchInterval: UNREAD_REFETCH_MS,
     refetchOnWindowFocus: true,
   });

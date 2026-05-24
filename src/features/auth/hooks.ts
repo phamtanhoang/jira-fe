@@ -23,9 +23,18 @@ import type {
 
 // ─── Current User ────────────────────────────────────────
 export function useCurrentUser() {
+  // Gate the query on the `COOKIE_AUTH` flag so unauthenticated tabs
+  // never fire `/auth/me`. Without this every public page (sign-in,
+  // landing, error boundary) burns a Neon DB round-trip on mount,
+  // which adds up fast on a free-tier compute budget.
+  const hasAuthCookie =
+    typeof document !== "undefined" &&
+    document.cookie.includes(`${COOKIE_AUTH}=1`);
+
   const { data, isLoading } = useQuery({
     queryKey: ["auth", "me"],
     queryFn: () => authApi.me(),
+    enabled: hasAuthCookie,
     retry: false,
     // Mounted on every layout + header + sidebar + many page components.
     // Without a long staleTime each page nav after 60s would refetch;

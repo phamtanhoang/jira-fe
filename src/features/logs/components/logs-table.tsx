@@ -54,17 +54,17 @@ export function LogsTable({
         <colgroup>
           <col className="w-[140px]" />
           <col className="w-[72px]" />
-          <col className="w-[72px]" />
+          <col className="w-50" />
           <col />
           <col className="w-[72px]" />
-          <col className="w-[200px]" />
-          <col className="w-[96px]" />
+          <col className="w-45" />
+          <col className="w-20" />
         </colgroup>
         <thead className="sticky top-0 bg-background/95 backdrop-blur z-10 text-muted-foreground">
           <tr>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.time")}</th>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.level")}</th>
-            <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.method")}</th>
+            <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.event")}</th>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.url")}</th>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.status")}</th>
             <th className="px-3 py-2 text-left font-medium">{t("admin.logs.columns.user")}</th>
@@ -102,8 +102,8 @@ const LogRow = memo(function LogRow({
       <td className="px-3 py-2">
         <Badge className={LEVEL_BADGE[log.level]}>{log.level}</Badge>
       </td>
-      <td className="px-3 py-2 font-mono">
-        <TruncatedText text={log.method} />
+      <td className="px-3 py-2 font-mono text-[11px]">
+        <TruncatedText text={log.event ?? `${log.method} ${log.url}`} />
       </td>
       <td className="px-3 py-2 font-mono">
         <TruncatedText text={log.url} />

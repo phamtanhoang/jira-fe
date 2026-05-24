@@ -641,6 +641,7 @@
       "columns": {
         "time": "Time",
         "level": "Level",
+        "event": "Event",
         "method": "Method",
         "url": "URL",
         "status": "Status",
@@ -650,6 +651,7 @@
       "filters": {
         "searchPlaceholder": "Search URL…",
         "emailPlaceholder": "User email…",
+        "event": "Event",
         "level": "Level",
         "method": "Method",
         "statusCode": "Status"

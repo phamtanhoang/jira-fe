@@ -2,6 +2,8 @@ export type LogLevel = "INFO" | "WARN" | "ERROR";
 
 export type RequestLog = {
   id: string;
+  /** Dotted-namespace event name, e.g. "auth.login.success". Null on legacy rows. */
+  event: string | null;
   level: LogLevel;
   source: string;
   method: string;
@@ -13,6 +15,7 @@ export type RequestLog = {
   userEmail: string | null;
   ip: string | null;
   userAgent: string | null;
+  metadata: unknown;
   requestBody: unknown;
   requestQuery: unknown;
   responseBody: unknown;
@@ -35,6 +38,8 @@ export type LogsListResponse = {
 };
 
 export type LogsFilters = {
+  /** Filter by exact event name (e.g. "auth.login.success"). */
+  event?: string;
   level?: LogLevel;
   method?: string;
   statusCode?: number;
@@ -47,3 +52,26 @@ export type LogsFilters = {
   page?: number;
   take?: number;
 };
+
+/**
+ * Known event names — mirror of `EVENTS` in the BE service. Used by the
+ * filter dropdown so admins can pick from a typed list instead of guessing.
+ */
+export const EVENT_NAMES = [
+  "auth.login.success",
+  "auth.login.failed",
+  "auth.logout",
+  "auth.signup",
+  "auth.email.verified",
+  "auth.password.changed",
+  "auth.password.reset.requested",
+  "auth.oauth.linked",
+  "auth.oauth.unlinked",
+  "authz.denied",
+  "ratelimit.hit",
+  "quota.exceeded",
+  "perf.slow_request",
+  "error.5xx",
+  "error.uncaught",
+] as const;
+export type EventName = (typeof EVENT_NAMES)[number];
