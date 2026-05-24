@@ -23,6 +23,7 @@ import { AuditPanel } from "@/features/admin-audit/components/audit-panel";
 import { UserActivityPanel } from "@/features/admin-users/components/user-activity-panel";
 import { MailLogsPanel } from "@/features/mail-logs/components/mail-logs-panel";
 import { WebhookDeliveriesPanel } from "@/features/webhooks/components/webhook-deliveries-panel";
+import { LoggingConfigToggle } from "@/features/admin/components/logging-config-toggle";
 import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { useTableDensity } from "@/lib/hooks/use-table-density";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -52,24 +53,27 @@ export function AdminLogsClient() {
             {t("admin.logs.description")}
           </p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="outline" size="sm" className="gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              {t("admin.users.density.label")}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setDensity("compact")}>
-              {density === "compact" && "✓ "}
-              {t("admin.users.density.compact")}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setDensity("comfortable")}>
-              {density === "comfortable" && "✓ "}
-              {t("admin.users.density.comfortable")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <LoggingConfigToggle />
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="outline" size="sm" className="gap-2">
+                <LayoutGrid className="h-4 w-4" />
+                {t("admin.users.density.label")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setDensity("compact")}>
+                {density === "compact" && "✓ "}
+                {t("admin.users.density.compact")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDensity("comfortable")}>
+                {density === "comfortable" && "✓ "}
+                {t("admin.users.density.comfortable")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => v && setTab(v as TabValue)}>

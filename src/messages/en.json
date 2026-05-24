@@ -616,6 +616,22 @@
       "tabActivity": "User activity",
       "tabMail": "Email",
       "tabWebhooks": "Webhooks",
+      "config": {
+        "button": "Logging",
+        "title": "Logging settings",
+        "description": "Toggle channels off to save DB space",
+        "master": {
+          "label": "All logging",
+          "help": "Disable everything below"
+        },
+        "channel": {
+          "requestLog": "HTTP request log",
+          "adminAudit": "Admin audit log",
+          "mailLog": "Email log",
+          "webhookDelivery": "Webhook delivery log"
+        },
+        "footnote": "Changes apply within seconds. Existing rows are kept until the retention cron runs."
+      },
       "empty": "No logs match the current filters.",
       "loadMore": "Load more",
       "meta": {

@@ -616,6 +616,22 @@
       "tabActivity": "Hoạt động user",
       "tabMail": "Email",
       "tabWebhooks": "Webhook",
+      "config": {
+        "button": "Ghi log",
+        "title": "Cấu hình ghi log",
+        "description": "Tắt từng loại log để tiết kiệm DB",
+        "master": {
+          "label": "Toàn bộ log",
+          "help": "Tắt tất cả các loại bên dưới"
+        },
+        "channel": {
+          "requestLog": "Log HTTP request",
+          "adminAudit": "Log audit admin",
+          "mailLog": "Log email",
+          "webhookDelivery": "Log webhook delivery"
+        },
+        "footnote": "Thay đổi áp dụng trong vài giây. Các row cũ vẫn giữ đến khi cron xoá theo retention."
+      },
       "empty": "Không có log nào phù hợp.",
       "loadMore": "Tải thêm",
       "meta": {

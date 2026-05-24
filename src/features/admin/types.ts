@@ -38,7 +38,29 @@ export const SETTING_KEYS = {
   APP_AUTH_PROVIDERS: "app.auth_providers",
   APP_QUOTAS: "app.quotas",
   APP_EMAIL_TEMPLATES: "app.email_templates",
+  APP_LOGGING_CONFIG: "app.logging_config",
 } as const;
+
+/**
+ * Per-channel logging toggles. `enabled=false` is the master kill switch
+ * that short-circuits everything else. Other fields gate writes to their
+ * respective table.
+ */
+export type LoggingConfigValue = {
+  enabled: boolean;
+  requestLog: boolean;
+  adminAudit: boolean;
+  mailLog: boolean;
+  webhookDelivery: boolean;
+};
+
+export const DEFAULT_LOGGING_CONFIG: LoggingConfigValue = {
+  enabled: true,
+  requestLog: true,
+  adminAudit: true,
+  mailLog: true,
+  webhookDelivery: true,
+};
 
 export type QuotasValue = {
   maxProjectsPerWorkspace: number;
