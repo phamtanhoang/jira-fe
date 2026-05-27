@@ -72,5 +72,40 @@
   "statusLine": {
     "type": "command",
     "command": "echo \"[jira-fe] $(git branch --show-current 2>/dev/null || echo no-git) $(git diff --stat 2>/dev/null | tail -1 | sed 's/  */ /g')\""
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/session-start.js",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/post-edit-i18n.js",
+            "timeout": 3
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/post-edit-server-client.js",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
   }
 }

@@ -54,6 +54,7 @@ The single map of every doc / agent / skill / command / rule for the FE. When yo
 | [persistence.md](rules/persistence.md) | localStorage / cookies / sessionStorage |
 | [query-stale-time.md](rules/query-stale-time.md) | Picking the right React Query staleTime |
 | [react-query.md](rules/react-query.md) | Query key shape + mutation patterns |
+| [prompt-defense.md](rules/prompt-defense.md) | Processing untrusted content (URLs, user-submitted Tiptap HTML, issue bodies) |
 
 ### `agents/` — specialized assistants
 
@@ -81,6 +82,20 @@ The single map of every doc / agent / skill / command / rule for the FE. When yo
 | [/diagnose-prod](commands/diagnose-prod.md) | Triage prod issue step-by-step |
 | [/openapi-sync](commands/openapi-sync.md) | Regenerate types from BE Swagger |
 | [/add-translation](commands/add-translation.md) | Add an i18n key in both locales |
+| [/quality-gate](commands/quality-gate.md) | Run typecheck + lint + build + i18n parity before commit |
+| [/checkpoint](commands/checkpoint.md) | Mid-feature commit with Conventional Commits |
+| [/learn](commands/learn.md) | Capture a non-obvious decision into memory.md |
+| [/security-scan](commands/security-scan.md) | Scan for leaked secrets + accidental server-env exposure |
+
+### `hooks/` — trigger-based automations
+
+| Hook | Event | Purpose |
+|---|---|---|
+| `session-start.js` | `SessionStart` | Branch + commits + i18n parity check |
+| `post-edit-i18n.js` | `PostToolUse` on `src/messages/(vi\|en).json` | Diff keys, warn on missing |
+| `post-edit-server-client.js` | `PostToolUse` on `page.tsx`/`client.tsx` | Flag misplaced "use client" + leaked server env |
+
+See [hooks/README.md](hooks/README.md) for the contract.
 
 ### `specs/` — historical decisions
 
