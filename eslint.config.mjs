@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "tests/e2e/**",
     "playwright-report/**",
     "test-results/**",
+    // Claude Code hooks — Node CJS scripts, not app code
+    ".claude/**",
   ]),
 ]);
 
