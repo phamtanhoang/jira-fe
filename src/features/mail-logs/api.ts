@@ -31,7 +31,10 @@ export const mailLogsApi = {
       .post<{ message: string }>(ENDPOINTS.admin.mailTest, { to })
       .then((r) => r.data),
 
-  sendTemplateTest: (to: string, template: "verification" | "resetPassword") =>
+  sendTemplateTest: (
+    to: string,
+    template: "verification" | "resetPassword" | "welcome",
+  ) =>
     api
       .post<{ message: string }>(ENDPOINTS.admin.mailTemplateTest, {
         to,

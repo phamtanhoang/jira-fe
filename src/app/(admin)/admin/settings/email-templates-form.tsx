@@ -178,9 +178,9 @@ function EmailTemplatesInner({
               />
             </div>
 
-            {(k === "verification" || k === "resetPassword") && (
-              <SendTestRow templateKey={k} />
-            )}
+            {(k === "verification" ||
+              k === "resetPassword" ||
+              k === "welcome") && <SendTestRow templateKey={k} />}
           </TabsContent>
         ))}
       </Tabs>
@@ -397,7 +397,7 @@ function PreviewFrame({
 function SendTestRow({
   templateKey,
 }: {
-  templateKey: "verification" | "resetPassword";
+  templateKey: "verification" | "resetPassword" | "welcome";
 }) {
   const { t } = useAppStore();
   const { user } = useCurrentUser();
