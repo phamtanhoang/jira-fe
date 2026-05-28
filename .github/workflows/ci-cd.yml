@@ -127,6 +127,22 @@ jobs:
             docker compose up -d --force-recreate
             docker image prune -f
 
+      - name: Verify deployment (smoke check)
+        run: |
+          echo "Waiting for FE to be ready..."
+          sleep 20
+          for i in 1 2 3 4 5 6; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://jira.3hteam.io.vn/sign-in)
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Smoke check passed (attempt $i, status $STATUS)"
+              exit 0
+            fi
+            echo "Attempt $i/6 — got status $STATUS, retrying in 10s..."
+            sleep 10
+          done
+          echo "❌ Smoke check failed after 80s — FE not responding 200 on /sign-in"
+          exit 1
+
   # ─────────── Job 5: Consolidated Telegram notification ───────────
   notify:
     name: Notify Telegram
