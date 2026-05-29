@@ -3,6 +3,13 @@ services:
     image: phamtanhoang/jira-fe:latest
     container_name: jira-fe
     restart: unless-stopped
+    # Next.js standalone reads HOSTNAME to decide which interface to bind.
+    # Without this, alpine sets HOSTNAME=<container-id> → Next resolves that
+    # to the container's docker-network IP and binds ONLY there, leaving
+    # 127.0.0.1 unbound. Healthcheck (and any in-container probe) then fails
+    # with "Connection refused" against localhost.
+    environment:
+      HOSTNAME: 0.0.0.0
     ports:
       - "3030:3000"
     # Liveness probe — Next.js standalone server responds 200 on `/`. We
