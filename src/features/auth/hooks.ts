@@ -7,7 +7,8 @@ import {
   ROUTES,
   COOKIE_AUTH,
   COOKIE_ROLE,
-  COOKIE_MAX_AGE_1Y,
+  writeAuthCookie,
+  clearAuthCookie,
 } from "@/lib/constants";
 import { STALE_AUTH_USER } from "@/lib/constants/query-stale";
 import { handleApiError, showMessage } from "@/lib/utils";
@@ -49,7 +50,7 @@ export function useCurrentUser() {
   const role = data?.role;
   useEffect(() => {
     if (!role) return;
-    document.cookie = `${COOKIE_ROLE}=${role};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+    writeAuthCookie(COOKIE_ROLE, role);
   }, [role]);
 
   return {
@@ -67,10 +68,10 @@ export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
   return useMutation({
     mutationFn: (data: LoginPayload) => authApi.login(data),
     onSuccess: (result) => {
-      document.cookie = `${COOKIE_AUTH}=1;path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+      writeAuthCookie(COOKIE_AUTH, "1");
       const role = result?.user?.role;
       if (role) {
-        document.cookie = `${COOKIE_ROLE}=${role};path=/;max-age=${COOKIE_MAX_AGE_1Y}`;
+        writeAuthCookie(COOKIE_ROLE, role);
       }
       if (result?.user) {
         queryClient.setQueryData(["auth", "me"], result.user);
@@ -206,8 +207,8 @@ export function useLogout() {
       showMessage("LOGOUT_SUCCESS");
     },
     onSettled: () => {
-      document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
-      document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+      clearAuthCookie(COOKIE_AUTH);
+      clearAuthCookie(COOKIE_ROLE);
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
     },
@@ -232,8 +233,8 @@ export function useRevokeMySession() {
       showMessage(result.message);
       if (result.wasCurrent) {
         // Rare path: user revoked the session they're currently on.
-        document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
-        document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+        clearAuthCookie(COOKIE_AUTH);
+        clearAuthCookie(COOKIE_ROLE);
         queryClient.clear();
         router.push(ROUTES.SIGN_IN);
       } else {
@@ -263,8 +264,8 @@ export function useRevokeAllMySessions() {
     mutationFn: () => authApi.revokeAllSessions(),
     onSuccess: () => {
       showMessage("LOGOUT_SUCCESS");
-      document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
-      document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+      clearAuthCookie(COOKIE_AUTH);
+      clearAuthCookie(COOKIE_ROLE);
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
     },

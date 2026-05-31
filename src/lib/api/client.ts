@@ -4,13 +4,19 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
-import { ROUTES, ENDPOINTS, COOKIE_AUTH, COOKIE_ROLE } from "@/lib/constants";
+import {
+  ROUTES,
+  ENDPOINTS,
+  COOKIE_AUTH,
+  COOKIE_ROLE,
+  clearAuthCookie,
+} from "@/lib/constants";
 import { pushBreadcrumb, reportError } from "@/lib/logging";
 import { handleApiError } from "@/lib/utils";
 
 function clearSessionAndRedirect() {
-  document.cookie = `${COOKIE_AUTH}=;path=/;max-age=0`;
-  document.cookie = `${COOKIE_ROLE}=;path=/;max-age=0`;
+  clearAuthCookie(COOKIE_AUTH);
+  clearAuthCookie(COOKIE_ROLE);
   // Avoid redirect loops from pages that are already public (sign-in, etc.)
   if (typeof window !== "undefined") {
     const path = window.location.pathname;

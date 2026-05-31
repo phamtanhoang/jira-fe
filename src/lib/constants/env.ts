@@ -20,6 +20,13 @@ export const ENV = {
   // Sentry DSN — empty string disables init in instrumentation files.
   SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN ?? "",
 
+  // Cookie domain shared with BE — set when BE and FE live on different
+  // subdomains (e.g. `api.example.com` + `example.com`) so that cookies
+  // written by JS here match the domain BE sets in the OAuth callback.
+  // Use a leading dot `.example.com` to span subdomains. Leave empty in
+  // localhost dev so cookies stay host-only.
+  COOKIE_DOMAIN: process.env.NEXT_PUBLIC_COOKIE_DOMAIN ?? "",
+
   // ─── Derived flags — only place we compare NODE_ENV / NEXT_RUNTIME ────
   NODE_ENV,
   IS_PRODUCTION: NODE_ENV === "production",
