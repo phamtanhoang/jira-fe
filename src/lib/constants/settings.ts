@@ -22,8 +22,20 @@ export function writeAuthCookie(name: string, value: string): void {
   document.cookie = `${name}=${value};path=/;max-age=${COOKIE_MAX_AGE_1Y}${domain}`;
 }
 
+/**
+ * Wipe an auth cookie under BOTH scopes — explicit domain AND host-only.
+ * Browsers treat `is_authenticated; Domain=.foo` and `is_authenticated`
+ * (no domain) as separate cookies, so a single clear leaves the other
+ * intact. After a deployment that flipped `NEXT_PUBLIC_COOKIE_DOMAIN`,
+ * stale host-only cookies from the old setup would otherwise outlive
+ * logout and keep the user "authenticated" client-side.
+ */
 export function clearAuthCookie(name: string): void {
   if (typeof document === "undefined") return;
-  const domain = ENV.COOKIE_DOMAIN ? `;domain=${ENV.COOKIE_DOMAIN}` : "";
-  document.cookie = `${name}=;path=/;max-age=0${domain}`;
+  // Host-only — covers legacy cookies set before COOKIE_DOMAIN existed.
+  document.cookie = `${name}=;path=/;max-age=0`;
+  // Explicit domain — covers cookies set by the cross-subdomain helpers.
+  if (ENV.COOKIE_DOMAIN) {
+    document.cookie = `${name}=;path=/;max-age=0;domain=${ENV.COOKIE_DOMAIN}`;
+  }
 }
