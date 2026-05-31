@@ -180,7 +180,8 @@ function EmailTemplatesInner({
 
             {(k === "verification" ||
               k === "resetPassword" ||
-              k === "welcome") && <SendTestRow templateKey={k} />}
+              k === "welcome" ||
+              k === "oauthLinked") && <SendTestRow templateKey={k} />}
           </TabsContent>
         ))}
       </Tabs>
@@ -397,7 +398,7 @@ function PreviewFrame({
 function SendTestRow({
   templateKey,
 }: {
-  templateKey: "verification" | "resetPassword" | "welcome";
+  templateKey: "verification" | "resetPassword" | "welcome" | "oauthLinked";
 }) {
   const { t } = useAppStore();
   const { user } = useCurrentUser();

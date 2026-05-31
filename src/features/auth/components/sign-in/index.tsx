@@ -18,6 +18,15 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 
 type LoginForm = z.infer<typeof loginSchema>;
 
+// Mirrors BE's MSG.ERROR.* keys for OAuth-callback failures. Keep these
+// strings byte-stable with the BE constants — they're the contract the
+// redirect URL uses.
+const OAUTH_ERROR_I18N: Record<string, string> = {
+  OAUTH_EMAIL_REQUIRED: "auth.oauthEmailRequired",
+  OAUTH_VERIFY_EMAIL_FIRST: "auth.oauthVerifyEmailFirst",
+  ACCOUNT_DEACTIVATED: "auth.oauthAccountDeactivated",
+};
+
 export function SignInForm() {
   const { t } = useAppStore();
   const searchParams = useSearchParams();
@@ -28,14 +37,20 @@ export function SignInForm() {
   const { data: providers } = useOAuthProviders();
   const passwordEnabled = providers?.password ?? true;
 
-  // OAuth callback redirects with `?error=...` when something fails
-  // (provider denial, missing email, schema migration missing, etc.). Show
-  // the decoded BE message so admins can debug; fall back to generic toast
-  // for the few cases where we only get a code (e.g. `oauth_failed`).
+  // OAuth callback redirects with `?error=<CODE>` when something fails.
+  // Map known BE error codes to localized strings so end-users see a
+  // useful message instead of an opaque shoutcase identifier. Unknown
+  // codes (provider-side errors, schema drift) fall through to the
+  // decoded text so admins can still debug from the toast.
   useEffect(() => {
     const err = searchParams.get("error");
     if (!err) return;
     const decoded = decodeURIComponent(err);
+    const i18nKey = OAUTH_ERROR_I18N[decoded];
+    if (i18nKey) {
+      toast.error(t(i18nKey as "auth.oauthFailed"));
+      return;
+    }
     toast.error(
       decoded && decoded !== "oauth_failed" ? decoded : t("auth.oauthFailed"),
     );
