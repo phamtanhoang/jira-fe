@@ -540,7 +540,10 @@
         "tab": {
           "verification": "OTP xác minh",
           "resetPassword": "Đặt lại mật khẩu",
-          "welcome": "Chào mừng"
+          "welcome": "Chào mừng",
+          "oauthLinked": "Liên kết OAuth",
+          "digest": "Tóm tắt hằng ngày",
+          "invitation": "Mời người dùng"
         },
         "testTo": "Gửi thử đến",
         "sendTest": "Gửi thử",

@@ -540,7 +540,10 @@
         "tab": {
           "verification": "Verification OTP",
           "resetPassword": "Password reset",
-          "welcome": "Welcome"
+          "welcome": "Welcome",
+          "oauthLinked": "OAuth linked",
+          "digest": "Daily digest",
+          "invitation": "User invitation"
         },
         "testTo": "Send a test to",
         "sendTest": "Send test",

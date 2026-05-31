@@ -33,7 +33,13 @@ export const mailLogsApi = {
 
   sendTemplateTest: (
     to: string,
-    template: "verification" | "resetPassword" | "welcome" | "oauthLinked",
+    template:
+      | "verification"
+      | "resetPassword"
+      | "welcome"
+      | "oauthLinked"
+      | "digest"
+      | "invitation",
   ) =>
     api
       .post<{ message: string }>(ENDPOINTS.admin.mailTemplateTest, {
