@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
-import { PanelLeft, LogOut, User, Moon, Sun, ShieldCheck } from "lucide-react";
+import { PanelLeft, LogOut, User,  ShieldCheck } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser, useLogout } from "@/features/auth/hooks";
+import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -26,7 +26,6 @@ export function AdminHeader({
   onToggleSidebar: () => void;
 }) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
   const { t } = useAppStore();
   const { user } = useCurrentUser();
   const { mutate: logout } = useLogout();
@@ -56,15 +55,7 @@ export function AdminHeader({
 
       {/* Right */}
       <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="text-muted-foreground"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
-        </Button>
+        <ThemeSwitcher />
 
         <Separator orientation="vertical" className="mx-1 h-5" />
 
