@@ -192,6 +192,7 @@ jobs:
           message = os.getenv('GITHUB_EVENT_HEAD_COMMIT_MESSAGE', '')
           server_url = os.getenv('GITHUB_SERVER_URL', '')
           run_id = os.getenv('GITHUB_RUN_ID', '')
+          output_path = os.environ['GITHUB_OUTPUT']
 
           escaped_message = html.escape(message, quote=False)
           payload = f"""{icon} <b>{html.escape(title)}</b>
@@ -203,9 +204,11 @@ jobs:
           <b>Message:</b> <code>{escaped_message}</code>
 
           <a href=\"{html.escape(server_url)}/{html.escape(repo)}/actions/runs/{html.escape(run_id)}\">View Action</a>"""
-          print('telegram_message<<EOF')
-          print(payload)
-          print('EOF')
+
+          with open(output_path, 'a', encoding='utf-8') as f:
+              f.write('telegram_message<<EOF\n')
+              f.write(payload + '\n')
+              f.write('EOF\n')
           PY
         env:
           STAGE_ICON: ${{ steps.status.outputs.icon }}
