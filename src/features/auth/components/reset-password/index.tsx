@@ -86,7 +86,7 @@ export function ResetPasswordForm() {
       </div>
 
       <Form {...form}>
-        <div className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="mb-2 block text-sm font-medium">{t("auth.enterCode")}</label>
             <div className="flex justify-center gap-2" onPaste={handlePaste}>
@@ -135,14 +135,13 @@ export function ResetPasswordForm() {
           />
 
           <Button
-            type="button"
+            type="submit"
             className="w-full p-5"
             disabled={isPending || code.length !== VERIFICATION_CODE_LENGTH}
-            onClick={form.handleSubmit(onSubmit)}
           >
             {isPending ? t("auth.resetting") : t("auth.resetPassword")}
           </Button>
-        </div>
+        </form>
       </Form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

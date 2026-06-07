@@ -72,7 +72,7 @@ export function SignInForm() {
 
       {passwordEnabled ? (
         <Form {...form}>
-          <div className="space-y-4">
+          <form onSubmit={form.handleSubmit((data) => login(data))} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
@@ -107,10 +107,10 @@ export function SignInForm() {
               </a>
             </div>
 
-            <Button type="button" className="w-full p-5" disabled={isPending} onClick={form.handleSubmit((data) => login(data))}>
+            <Button type="submit" className="w-full p-5" disabled={isPending}>
               {isPending ? t("auth.processing") : t("auth.signIn")}
             </Button>
-          </div>
+          </form>
         </Form>
       ) : (
         <div className="rounded-md border bg-muted/30 p-4 text-center text-sm text-muted-foreground">

@@ -46,7 +46,7 @@ export function SignUpForm() {
       </div>
 
       <Form {...form}>
-        <div className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
@@ -103,10 +103,10 @@ export function SignUpForm() {
             )}
           />
 
-          <Button type="button" className="w-full p-5" disabled={isPending} onClick={form.handleSubmit(onSubmit)}>
+          <Button type="submit" className="w-full p-5" disabled={isPending}>
             {isPending ? t("auth.processing") : t("auth.signUp")}
           </Button>
-        </div>
+        </form>
       </Form>
 
       <div className="mt-4">

@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
       </div>
 
       <Form {...form}>
-        <div className="space-y-4">
+        <form onSubmit={form.handleSubmit((data) => forgotPassword(data))} className="space-y-4">
           <FormField
             control={form.control}
             name="email"
@@ -56,10 +56,10 @@ export function ForgotPasswordForm() {
             )}
           />
 
-          <Button type="button" className="w-full p-5" disabled={isPending} onClick={form.handleSubmit((data) => forgotPassword(data))}>
+          <Button type="submit" className="w-full p-5" disabled={isPending}>
             {isPending ? t("auth.sending") : t("auth.sendResetCode")}
           </Button>
-        </div>
+        </form>
       </Form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
