@@ -49,8 +49,18 @@ export const authApi = {
   updateProfile: (data: { name?: string; image?: string | null }) =>
     api.patch<{ message: string; user: AuthUser }>(ENDPOINTS.auth.me, data).then((r) => r.data),
 
-  changePassword: (data: { currentPassword: string; newPassword: string }) =>
-    api.post<{ message: string }>(`${ENDPOINTS.auth.auth}/change-password`, data).then((r) => r.data),
+  // `currentPassword` is OPTIONAL: OAuth-only users (no password set yet)
+  // omit it when calling this endpoint to perform a first-time "set
+  // password" — BE detects the no-password case via `user.hasPassword`
+  // and skips the verify step. Existing-password users MUST send it or
+  // BE rejects with CURRENT_PASSWORD_REQUIRED.
+  changePassword: (data: { currentPassword?: string; newPassword: string }) =>
+    api
+      .post<{ message: string; firstTimeSet?: boolean }>(
+        `${ENDPOINTS.auth.auth}/change-password`,
+        data,
+      )
+      .then((r) => r.data),
 
   uploadAvatar: (file: File) => {
     const form = new FormData();

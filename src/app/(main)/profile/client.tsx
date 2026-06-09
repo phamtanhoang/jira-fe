@@ -68,11 +68,23 @@ export default function ProfilePage() {
     updateProfile({ name: name.trim() });
   }
 
+  // OAuth-only users (no password yet) perform a "first-time set" — they
+  // don't have a currentPassword to verify. The BE detects this via
+  // `user.hasPassword` and skips the current-password check. We mirror
+  // that here: omit `currentPassword` from the payload entirely (sending
+  // an empty string would fail BE validation).
+  // Default to `true` while `user` is still loading so the form doesn't
+  // briefly render in "set password" mode and then snap back.
+  const userHasPassword = user?.hasPassword ?? true;
+
   function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
-    if (!currentPassword || !newPassword || newPassword !== confirmPassword) return;
+    if (!newPassword || newPassword !== confirmPassword) return;
+    if (userHasPassword && !currentPassword) return;
     changePassword(
-      { currentPassword, newPassword },
+      userHasPassword
+        ? { currentPassword, newPassword }
+        : { newPassword },
       {
         onSuccess: () => {
           setCurrentPassword("");
@@ -227,20 +239,41 @@ export default function ProfilePage() {
         <TabsContent value="security" className="mt-4 space-y-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-[14px] font-semibold">
+              <h3 className="mb-1 flex items-center gap-2 text-[14px] font-semibold">
                 <Lock className="h-4 w-4" />
-                {t("profile.changePassword")}
+                {userHasPassword
+                  ? t("profile.changePassword")
+                  : t("profile.setPassword")}
               </h3>
-              <form onSubmit={handleChangePassword} className="space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-[13px] font-medium">
-                    {t("profile.currentPassword")}
-                  </label>
-                  <PasswordInput
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                  />
+              <p className="mb-4 text-[12px] text-muted-foreground">
+                {userHasPassword
+                  ? t("profile.changePasswordHint")
+                  : t("profile.setPasswordHint")}
+              </p>
+
+              {/* OAuth-only users see an info banner explaining why the
+                  current-password field is missing — without context the
+                  shorter form looks like a bug. */}
+              {!userHasPassword && (
+                <div className="mb-4 flex items-start gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-[12px] text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                  <p>{t("profile.setPasswordNotice")}</p>
                 </div>
+              )}
+
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                {userHasPassword && (
+                  <div>
+                    <label className="mb-1.5 block text-[13px] font-medium">
+                      {t("profile.currentPassword")}
+                    </label>
+                    <PasswordInput
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      autoComplete="current-password"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="mb-1.5 block text-[13px] font-medium">
                     {t("profile.newPassword")}
@@ -248,7 +281,11 @@ export default function ProfilePage() {
                   <PasswordInput
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
+                    autoComplete="new-password"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {t("validation.PASSWORD_FORMAT")}
+                  </p>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-[13px] font-medium">
@@ -257,6 +294,7 @@ export default function ProfilePage() {
                   <PasswordInput
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
                   />
                   {confirmPassword && newPassword !== confirmPassword && (
                     <p className="mt-1 text-[11px] text-destructive">
@@ -268,12 +306,16 @@ export default function ProfilePage() {
                   type="submit"
                   disabled={
                     isChanging ||
-                    !currentPassword ||
+                    (userHasPassword && !currentPassword) ||
                     !newPassword ||
                     newPassword !== confirmPassword
                   }
                 >
-                  {isChanging ? t("common.loading") : t("profile.changePassword")}
+                  {isChanging
+                    ? t("common.loading")
+                    : userHasPassword
+                      ? t("profile.changePassword")
+                      : t("profile.setPassword")}
                 </Button>
               </form>
             </CardContent>

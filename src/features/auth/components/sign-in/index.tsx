@@ -37,12 +37,22 @@ export function SignInForm() {
   const { data: providers } = useOAuthProviders();
   const passwordEnabled = providers?.password ?? true;
 
-  // OAuth callback redirects with `?error=<CODE>` when something fails.
-  // Map known BE error codes to localized strings so end-users see a
-  // useful message instead of an opaque shoutcase identifier. Unknown
-  // codes (provider-side errors, schema drift) fall through to the
-  // decoded text so admins can still debug from the toast.
+  // Two redirect-param flows land here:
+  //  1. `?reason=session_expired` — set by the axios client when the
+  //     refresh token itself expires / is revoked. Show a friendly
+  //     "Your session expired" toast so the user understands why they
+  //     were kicked out mid-action.
+  //  2. `?error=<CODE>` — set by the BE OAuth callback when sign-in
+  //     fails (private email, unverified password account, etc.). Map
+  //     known codes to localized strings so end-users see a useful
+  //     message; unknown codes fall through to the decoded text so
+  //     admins can still debug.
   useEffect(() => {
+    const reason = searchParams.get("reason");
+    if (reason === "session_expired") {
+      toast.error(t("auth.sessionExpired"));
+      return;
+    }
     const err = searchParams.get("error");
     if (!err) return;
     const decoded = decodeURIComponent(err);

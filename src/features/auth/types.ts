@@ -6,6 +6,13 @@ export type AuthUser = {
   email: string;
   image?: string | null;
   role?: UserRole;
+  /**
+   * `true` when the account has a password hash stored. OAuth-only users
+   * (Google/GitHub signup) have `false` — the FE uses this to show "Set
+   * password" instead of "Change password" and to hide the currentPassword
+   * field in the form.
+   */
+  hasPassword?: boolean;
 };
 
 export type LoginPayload = {

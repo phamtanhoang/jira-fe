@@ -11,6 +11,11 @@ import {
   clearAuthCookie,
 } from "@/lib/constants";
 import { STALE_AUTH_USER } from "@/lib/constants/query-stale";
+import {
+  clearScheduledRefresh,
+  resumeRefreshIfNeeded,
+  scheduleTokenRefresh,
+} from "@/lib/api/token-refresh";
 import { handleApiError, showMessage } from "@/lib/utils";
 import { authApi } from "./api";
 import type {
@@ -53,6 +58,17 @@ export function useCurrentUser() {
     writeAuthCookie(COOKIE_ROLE, role);
   }, [role]);
 
+  // Resume the proactive refresh timer on app boot. setTimeout is lost
+  // on every full-page reload, so without this the user would burn one
+  // 401-then-recover cycle the first time the post-reload access token
+  // expires. `resumeRefreshIfNeeded` reads the persisted expiry from
+  // localStorage and either re-arms the timer or fires a refresh now if
+  // the stored expiry is already past its safety window.
+  const isAuthenticated = !!data;
+  useEffect(() => {
+    if (isAuthenticated) resumeRefreshIfNeeded();
+  }, [isAuthenticated]);
+
   return {
     user: data ?? null,
     isLoading,
@@ -75,6 +91,13 @@ export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
       }
       if (result?.user) {
         queryClient.setQueryData(["auth", "me"], result.user);
+      }
+      // Arm the proactive refresh timer using the access token's
+      // remaining lifetime. Without this, the user's next request after
+      // ~JWT_ACCESS_TOKEN_EXPIRATION seconds returns 401 → visible as a
+      // red row in DevTools Network even though the interceptor recovers.
+      if (result?.expiresIn) {
+        scheduleTokenRefresh(result.expiresIn);
       }
       if (onSuccess) {
         onSuccess();
@@ -185,12 +208,27 @@ export function useUploadAvatar() {
 }
 
 // ─── Change Password ────────────────────────────────────
+// `currentPassword` is optional: OAuth-only users (no password yet) omit
+// it to perform a first-time "set password" — BE skips the verify step
+// when `user.hasPassword` is false. Existing-password users MUST send it,
+// otherwise BE returns CURRENT_PASSWORD_REQUIRED.
+//
+// On a first-time set we invalidate `["auth","me"]` so the next render
+// observes `user.hasPassword === true` and the profile form switches
+// from "Set password" to "Change password" mode without a reload. For
+// the regular change-password path the flag doesn't move, so the
+// invalidation is skipped to avoid an unnecessary BE round-trip.
 export function useChangePassword() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (data: { currentPassword: string; newPassword: string }) =>
+    mutationFn: (data: { currentPassword?: string; newPassword: string }) =>
       authApi.changePassword(data),
     onSuccess: (result) => {
       showMessage(result.message);
+      if (result.firstTimeSet) {
+        void queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      }
     },
     onError: handleApiError,
   });
@@ -209,6 +247,9 @@ export function useLogout() {
     onSettled: () => {
       clearAuthCookie(COOKIE_AUTH);
       clearAuthCookie(COOKIE_ROLE);
+      // Stop the proactive refresh timer + wipe the persisted expiry
+      // so the next visit (logged-out tab) doesn't try to resume.
+      clearScheduledRefresh();
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
     },
@@ -235,6 +276,7 @@ export function useRevokeMySession() {
         // Rare path: user revoked the session they're currently on.
         clearAuthCookie(COOKIE_AUTH);
         clearAuthCookie(COOKIE_ROLE);
+        clearScheduledRefresh();
         queryClient.clear();
         router.push(ROUTES.SIGN_IN);
       } else {
@@ -266,6 +308,7 @@ export function useRevokeAllMySessions() {
       showMessage("LOGOUT_SUCCESS");
       clearAuthCookie(COOKIE_AUTH);
       clearAuthCookie(COOKIE_ROLE);
+      clearScheduledRefresh();
       queryClient.clear();
       router.push(ROUTES.SIGN_IN);
     },

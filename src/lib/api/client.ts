@@ -12,17 +12,43 @@ import {
   clearAuthCookie,
 } from "@/lib/constants";
 import { pushBreadcrumb, reportError } from "@/lib/logging";
-import { handleApiError } from "@/lib/utils";
+
+/**
+ * Called when the refresh token itself is gone / invalid — i.e. the
+ * session is unrecoverable. Wipes every client-side trace of the old
+ * session so a subsequent visit (even from a different user on the
+ * same browser) starts from a clean slate:
+ *
+ *  - Cookies: `is_authenticated`, `user_role` (the httpOnly tokens are
+ *    already invalidated server-side; clearing the FE-readable flags
+ *    keeps the middleware honest).
+ *  - localStorage: the proactive-refresh timestamp written by
+ *    `token-refresh.ts`. Leaving it would let `resumeRefreshIfNeeded`
+ *    fire a doomed /auth/refresh on the next visit.
+ *
+ * Appends `?reason=session_expired` to the redirect so the sign-in page
+ * can surface a friendly "Your session expired" toast instead of the
+ * raw 401 message handleApiError might otherwise show.
+ *
+ * Inlines the storage key to avoid a circular import with
+ * `token-refresh.ts` (which itself imports `api` from this file).
+ */
+const REFRESH_EXPIRY_STORAGE_KEY = "jira:access_token_expires_at:v1";
 
 function clearSessionAndRedirect() {
   clearAuthCookie(COOKIE_AUTH);
   clearAuthCookie(COOKIE_ROLE);
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(REFRESH_EXPIRY_STORAGE_KEY);
+  } catch {
+    // Private mode / quota — ignore. The stored key is purely a UX
+    // optimisation; failing to clear it doesn't break anything.
+  }
   // Avoid redirect loops from pages that are already public (sign-in, etc.)
-  if (typeof window !== "undefined") {
-    const path = window.location.pathname;
-    if (!path.startsWith(ROUTES.SIGN_IN)) {
-      window.location.href = ROUTES.SIGN_IN;
-    }
+  const path = window.location.pathname;
+  if (!path.startsWith(ROUTES.SIGN_IN)) {
+    window.location.href = `${ROUTES.SIGN_IN}?reason=session_expired`;
   }
 }
 
@@ -234,7 +260,10 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
-      handleApiError(refreshError);
+      // Don't toast the raw refresh-fail message — the sign-in page
+      // will surface a friendly "Your session expired" via the
+      // `?reason=session_expired` redirect param. Stacking both gives
+      // the user two toasts for the same event.
       clearSessionAndRedirect();
       return Promise.reject(refreshError);
     } finally {
