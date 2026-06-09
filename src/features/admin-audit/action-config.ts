@@ -4,6 +4,7 @@ import {
   UserX,
   UserMinus,
   UserCheck,
+  UserPlus,
   KeyRound,
   LogOut,
   Trash2,
@@ -13,6 +14,11 @@ import {
   Settings,
   Flag,
   FlagOff,
+  Gauge,
+  Webhook,
+  Send,
+  RefreshCw,
+  CircleDot,
 } from "lucide-react";
 import type { AuditAction } from "./types";
 
@@ -29,6 +35,11 @@ export const AUDIT_ACTION_CONFIG: Record<AuditAction, Config> = {
   USER_DELETE: { label: "User deleted", icon: UserX, tone: "danger" },
   USER_DEACTIVATE: { label: "User deactivated", icon: UserMinus, tone: "danger" },
   USER_ACTIVATE: { label: "User activated", icon: UserCheck, tone: "success" },
+  USERS_BULK_INVITE: {
+    label: "Users invited (bulk)",
+    icon: UserPlus,
+    tone: "info",
+  },
   SESSION_REVOKE: { label: "Session revoked", icon: KeyRound, tone: "warn" },
   SESSIONS_REVOKE_ALL: {
     label: "All sessions revoked",
@@ -47,7 +58,53 @@ export const AUDIT_ACTION_CONFIG: Record<AuditAction, Config> = {
   FLAG_CREATE: { label: "Flag created", icon: Flag, tone: "success" },
   FLAG_UPDATE: { label: "Flag updated", icon: Flag, tone: "info" },
   FLAG_DELETE: { label: "Flag deleted", icon: FlagOff, tone: "danger" },
+  THROTTLE_OVERRIDE_CREATE: {
+    label: "Throttle override created",
+    icon: Gauge,
+    tone: "info",
+  },
+  THROTTLE_OVERRIDE_UPDATE: {
+    label: "Throttle override updated",
+    icon: Gauge,
+    tone: "info",
+  },
+  THROTTLE_OVERRIDE_DELETE: {
+    label: "Throttle override deleted",
+    icon: Gauge,
+    tone: "warn",
+  },
+  WEBHOOK_CREATE: { label: "Webhook created", icon: Webhook, tone: "success" },
+  WEBHOOK_UPDATE: { label: "Webhook updated", icon: Webhook, tone: "info" },
+  WEBHOOK_DELETE: { label: "Webhook deleted", icon: Webhook, tone: "danger" },
+  WEBHOOK_TEST: { label: "Webhook test sent", icon: Send, tone: "info" },
+  WEBHOOK_ROTATE_SECRET: {
+    label: "Webhook secret rotated",
+    icon: RefreshCw,
+    tone: "warn",
+  },
 };
+
+/**
+ * Defensive fallback for actions emitted by a newer BE than the FE
+ * knows about — without this, `AUDIT_ACTION_CONFIG[unknownAction]` is
+ * `undefined` and `.icon` access crashes the whole audit panel render.
+ * Callers should prefer `getAuditActionConfig(action)` over
+ * `AUDIT_ACTION_CONFIG[action]` to pick up this fallback transparently.
+ */
+const UNKNOWN_ACTION_CONFIG: Config = {
+  label: "Unknown action",
+  icon: CircleDot,
+  tone: "default",
+};
+
+export function getAuditActionConfig(action: string): Config {
+  return (
+    AUDIT_ACTION_CONFIG[action as AuditAction] ?? {
+      ...UNKNOWN_ACTION_CONFIG,
+      label: action || UNKNOWN_ACTION_CONFIG.label,
+    }
+  );
+}
 
 export const AUDIT_TONE_CLASS: Record<AuditTone, string> = {
   default:
@@ -117,5 +174,33 @@ export function describeAudit(
         : "Deleted a flag";
     case "WORKSPACE_DELETE":
       return name ? `Deleted workspace ${name}` : "Deleted workspace";
+    case "USERS_BULK_INVITE":
+      return typeof p.invited === "number"
+        ? `Invited ${String(p.invited)} user${p.invited === 1 ? "" : "s"}`
+        : "Invited users (bulk)";
+    case "THROTTLE_OVERRIDE_CREATE":
+      return typeof p.route === "string"
+        ? `Throttle override on ${String(p.route)}`
+        : "Created a throttle override";
+    case "THROTTLE_OVERRIDE_UPDATE":
+      return typeof p.route === "string"
+        ? `Updated throttle on ${String(p.route)}`
+        : "Updated a throttle override";
+    case "THROTTLE_OVERRIDE_DELETE":
+      return typeof p.route === "string"
+        ? `Removed throttle on ${String(p.route)}`
+        : "Removed a throttle override";
+    case "WEBHOOK_CREATE":
+      return name ? `Created webhook ${name}` : "Created a webhook";
+    case "WEBHOOK_UPDATE":
+      return name ? `Updated webhook ${name}` : "Updated a webhook";
+    case "WEBHOOK_DELETE":
+      return name ? `Deleted webhook ${name}` : "Deleted a webhook";
+    case "WEBHOOK_TEST":
+      return name ? `Sent test to ${name}` : "Sent a webhook test";
+    case "WEBHOOK_ROTATE_SECRET":
+      return name
+        ? `Rotated secret for ${name}`
+        : "Rotated a webhook secret";
   }
 }

@@ -10,6 +10,7 @@ import {
   AUDIT_ACTION_CONFIG,
   AUDIT_TONE_CLASS,
   describeAudit,
+  getAuditActionConfig,
   useAuditLog,
   type AuditAction,
   type AuditLogFilters,
@@ -191,7 +192,7 @@ function AuditDetailSheet({
     );
   }
 
-  const conf = AUDIT_ACTION_CONFIG[row.action];
+  const conf = getAuditActionConfig(row.action);
   const Icon = conf.icon;
   const summary = describeAudit(row.action, row.payload);
   const from = safeGet<string | null>(row.payload, "from", null);

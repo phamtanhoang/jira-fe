@@ -1,8 +1,13 @@
+// Mirror of BE `AuditAction` union in
+// `jira-be/src/modules/admin-audit/admin-audit.service.ts`. When the BE
+// adds a new action, ADD it here AND update `AUDIT_ACTION_CONFIG` +
+// `describeAudit` so the panel doesn't crash on the unknown row.
 export type AuditAction =
   | "ROLE_CHANGE"
   | "USER_DELETE"
   | "USER_DEACTIVATE"
   | "USER_ACTIVATE"
+  | "USERS_BULK_INVITE"
   | "SESSION_REVOKE"
   | "SESSIONS_REVOKE_ALL"
   | "WORKSPACE_DELETE"
@@ -12,7 +17,15 @@ export type AuditAction =
   | "SETTING_UPDATE"
   | "FLAG_CREATE"
   | "FLAG_UPDATE"
-  | "FLAG_DELETE";
+  | "FLAG_DELETE"
+  | "THROTTLE_OVERRIDE_CREATE"
+  | "THROTTLE_OVERRIDE_UPDATE"
+  | "THROTTLE_OVERRIDE_DELETE"
+  | "WEBHOOK_CREATE"
+  | "WEBHOOK_UPDATE"
+  | "WEBHOOK_DELETE"
+  | "WEBHOOK_TEST"
+  | "WEBHOOK_ROTATE_SECRET";
 
 export type AuditLogRow = {
   id: string;
