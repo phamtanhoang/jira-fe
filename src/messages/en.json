@@ -913,7 +913,8 @@
       "deleteDesc": "Delete column \"{name}\". Issues in this column move to the first TODO column.",
       "emptyTitle": "No columns yet",
       "emptyDesc": "Create the first column to bootstrap the workflow.",
-      "cannotDeleteLastDone": "Can't delete the last DONE column. Create another DONE column first."
+      "cannotDeleteLastDone": "Can't delete the last DONE column. Create another DONE column first.",
+      "dragHandle": "Drag to reorder column"
     },
     "newProject": "New Project",
     "createProject": "Create Project",

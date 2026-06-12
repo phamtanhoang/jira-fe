@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Users, FolderKanban, ArrowRight, Rocket } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { getTileGradient } from "@/lib/utils";
 import { useWorkspaces, useCreateWorkspace } from "@/features/workspaces/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,15 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-const GRADIENT_COLORS = [
-  "from-blue-500 to-indigo-600",
-  "from-purple-500 to-pink-600",
-  "from-emerald-500 to-teal-600",
-  "from-orange-500 to-red-600",
-  "from-cyan-500 to-blue-600",
-  "from-rose-500 to-pink-600",
-];
 
 export default function WorkspacesPage() {
   const { t } = useAppStore();
@@ -112,15 +104,18 @@ export default function WorkspacesPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {workspaces.map((ws, i) => (
+          {workspaces.map((ws) => {
+            const gradient = getTileGradient(ws.id);
+            return (
             <Link key={ws.id} href={ROUTES.WORKSPACE(ws.id)}>
               <div className="group relative overflow-hidden rounded-xl border bg-card shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md">
-                {/* Gradient strip */}
-                <div className={`h-1.5 bg-linear-to-r ${GRADIENT_COLORS[i % GRADIENT_COLORS.length]}`} />
+                {/* Gradient strip — seeded by workspace id so two
+                    workspaces with the same name still look distinct. */}
+                <div className={`h-1.5 bg-linear-to-r ${gradient}`} />
 
                 <div className="p-5">
                   <div className="mb-4 flex items-start justify-between">
-                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br ${GRADIENT_COLORS[i % GRADIENT_COLORS.length]} text-base font-bold text-white shadow-sm`}>
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br ${gradient} text-base font-bold text-white shadow-sm`}>
                       {ws.name.charAt(0).toUpperCase()}
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground/0 transition-all group-hover:text-muted-foreground/60 group-hover:translate-x-0.5" />
@@ -150,7 +145,8 @@ export default function WorkspacesPage() {
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

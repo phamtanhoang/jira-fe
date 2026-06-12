@@ -15,6 +15,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { getTileGradient } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import {
@@ -54,15 +55,6 @@ import { ProjectCard } from "./_components/project-card";
 
 const WS_TABS = ["projects", "members", "settings"] as const;
 type WsTab = (typeof WS_TABS)[number];
-
-const PROJECT_COLORS = [
-  "from-blue-500 to-cyan-500",
-  "from-violet-500 to-purple-500",
-  "from-emerald-500 to-green-500",
-  "from-amber-500 to-orange-500",
-  "from-rose-500 to-pink-500",
-  "from-sky-500 to-indigo-500",
-];
 
 export default function WorkspaceDetailPage() {
   const { t } = useAppStore();
@@ -247,12 +239,12 @@ export default function WorkspaceDetailPage() {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((proj, i) => (
+              {projects.map((proj) => (
                 <ProjectCard
                   key={proj.id}
                   proj={proj}
                   workspaceId={workspaceId}
-                  colorClass={PROJECT_COLORS[i % PROJECT_COLORS.length]}
+                  colorClass={getTileGradient(proj.id)}
                 />
               ))}
             </div>

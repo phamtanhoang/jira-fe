@@ -913,7 +913,8 @@
       "deleteDesc": "Xóa cột \"{name}\". Issue trong cột sẽ chuyển về cột TODO đầu tiên.",
       "emptyTitle": "Chưa có cột nào",
       "emptyDesc": "Tạo cột đầu tiên để khởi tạo workflow.",
-      "cannotDeleteLastDone": "Không thể xóa cột DONE cuối cùng. Tạo cột DONE khác trước khi xóa cột này."
+      "cannotDeleteLastDone": "Không thể xóa cột DONE cuối cùng. Tạo cột DONE khác trước khi xóa cột này.",
+      "dragHandle": "Kéo để sắp xếp lại thứ tự cột"
     },
     "newProject": "Tạo dự án",
     "createProject": "Tạo dự án",

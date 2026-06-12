@@ -2,12 +2,28 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Columns3, Plus, Trash2 } from "lucide-react";
+import { Columns3, GripVertical, Plus, Trash2 } from "lucide-react";
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   useAddColumn,
   useBoard,
   useDeleteColumn,
+  useReorderColumns,
   useUpdateColumn,
 } from "../hooks";
 import type { BoardColumn } from "../types";
@@ -60,11 +76,18 @@ export function ProjectColumnsManager({
   const addColumn = useAddColumn(projectId);
   const update = useUpdateColumn(projectId);
   const remove = useDeleteColumn(projectId);
+  const reorder = useReorderColumns(projectId);
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<BoardColumn | null>(null);
 
   const columns = board?.columns ?? [];
   const doneCount = columns.filter((c) => c.category === "DONE").length;
+
+  // 6px activation distance lets the user click into the rename input or
+  // category dropdown without accidentally starting a drag.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+  );
 
   const tryDelete = (col: BoardColumn) => {
     if (col.category === "DONE" && doneCount <= 1) {
@@ -74,6 +97,19 @@ export function ProjectColumnsManager({
       return;
     }
     setDeleteTarget(col);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!board || !over || active.id === over.id) return;
+    const oldIndex = columns.findIndex((c) => c.id === active.id);
+    const newIndex = columns.findIndex((c) => c.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const next = arrayMove(columns, oldIndex, newIndex);
+    reorder.mutate({
+      boardId: board.id,
+      columnIds: next.map((c) => c.id),
+    });
   };
 
   return (
@@ -115,31 +151,42 @@ export function ProjectColumnsManager({
         />
       ) : (
         <div className="divide-y rounded-md border">
-          {columns.map((col, idx) => (
-            <ColumnRow
-              key={col.id}
-              col={col}
-              position={idx + 1}
-              canManage={canManage}
-              onCategoryChange={(cat) =>
-                board &&
-                update.mutate({
-                  boardId: board.id,
-                  columnId: col.id,
-                  category: cat,
-                })
-              }
-              onRename={(name) =>
-                board &&
-                update.mutate({
-                  boardId: board.id,
-                  columnId: col.id,
-                  name,
-                })
-              }
-              onDelete={() => tryDelete(col)}
-            />
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={columns.map((c) => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {columns.map((col, idx) => (
+                <ColumnRow
+                  key={col.id}
+                  col={col}
+                  position={idx + 1}
+                  canManage={canManage}
+                  onCategoryChange={(cat) =>
+                    board &&
+                    update.mutate({
+                      boardId: board.id,
+                      columnId: col.id,
+                      category: cat,
+                    })
+                  }
+                  onRename={(name) =>
+                    board &&
+                    update.mutate({
+                      boardId: board.id,
+                      columnId: col.id,
+                      name,
+                    })
+                  }
+                  onDelete={() => tryDelete(col)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
@@ -206,8 +253,45 @@ function ColumnRow({
   const { t } = useAppStore();
   const [name, setName] = useState(col.name);
   const dirty = name.trim() !== col.name;
+
+  // useSortable wires this row into the parent <SortableContext>. We attach
+  // `listeners` to a dedicated drag handle (NOT the whole row) so clicks on
+  // the Input / Select don't accidentally start a drag.
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: col.id, disabled: !canManage });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 text-xs">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 px-3 py-2.5 text-xs bg-background"
+    >
+      {canManage ? (
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={t("project.columns.dragHandle")}
+          className="flex h-7 w-5 shrink-0 cursor-grab touch-none items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </button>
+      ) : (
+        // Keep layout aligned for VIEWER/DEVELOPER who can't reorder.
+        <span className="w-5 shrink-0" />
+      )}
       <span className="w-6 shrink-0 text-center text-[11px] text-muted-foreground tabular-nums">
         {position}
       </span>

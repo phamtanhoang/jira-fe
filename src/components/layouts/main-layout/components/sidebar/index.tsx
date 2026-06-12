@@ -10,7 +10,7 @@ import {
   PanelLeftOpen,
   ShieldCheck,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getTileGradient } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
@@ -77,17 +77,20 @@ export function Sidebar({
             </Tooltip>
           ))}
 
-          {/* Workspace icons */}
+          {/* Workspace icons — seeded gradient per workspace id so two
+              workspaces with the same first letter don't look identical. */}
           {Array.isArray(workspaces) && workspaces.slice(0, 5).map((ws) => {
             const isActive = pathname.includes(ws.id);
+            const gradient = getTileGradient(ws.id);
             return (
               <Tooltip key={ws.id}>
                 <TooltipTrigger
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded text-[10px] font-semibold transition-colors",
+                    "flex h-8 w-8 items-center justify-center rounded bg-linear-to-br text-[10px] font-semibold text-white shadow-sm transition-all",
+                    gradient,
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted-foreground/15 text-muted-foreground hover:bg-muted hover:text-foreground",
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "opacity-85 hover:opacity-100",
                   )}
                   render={
                     <Link href={ROUTES.WORKSPACE(ws.id)} />
@@ -191,6 +194,7 @@ export function Sidebar({
             {Array.isArray(workspaces) &&
               workspaces.map((ws) => {
                 const isActive = pathname.includes(ws.id);
+                const gradient = getTileGradient(ws.id);
                 return (
                   <Link
                     key={ws.id}
@@ -204,10 +208,8 @@ export function Sidebar({
                   >
                     <span
                       className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-semibold",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted-foreground/15 text-muted-foreground",
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded bg-linear-to-br text-[10px] font-semibold text-white shadow-sm",
+                        gradient,
                       )}
                     >
                       {ws.name.charAt(0).toUpperCase()}
