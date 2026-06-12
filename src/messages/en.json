@@ -923,6 +923,7 @@
     "key": "Key",
     "keyPlaceholder": "PROJ",
     "keyHint": "2-5 uppercase letters. Issues: {key}-1, {key}-2, ...",
+    "keyAutoHint": "The project key is auto-generated from the name (e.g. \"Mobile Web\" → MW). You can change it later in Project Settings.",
     "scrum": "Scrum",
     "kanban": "Kanban",
     "lead": "Lead: {name}",

@@ -76,19 +76,20 @@ export default function WorkspaceDetailPage() {
 
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
-  const [projectKey, setProjectKey] = useState("");
   const [projectType, setProjectType] = useState<"SCRUM" | "KANBAN">("SCRUM");
 
   const [deleteWsOpen, setDeleteWsOpen] = useState(false);
   const [tab, setTab] = useUrlTab<WsTab>(WS_TABS, "projects");
 
+  // Project key is BE-generated from the name and auto-suffixed on collision
+  // — the user no longer has to invent + maintain a unique 2-5 letter code
+  // in the middle of the create dialog.
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!projectName.trim() || !projectKey.trim()) return;
+    if (!projectName.trim()) return;
     createProject(
       {
         name: projectName.trim(),
-        key: projectKey.trim().toUpperCase(),
         workspaceId,
         type: projectType,
       },
@@ -96,17 +97,9 @@ export default function WorkspaceDetailPage() {
         onSuccess: () => {
           setOpen(false);
           setProjectName("");
-          setProjectKey("");
         },
       },
     );
-  }
-
-  function handleNameChange(val: string) {
-    setProjectName(val);
-    if (!projectKey || projectKey === projectName.trim().slice(0, 4).toUpperCase()) {
-      setProjectKey(val.trim().slice(0, 4).toUpperCase().replace(/[^A-Z]/g, ""));
-    }
   }
 
   if (wsLoading) {
@@ -199,22 +192,11 @@ export default function WorkspaceDetailPage() {
                     <Input
                       placeholder={t("project.namePlaceholder")}
                       value={projectName}
-                      onChange={(e) => handleNameChange(e.target.value)}
+                      onChange={(e) => setProjectName(e.target.value)}
                       autoFocus
                     />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-[13px] font-medium">{t("project.key")}</label>
-                    <Input
-                      placeholder={t("project.keyPlaceholder")}
-                      value={projectKey}
-                      onChange={(e) =>
-                        setProjectKey(e.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 5))
-                      }
-                      maxLength={5}
-                    />
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      {t("project.keyHint", { key: projectKey || "KEY" })}
+                      {t("project.keyAutoHint")}
                     </p>
                   </div>
                   <div>
@@ -236,7 +218,7 @@ export default function WorkspaceDetailPage() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={isPending || !projectName.trim() || projectKey.length < 2}
+                    disabled={isPending || !projectName.trim()}
                   >
                     {isPending ? t("common.creating") : t("project.createProject")}
                   </Button>

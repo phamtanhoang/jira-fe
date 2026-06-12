@@ -34,7 +34,13 @@ export type UserPreview = {
 
 export type CreateProjectPayload = {
   name: string;
-  key: string;
+  /**
+   * Optional. When omitted, the BE derives a key from the project name
+   * (e.g. "Mobile Web App" → "MWA") and appends a numeric suffix on
+   * collision. Provide a value only when the team has agreed on a
+   * specific code.
+   */
+  key?: string;
   workspaceId: string;
   description?: string;
   type?: "SCRUM" | "KANBAN";

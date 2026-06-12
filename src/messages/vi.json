@@ -923,6 +923,7 @@
     "key": "Mã dự án",
     "keyPlaceholder": "PROJ",
     "keyHint": "2-5 chữ in hoa. Issue: {key}-1, {key}-2, ...",
+    "keyAutoHint": "Mã dự án sẽ được sinh tự động từ tên (ví dụ \"Mobile Web\" → MW). Có thể đổi sau trong Cài đặt dự án.",
     "scrum": "Scrum",
     "kanban": "Kanban",
     "lead": "Trưởng nhóm: {name}",
