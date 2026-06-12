@@ -1,7 +1,6 @@
 /**
- * Tests for showMessage() and handleApiError() — toast wrappers.
- *
- * We mock sonner to assert that the right toast variant fires.
+ * Tests for showSuccess / showError / showMessage and handleApiError —
+ * toast wrappers. We mock sonner to assert which variant fires.
  */
 import { AxiosError, AxiosHeaders } from "axios";
 
@@ -15,31 +14,67 @@ jest.mock("sonner", () => ({
   },
 }));
 
-import { showMessage, handleApiError } from "@/lib/utils/message";
+import {
+  showError,
+  showMessage,
+  showSuccess,
+  handleApiError,
+} from "@/lib/utils/message";
 
-describe("showMessage", () => {
+describe("showSuccess", () => {
   beforeEach(() => {
     toastSuccess.mockReset();
     toastError.mockReset();
   });
 
-  it("routes known SUCCESS keys to toast.success", () => {
-    showMessage("REGISTER_SUCCESS");
+  it("always fires toast.success", () => {
+    showSuccess("REGISTER_SUCCESS");
     expect(toastSuccess).toHaveBeenCalledTimes(1);
     expect(toastError).not.toHaveBeenCalled();
   });
 
-  it("routes unknown / error keys to toast.error", () => {
-    showMessage("SOMETHING_FAILED");
+  it("translates the provided key (does not toast the raw key)", () => {
+    showSuccess("REGISTER_SUCCESS");
+    const arg = toastSuccess.mock.calls[0][0];
+    expect(typeof arg).toBe("string");
+  });
+});
+
+describe("showError", () => {
+  beforeEach(() => {
+    toastSuccess.mockReset();
+    toastError.mockReset();
+  });
+
+  it("always fires toast.error", () => {
+    showError("PUSH_PERMISSION_DENIED");
     expect(toastError).toHaveBeenCalledTimes(1);
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 
   it("translates the provided key (does not toast the raw key)", () => {
-    showMessage("LOGIN_FAILED");
-    expect(toastError).toHaveBeenCalled();
+    showError("LOGIN_FAILED");
     const arg = toastError.mock.calls[0][0];
     expect(typeof arg).toBe("string");
+  });
+});
+
+describe("showMessage (legacy alias)", () => {
+  beforeEach(() => {
+    toastSuccess.mockReset();
+    toastError.mockReset();
+  });
+
+  it("delegates to showSuccess — the historical SUCCESS_KEYS heuristic is gone", () => {
+    showMessage("WORKSPACE_CREATED");
+    expect(toastSuccess).toHaveBeenCalledTimes(1);
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("still treats unknown keys as success — callers must use showError for errors", () => {
+    showMessage("SOMETHING_FAILED");
+    expect(toastSuccess).toHaveBeenCalledTimes(1);
+    expect(toastError).not.toHaveBeenCalled();
   });
 });
 
