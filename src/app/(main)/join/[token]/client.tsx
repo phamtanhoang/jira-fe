@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CheckCircle2, Lock, Users } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   useInvitePreview,
   useJoinViaInvite,
@@ -13,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function JoinPage() {
   const router = useRouter();
+  const { t } = useAppStore();
   const { token } = useParams<{ token: string }>();
   const { data: preview, isLoading, isError } = useInvitePreview(token);
   const { mutate: join, isPending, data: joined } = useJoinViaInvite();
@@ -21,8 +23,8 @@ export default function JoinPage() {
   useEffect(() => {
     if (!joined?.workspace) return;
     const id = joined.workspace.id;
-    const t = setTimeout(() => router.push(ROUTES.WORKSPACE(id)), 1200);
-    return () => clearTimeout(t);
+    const tm = setTimeout(() => router.push(ROUTES.WORKSPACE(id)), 1200);
+    return () => clearTimeout(tm);
   }, [joined, router]);
 
   if (isLoading) {
@@ -39,24 +41,27 @@ export default function JoinPage() {
     return (
       <div className="mx-auto max-w-md px-6 py-20 text-center">
         <Lock className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
-        <h1 className="mb-1 text-lg font-semibold">Invite unavailable</h1>
+        <h1 className="mb-1 text-lg font-semibold">
+          {t("invite.unavailableTitle")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          This invite link is invalid, expired, or has been revoked.
+          {t("invite.unavailableDesc")}
         </p>
       </div>
     );
   }
 
   if (joined) {
+    const wsName = joined.workspace?.name ?? "";
     return (
       <div className="mx-auto max-w-md px-6 py-20 text-center">
         <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-green-500" />
         <h1 className="mb-1 text-lg font-semibold">
           {joined.alreadyMember
-            ? `Welcome back to ${joined.workspace?.name}`
-            : `You're now a member of ${joined.workspace?.name}`}
+            ? t("invite.alreadyMember", { name: wsName })
+            : t("invite.joined", { name: wsName })}
         </h1>
-        <p className="text-sm text-muted-foreground">Redirecting…</p>
+        <p className="text-sm text-muted-foreground">{t("invite.redirecting")}</p>
       </div>
     );
   }
@@ -68,7 +73,7 @@ export default function JoinPage() {
           <Users className="h-7 w-7 text-primary" />
         </div>
         <h1 className="mb-1 text-lg font-semibold">
-          Join {preview.workspace.name}
+          {t("invite.acceptTitle", { name: preview.workspace.name })}
         </h1>
         {preview.workspace.description && (
           <p className="mb-3 text-sm text-muted-foreground">
@@ -76,17 +81,21 @@ export default function JoinPage() {
           </p>
         )}
         <p className="mb-6 text-[12px] text-muted-foreground">
-          You&apos;ll join with the role <strong>{preview.role}</strong>.
+          {t("invite.roleHint", { role: preview.role })}
           {preview.expiresAt && (
             <>
               {" "}
-              Expires {new Date(preview.expiresAt).toLocaleDateString()}.
+              {t("invite.expiresOn", {
+                date: new Date(preview.expiresAt).toLocaleDateString(),
+              })}
             </>
           )}
           {preview.remainingUses != null && (
             <>
               {" "}
-              {preview.remainingUses} {preview.remainingUses === 1 ? "use" : "uses"} left.
+              {preview.remainingUses === 1
+                ? t("invite.oneUseLeft")
+                : t("invite.usesLeft", { count: String(preview.remainingUses) })}
             </>
           )}
         </p>
@@ -95,7 +104,7 @@ export default function JoinPage() {
           disabled={isPending}
           onClick={() => join(token)}
         >
-          {isPending ? "Joining…" : "Accept invite"}
+          {isPending ? t("invite.joining") : t("invite.accept")}
         </Button>
       </div>
     </div>

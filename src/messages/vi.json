@@ -661,7 +661,9 @@
         "event": "Sự kiện",
         "level": "Mức độ",
         "method": "Method",
-        "statusCode": "Status"
+        "statusCode": "Status",
+        "dateFrom": "Từ ngày",
+        "dateTo": "Đến ngày"
       },
       "detail": {
         "title": "Chi tiết log",
@@ -1211,7 +1213,19 @@
     "expiry30Days": "30 ngày",
     "roleAdmin": "ADMIN",
     "roleMember": "MEMBER",
-    "roleViewer": "VIEWER"
+    "roleViewer": "VIEWER",
+    "acceptTitle": "Tham gia {name}",
+    "unavailableTitle": "Link mời không khả dụng",
+    "unavailableDesc": "Link không hợp lệ, đã hết hạn hoặc đã bị thu hồi.",
+    "alreadyMember": "Chào mừng quay lại {name}",
+    "joined": "Bạn đã trở thành thành viên của {name}",
+    "redirecting": "Đang chuyển hướng…",
+    "roleHint": "Bạn sẽ tham gia với vai trò {role}.",
+    "expiresOn": "Hết hạn ngày {date}.",
+    "oneUseLeft": "Còn 1 lượt sử dụng.",
+    "usesLeft": "Còn {count} lượt sử dụng.",
+    "joining": "Đang tham gia…",
+    "accept": "Chấp nhận lời mời"
   },
   "notifPrefs": {
     "title": "Tùy chọn thông báo",

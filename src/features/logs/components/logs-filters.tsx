@@ -118,6 +118,36 @@ export function LogsFiltersBar({
           })
         }
       />
+      {/* Date range — the BE has supported `dateFrom` / `dateTo` since the
+          event-log refactor (see `logs.service.ts`), but the filter bar
+          never exposed inputs for them. Admins triaging an incident now
+          have a way to scope to "the last hour" without scrolling. */}
+      <Input
+        type="date"
+        title={t("admin.logs.filters.dateFrom")}
+        className="h-8 w-40"
+        value={filters.dateFrom ?? ""}
+        onChange={(e) =>
+          onChange({
+            ...filters,
+            dateFrom: e.target.value || undefined,
+            page: 1,
+          })
+        }
+      />
+      <Input
+        type="date"
+        title={t("admin.logs.filters.dateTo")}
+        className="h-8 w-40"
+        value={filters.dateTo ?? ""}
+        onChange={(e) =>
+          onChange({
+            ...filters,
+            dateTo: e.target.value || undefined,
+            page: 1,
+          })
+        }
+      />
     </div>
   );
 }

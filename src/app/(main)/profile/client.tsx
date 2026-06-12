@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bell,
   Camera,
@@ -60,7 +60,16 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  if (user?.name && !name) setName(user.name);
+  // Seed the form once `useCurrentUser` resolves. The previous inline
+  // `if (user?.name && !name) setName(...)` ran on every render — which
+  // meant if the user backspaced the field to empty, the next render
+  // immediately overwrote it back to `user.name`, making it impossible
+  // to clear. Gating on `user?.id` re-runs exactly when the identity
+  // changes (sign-out → sign-in as another user) and never otherwise.
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   function handleUpdateProfile(e: React.FormEvent) {
     e.preventDefault();

@@ -661,7 +661,9 @@
         "event": "Event",
         "level": "Level",
         "method": "Method",
-        "statusCode": "Status"
+        "statusCode": "Status",
+        "dateFrom": "From date",
+        "dateTo": "To date"
       },
       "detail": {
         "title": "Log detail",
@@ -1211,7 +1213,19 @@
     "expiry30Days": "30 days",
     "roleAdmin": "ADMIN",
     "roleMember": "MEMBER",
-    "roleViewer": "VIEWER"
+    "roleViewer": "VIEWER",
+    "acceptTitle": "Join {name}",
+    "unavailableTitle": "Invite unavailable",
+    "unavailableDesc": "This invite link is invalid, expired, or has been revoked.",
+    "alreadyMember": "Welcome back to {name}",
+    "joined": "You're now a member of {name}",
+    "redirecting": "Redirecting…",
+    "roleHint": "You'll join with the role {role}.",
+    "expiresOn": "Expires {date}.",
+    "oneUseLeft": "1 use left.",
+    "usesLeft": "{count} uses left.",
+    "joining": "Joining…",
+    "accept": "Accept invite"
   },
   "notifPrefs": {
     "title": "Notification preferences",
