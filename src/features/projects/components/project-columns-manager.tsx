@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Columns3, Plus, Trash2 } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
@@ -69,7 +70,7 @@ export function ProjectColumnsManager({
     if (col.category === "DONE" && doneCount <= 1) {
       // Last DONE column — block here so users get a clear reason rather
       // than a backend 409. BE also enforces but FE-side check is friendlier.
-      alert(t("project.columns.cannotDeleteLastDone"));
+      toast.error(t("project.columns.cannotDeleteLastDone"));
       return;
     }
     setDeleteTarget(col);

@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { ENDPOINTS } from "@/lib/constants";
 import { useInvalidatingMutation } from "@/lib/react-query/use-invalidating-mutation";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { handleApiError, showError, showMessage } from "@/lib/utils";
 import { issuesApi } from "../api";
 import {
   beaconAbortAll,
@@ -298,7 +298,7 @@ export function useUploadLargeAttachment(issueId: string) {
     (file: File, sessionId: string) => {
       const orphan = orphans.find((o) => o.sessionId === sessionId);
       if (orphan && !fileMatchesPersisted(file, orphan)) {
-        showMessage("LARGE_UPLOAD_RESUME_FILE_MISMATCH");
+        showError("LARGE_UPLOAD_RESUME_FILE_MISMATCH");
         return;
       }
       setOrphans((prev) => prev.filter((o) => o.sessionId !== sessionId));

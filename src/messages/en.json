@@ -1354,6 +1354,9 @@
     "MAIL_SEND_FAILED": "Failed to send email. Open System Logs → Email for details.",
     "FLAG_NOT_FOUND": "Feature flag not found.",
     "FLAG_KEY_EXISTS": "A flag with that key already exists.",
+    "WORKSPACE_SLUG_EXISTS": "You already have a workspace with this name. Please choose a different name.",
+    "PROJECT_KEY_EXISTS": "A project with this key already exists in the workspace. Please pick a different key.",
+    "LABEL_ALREADY_EXISTS": "A label with this name already exists in the project.",
     "CANNOT_MODIFY_SELF": "You cannot modify your own account here.",
     "SESSION_REVOKED": "Session revoked.",
     "SESSIONS_REVOKED": "All sessions revoked.",
@@ -1432,6 +1435,7 @@
     "LARGE_UPLOAD_INCOMPLETE": "File is not fully uploaded yet.",
     "LARGE_UPLOAD_TOO_LARGE": "File exceeds the maximum upload size.",
     "LARGE_UPLOAD_SIZE_MISMATCH": "Chunk size does not match the declared upload.",
+    "LARGE_UPLOAD_RESUME_FILE_MISMATCH": "The file you selected does not match the pending upload. Please pick the original file to continue.",
     "QUOTA_STORAGE_REACHED": "Workspace storage quota reached. Delete some files or contact an admin.",
     "UNKNOWN_ERROR": "An unexpected error occurred."
   },

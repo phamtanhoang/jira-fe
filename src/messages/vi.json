@@ -1354,6 +1354,9 @@
     "MAIL_SEND_FAILED": "Gửi email thất bại. Mở System Logs → Email để xem chi tiết.",
     "FLAG_NOT_FOUND": "Không tìm thấy feature flag.",
     "FLAG_KEY_EXISTS": "Đã tồn tại flag với key này.",
+    "WORKSPACE_SLUG_EXISTS": "Bạn đã có workspace với tên tương tự. Vui lòng đặt tên khác.",
+    "PROJECT_KEY_EXISTS": "Mã dự án (key) đã tồn tại trong workspace này. Vui lòng chọn key khác.",
+    "LABEL_ALREADY_EXISTS": "Đã tồn tại nhãn với tên này trong dự án.",
     "CANNOT_MODIFY_SELF": "Bạn không thể thao tác trên chính tài khoản của mình ở đây.",
     "SESSION_REVOKED": "Đã thu hồi phiên.",
     "SESSIONS_REVOKED": "Đã thu hồi toàn bộ phiên.",
@@ -1432,6 +1435,7 @@
     "LARGE_UPLOAD_INCOMPLETE": "Tệp chưa được tải lên đầy đủ.",
     "LARGE_UPLOAD_TOO_LARGE": "Tệp vượt quá giới hạn tải lên cho phép.",
     "LARGE_UPLOAD_SIZE_MISMATCH": "Kích thước phần dữ liệu không khớp.",
+    "LARGE_UPLOAD_RESUME_FILE_MISMATCH": "Tệp bạn vừa chọn không khớp với phiên tải đang chờ. Hãy chọn đúng tệp gốc để tiếp tục.",
     "QUOTA_STORAGE_REACHED": "Workspace đã hết dung lượng lưu trữ. Hãy xoá bớt tệp hoặc liên hệ admin.",
     "UNKNOWN_ERROR": "Đã xảy ra lỗi không mong muốn."
   },

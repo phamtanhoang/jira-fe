@@ -4,36 +4,6 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import type { MsgKey } from "@/lib/constants/messages";
 import type { MessageKey } from "@/lib/config/i18n";
 
-const SUCCESS_KEYS: Set<string> = new Set([
-  "REGISTER_SUCCESS",
-  "EMAIL_VERIFIED",
-  "LOGOUT_SUCCESS",
-  "FORGOT_PASSWORD_SUCCESS",
-  "RESET_PASSWORD_SUCCESS",
-  "PROFILE_UPDATED",
-  "PASSWORD_CHANGED",
-  "AVATAR_UPLOADED",
-  "SETTINGS_UPDATED",
-  "USER_ROLE_UPDATED",
-  "USER_DELETED",
-  "USER_DEACTIVATED",
-  "USER_ACTIVATED",
-  "SESSION_REVOKED",
-  "SESSIONS_REVOKED",
-  "WORKSPACE_DELETED",
-  "FLAG_CREATED",
-  "FLAG_UPDATED",
-  "FLAG_DELETED",
-  "LABEL_CREATED",
-  "LABEL_UPDATED",
-  "LABEL_DELETED",
-  "MAIL_TEST_SENT",
-  // Legacy key from BE before the rename — kept so the toast stays "success"
-  // green during the rolling deploy window. Safe to drop once every BE is on
-  // the new build.
-  "MAIL_RETRIED",
-]);
-
 function translate(key: string): string {
   const { t } = useAppStore.getState();
   const messageKey = `messages.${key}` as MessageKey;
@@ -43,17 +13,36 @@ function translate(key: string): string {
 }
 
 /**
- * Show a toast message for a BE message key.
- * Automatically determines success/error based on the key.
+ * Green success toast for a BE / FE message key. Call from mutation
+ * `onSuccess` callbacks and other positive flows.
  */
-export function showMessage(key: MsgKey | string) {
-  const message = translate(key);
-  if (SUCCESS_KEYS.has(key)) {
-    toast.success(message);
-  } else {
-    toast.error(message);
-  }
+export function showSuccess(key: MsgKey | string) {
+  toast.success(translate(key));
 }
+
+/**
+ * Red error toast for a BE / FE-local error key. Use when the failure is
+ * detected client-side (no axios error to feed to `handleApiError`) —
+ * e.g. permission denied by the browser, file mismatch on resume, etc.
+ */
+export function showError(key: MsgKey | string) {
+  toast.error(translate(key));
+}
+
+/**
+ * Legacy alias. Treats the supplied key as a SUCCESS message — that's how
+ * 95% of the call sites use it (passed from mutation onSuccess paths).
+ *
+ * Historically this function tried to auto-detect success vs error based
+ * on a hardcoded SUCCESS_KEYS set; the set drifted out of date and almost
+ * every recent success message (WORKSPACE_CREATED, PROJECT_CREATED,
+ * ISSUE_CREATED, COMMENT_CREATED, …) ended up rendering as a red error
+ * toast. Defaulting to success removes that whole class of bug.
+ *
+ * Prefer `showSuccess` / `showError` for new code so the intent is
+ * obvious at the call site.
+ */
+export const showMessage = showSuccess;
 
 /**
  * Maps stable BE `errorCode` (set by `BaseAppException` subclasses) to a

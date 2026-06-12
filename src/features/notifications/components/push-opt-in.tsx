@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Bell, BellOff } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/constants";
-import { handleApiError, showMessage } from "@/lib/utils";
+import { handleApiError, showMessage, showError } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -64,7 +64,7 @@ export function PushOptIn() {
       const perm = await Notification.requestPermission();
       setPermission(perm);
       if (perm !== "granted") {
-        showMessage("PUSH_PERMISSION_DENIED");
+        showError("PUSH_PERMISSION_DENIED");
         return;
       }
       const reg = await navigator.serviceWorker.ready;
