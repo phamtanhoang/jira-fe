@@ -1,14 +1,19 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Shield,
+  ShieldCheck,
   UserX,
   UserMinus,
   UserCheck,
   UserPlus,
   KeyRound,
+  Crown,
   LogOut,
   Trash2,
   FolderX,
+  FolderPlus,
+  FolderMinus,
+  FolderCog,
   Paperclip,
   ImageUp,
   Settings,
@@ -47,7 +52,42 @@ export const AUDIT_ACTION_CONFIG: Record<AuditAction, Config> = {
     tone: "danger",
   },
   WORKSPACE_DELETE: { label: "Workspace deleted", icon: Trash2, tone: "danger" },
+  WORKSPACE_OWNER_TRANSFER: {
+    label: "Workspace ownership transferred",
+    icon: Crown,
+    tone: "warn",
+  },
+  WORKSPACE_MEMBER_ADD: {
+    label: "Workspace member added",
+    icon: UserPlus,
+    tone: "success",
+  },
+  WORKSPACE_MEMBER_REMOVE: {
+    label: "Workspace member removed",
+    icon: UserMinus,
+    tone: "warn",
+  },
+  WORKSPACE_MEMBER_ROLE_UPDATE: {
+    label: "Workspace member role changed",
+    icon: ShieldCheck,
+    tone: "info",
+  },
   PROJECT_DELETE: { label: "Project deleted", icon: FolderX, tone: "danger" },
+  PROJECT_MEMBER_ADD: {
+    label: "Project member added",
+    icon: FolderPlus,
+    tone: "success",
+  },
+  PROJECT_MEMBER_REMOVE: {
+    label: "Project member removed",
+    icon: FolderMinus,
+    tone: "warn",
+  },
+  PROJECT_MEMBER_ROLE_UPDATE: {
+    label: "Project member role changed",
+    icon: FolderCog,
+    tone: "info",
+  },
   ATTACHMENT_DELETE: {
     label: "Attachment deleted",
     icon: Paperclip,
@@ -174,6 +214,65 @@ export function describeAudit(
         : "Deleted a flag";
     case "WORKSPACE_DELETE":
       return name ? `Deleted workspace ${name}` : "Deleted workspace";
+    case "WORKSPACE_OWNER_TRANSFER": {
+      const newOwner =
+        (typeof p.newOwnerName === "string" && p.newOwnerName) ||
+        (typeof p.newOwnerEmail === "string" && p.newOwnerEmail) ||
+        null;
+      return newOwner
+        ? `Transferred ownership to ${newOwner}`
+        : "Transferred workspace ownership";
+    }
+    case "WORKSPACE_MEMBER_ADD": {
+      const who =
+        (typeof p.targetName === "string" && p.targetName) ||
+        (typeof p.targetEmail === "string" && p.targetEmail) ||
+        null;
+      const role = typeof p.role === "string" ? ` as ${p.role}` : "";
+      return who ? `Added ${who}${role}` : "Added a workspace member";
+    }
+    case "WORKSPACE_MEMBER_REMOVE": {
+      const who =
+        (typeof p.targetName === "string" && p.targetName) ||
+        (typeof p.targetEmail === "string" && p.targetEmail) ||
+        null;
+      return who ? `Removed ${who}` : "Removed a workspace member";
+    }
+    case "WORKSPACE_MEMBER_ROLE_UPDATE": {
+      const who =
+        (typeof p.targetName === "string" && p.targetName) ||
+        (typeof p.targetEmail === "string" && p.targetEmail) ||
+        "member";
+      return p.from && p.to
+        ? `${who}: ${String(p.from)} → ${String(p.to)}`
+        : `Updated role of ${who}`;
+    }
+    case "PROJECT_MEMBER_ADD": {
+      const who =
+        (typeof p.targetUserName === "string" && p.targetUserName) ||
+        (typeof p.targetUserEmail === "string" && p.targetUserEmail) ||
+        null;
+      const role = typeof p.role === "string" ? ` as ${p.role}` : "";
+      return who ? `Added ${who} to project${role}` : "Added a project member";
+    }
+    case "PROJECT_MEMBER_REMOVE": {
+      const who =
+        (typeof p.targetUserName === "string" && p.targetUserName) ||
+        (typeof p.targetUserEmail === "string" && p.targetUserEmail) ||
+        null;
+      return who
+        ? `Removed ${who} from project`
+        : "Removed a project member";
+    }
+    case "PROJECT_MEMBER_ROLE_UPDATE": {
+      const who =
+        (typeof p.targetUserName === "string" && p.targetUserName) ||
+        (typeof p.targetUserEmail === "string" && p.targetUserEmail) ||
+        "member";
+      return p.from && p.to
+        ? `${who}: ${String(p.from)} → ${String(p.to)}`
+        : `Updated project role of ${who}`;
+    }
     case "USERS_BULK_INVITE":
       return typeof p.invited === "number"
         ? `Invited ${String(p.invited)} user${p.invited === 1 ? "" : "s"}`
