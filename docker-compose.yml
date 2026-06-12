@@ -12,6 +12,11 @@ services:
       HOSTNAME: 0.0.0.0
     ports:
       - "3030:3000"
+    # Hard memory cap. Next.js standalone runner is modest — 200MB is
+    # plenty for SSR + rewrite proxy at this scale. Tighter than BE because
+    # FE has no Prisma client / no in-memory cache.
+    mem_limit: 200m
+    memswap_limit: 350m
     # Liveness probe — Next.js standalone server responds 200 on `/`. We
     # don't depend on the BE being up here (pages render even when API
     # rewrite target is down).
