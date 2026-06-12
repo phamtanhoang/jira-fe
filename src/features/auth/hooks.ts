@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ROUTES,
   COOKIE_AUTH,
@@ -79,6 +79,7 @@ export function useCurrentUser() {
 // ─── Login ───────────────────────────────────────────────
 export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -102,7 +103,15 @@ export function useLogin({ onSuccess }: { onSuccess?: () => void } = {}) {
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(ROUTES.DASHBOARD);
+        // Honour `?returnTo=` set by middleware when the user was bounced
+        // from a deep link. Restrict to same-origin internal paths so a
+        // crafted link can't redirect us off-site after sign-in.
+        const returnTo = searchParams?.get("returnTo");
+        const safeTarget =
+          returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")
+            ? returnTo
+            : ROUTES.DASHBOARD;
+        router.push(safeTarget);
       }
     },
     onError: handleApiError,

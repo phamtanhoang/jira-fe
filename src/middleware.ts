@@ -90,12 +90,20 @@ export async function middleware(request: NextRequest) {
   if (pathname === ROUTES.MAINTENANCE) return;
   if (isPublicShareRoute(pathname)) return;
 
-  // Protected pages — redirect to sign-in if not logged in
+  // Protected pages — redirect to sign-in if not logged in. Preserve the
+  // original path as `?returnTo=` so the sign-in handler can deep-link
+  // the user back to their intended destination (issue link from email,
+  // bookmark to a board, etc.) instead of dropping them on /dashboard.
   if (
     !(PUBLIC_ROUTES as readonly string[]).includes(pathname) &&
     !isAuthenticated
   ) {
-    return NextResponse.redirect(new URL(ROUTES.SIGN_IN, request.url));
+    const signInUrl = new URL(ROUTES.SIGN_IN, request.url);
+    const target = pathname + (request.nextUrl.search || "");
+    if (target && target !== ROUTES.SIGN_IN) {
+      signInUrl.searchParams.set("returnTo", target);
+    }
+    return NextResponse.redirect(signInUrl);
   }
 
   return;

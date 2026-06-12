@@ -815,6 +815,8 @@
   "notifications": {
     "title": "Thông báo",
     "empty": "Chưa có thông báo",
+    "noUnread": "Đã đọc hết",
+    "unreadOnly": "Chưa đọc",
     "markAllRead": "Đánh dấu tất cả đã đọc",
     "viewAll": "Xem tất cả",
     "tabAll": "Tất cả",
@@ -1141,7 +1143,8 @@
     "goal": "Mục tiêu: {goal}",
     "issueCount": "{count} công việc",
     "pts": "điểm",
-    "emptyHint": "Kéo công việc vào đây để lên kế hoạch sprint"
+    "emptyTitle": "Sprint chưa có việc nào",
+    "emptyHint": "Kéo công việc từ Backlog vào đây hoặc tạo issue mới gắn vào sprint này"
   },
   "backlog": {
     "title": "Danh sách chờ",

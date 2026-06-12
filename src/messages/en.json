@@ -815,6 +815,8 @@
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications yet",
+    "noUnread": "You're all caught up",
+    "unreadOnly": "Unread",
     "markAllRead": "Mark all as read",
     "viewAll": "View all",
     "tabAll": "All",
@@ -1141,7 +1143,8 @@
     "goal": "Goal: {goal}",
     "issueCount": "{count} issue(s)",
     "pts": "pts",
-    "emptyHint": "Drag issues here to plan this sprint"
+    "emptyTitle": "Sprint is empty",
+    "emptyHint": "Drag issues from the backlog into this sprint, or create a new one assigned to it"
   },
   "backlog": {
     "title": "Backlog",

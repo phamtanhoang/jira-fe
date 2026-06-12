@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, Check, Trash2, Inbox } from "lucide-react";
+import { Bell, Check, Filter, Trash2, Inbox } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -26,6 +26,7 @@ export function NotificationsBell() {
   const router = useRouter();
   const { t } = useAppStore();
   const [open, setOpen] = useState(false);
+  const [unreadOnly, setUnreadOnly] = useState(false);
   const { data: unread } = useUnreadCount();
   const { data: list, isLoading } = useNotifications({ pageSize: 20 });
   const { mutate: markRead } = useMarkNotificationRead();
@@ -34,7 +35,12 @@ export function NotificationsBell() {
   const { mutate: del } = useDeleteNotification();
 
   const count = unread?.count ?? 0;
-  const items = list?.data ?? [];
+  const allItems = list?.data ?? [];
+  // Filter client-side — the bell only loads the first page anyway, and
+  // doing this server-side would force a refetch every toggle.
+  const items = unreadOnly
+    ? allItems.filter((n) => !n.readAt)
+    : allItems;
 
   function handleItemClick(n: Notification) {
     if (!n.readAt) markRead(n.id);
@@ -64,6 +70,20 @@ export function NotificationsBell() {
             {t("notifications.title")}
           </span>
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => setUnreadOnly((v) => !v)}
+              className={cn(
+                "flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] transition-colors",
+                unreadOnly
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+              aria-pressed={unreadOnly}
+              title={t("notifications.unreadOnly")}
+            >
+              <Filter className="h-3 w-3" />
+              {t("notifications.unreadOnly")}
+            </button>
             {count > 0 && (
               <button
                 disabled={markingAll}
@@ -86,7 +106,9 @@ export function NotificationsBell() {
             <div className="px-3 py-10 text-center">
               <Inbox className="mx-auto mb-2 h-8 w-8 text-muted-foreground/30" />
               <p className="text-[12px] text-muted-foreground">
-                {t("notifications.empty")}
+                {unreadOnly
+                  ? t("notifications.noUnread")
+                  : t("notifications.empty")}
               </p>
             </div>
           ) : (

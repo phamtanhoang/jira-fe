@@ -283,8 +283,13 @@ export function SprintPanel({
         ) : (
           <div className="border-t">
             {issues.length === 0 ? (
-              <div className="px-4 py-6 text-center text-[12px] text-muted-foreground">
-                {t("sprint.emptyHint")}
+              <div className="flex flex-col items-center gap-1.5 px-4 py-8 text-center">
+                <p className="text-[12px] font-medium text-foreground">
+                  {t("sprint.emptyTitle")}
+                </p>
+                <p className="max-w-xs text-[11px] text-muted-foreground">
+                  {t("sprint.emptyHint")}
+                </p>
               </div>
             ) : (
               <div>
