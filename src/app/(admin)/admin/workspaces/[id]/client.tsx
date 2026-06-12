@@ -71,7 +71,7 @@ export function AdminWorkspaceDetailClient({ id }: { id: string }) {
           <Card>
             <CardContent className="flex items-start gap-4 p-5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-lg font-semibold text-primary">
-                {data.name.charAt(0).toUpperCase()}
+                {getInitials(data.name)}
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="truncate text-xl font-semibold">{data.name}</h1>

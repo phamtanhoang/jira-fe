@@ -133,7 +133,19 @@ export function IssueComments({
                       onUploadFile={uploadInlineImage}
                     />
                     <div className="flex gap-2">
-                      <Button size="xs" onClick={() => { updateComment({ commentId: comment.id, content: editDraft }); setEditingId(null); }}>
+                      <Button
+                        size="xs"
+                        // Close the editor ONLY after the mutation succeeds.
+                        // Closing optimistically + then having the mutation
+                        // fail means the edited content is lost — user has
+                        // to click "Edit" again and retype.
+                        onClick={() =>
+                          updateComment(
+                            { commentId: comment.id, content: editDraft },
+                            { onSuccess: () => setEditingId(null) },
+                          )
+                        }
+                      >
                         {t("common.save")}
                       </Button>
                       <Button size="xs" variant="ghost" onClick={() => setEditingId(null)}>{t("common.cancel")}</Button>

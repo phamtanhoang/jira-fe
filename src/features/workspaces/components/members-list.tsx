@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { getInitials } from "@/lib/utils";
 import { useUpdateWorkspaceMember, useRemoveWorkspaceMember } from "../hooks";
 import type { WorkspaceMember } from "../types";
 
@@ -89,7 +90,7 @@ function MemberRow({
           <Avatar>
             {member.user.image && <AvatarImage src={member.user.image} />}
             <AvatarFallback>
-              {(member.user.name || member.user.email).charAt(0).toUpperCase()}
+              {getInitials(member.user.name, member.user.email)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">

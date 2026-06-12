@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
+import { getInitials } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import type { MessageKey } from "@/lib/config/i18n";
 import { useWorkspaces } from "@/features/workspaces/hooks";
@@ -110,7 +111,7 @@ export default function DashboardPage() {
             <Link key={ws.id} href={ROUTES.WORKSPACE(ws.id)}>
               <div className="group flex items-center gap-3.5 rounded-lg border bg-card p-4 transition-all hover:border-primary/20 hover:shadow-sm">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white shadow-sm">
-                  {ws.name.charAt(0).toUpperCase()}
+                  {getInitials(ws.name)}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-[13px] font-semibold group-hover:text-primary">

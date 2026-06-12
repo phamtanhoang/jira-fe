@@ -10,7 +10,7 @@ import {
   PanelLeftOpen,
   ShieldCheck,
 } from "lucide-react";
-import { cn, getTileGradient } from "@/lib/utils";
+import { cn, getInitials, getTileGradient } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
@@ -96,7 +96,7 @@ export function Sidebar({
                     <Link href={ROUTES.WORKSPACE(ws.id)} />
                   }
                 >
-                  {ws.name.charAt(0).toUpperCase()}
+                  {getInitials(ws.name)}
                 </TooltipTrigger>
                 <TooltipContent side="right">{ws.name}</TooltipContent>
               </Tooltip>
@@ -212,7 +212,7 @@ export function Sidebar({
                         gradient,
                       )}
                     >
-                      {ws.name.charAt(0).toUpperCase()}
+                      {getInitials(ws.name)}
                     </span>
                     <span className="truncate">{ws.name}</span>
                     <span className="ml-auto text-[10px] text-muted-foreground/60">

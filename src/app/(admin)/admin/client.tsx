@@ -211,7 +211,7 @@ export function AdminOverviewClient() {
                     className="flex items-center gap-3 px-4 py-2 text-xs"
                   >
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[11px] font-semibold text-primary">
-                      {w.name.charAt(0).toUpperCase()}
+                      {getInitials(w.name)}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-medium">{w.name}</div>
