@@ -221,6 +221,10 @@ export function useMoveIssue() {
       queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
       queryClient.invalidateQueries({ queryKey: ["issues-infinite", projectId] });
       queryClient.invalidateQueries({ queryKey: ["issue"] });
+      // Sprint summaries (active sprint card on the board, the "X issues
+      // remaining" counters, burndown/velocity) all derive from the move.
+      // Without this they stayed stale until the user manually refreshed.
+      queryClient.invalidateQueries({ queryKey: ["sprints", projectId] });
       if (result?.issue.id) {
         queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
       }
@@ -297,6 +301,9 @@ export function useUpdateIssue() {
       queryClient.invalidateQueries({ queryKey: ["issues-infinite", projectId] });
       queryClient.invalidateQueries({ queryKey: ["issue", result.issue.key] });
       queryClient.invalidateQueries({ queryKey: ["activity", result.issue.id] });
+      // Sprint summaries change when an issue moves between sprint/backlog
+      // or its story points change — keep them in sync.
+      queryClient.invalidateQueries({ queryKey: ["sprints", projectId] });
     },
   });
 }

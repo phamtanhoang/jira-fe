@@ -69,11 +69,13 @@ export function ActivityFeed({ issueId }: { issueId: string }) {
             />
             <div className="min-w-0 flex-1">
               <p className="text-[12px]">
-                <span className="font-semibold">{a.user.name}</span>{" "}
+                <span className="font-semibold">
+                  {a.user?.name ?? a.user?.email ?? t("common.deletedUser")}
+                </span>{" "}
                 <span className="text-muted-foreground">
                   {ACTION_LABEL_KEYS[a.action]
                     ? t(ACTION_LABEL_KEYS[a.action])
-                    : a.action.toLowerCase()}
+                    : (a.action ?? "").toLowerCase()}
                 </span>
                 {fieldLabel && (
                   <span className="text-muted-foreground"> {fieldLabel}</span>

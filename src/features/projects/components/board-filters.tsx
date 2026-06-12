@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, X, Filter } from "lucide-react";
 import { ISSUE_TYPES, PRIORITIES } from "@/lib/constants/issue-config";
+import { DEBOUNCE } from "@/lib/constants/ui";
 import { toggleArrayItem } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCustomFields } from "@/features/custom-fields/hooks";
@@ -62,6 +63,26 @@ export function BoardFilterBar({
   const { data: customFields } = useCustomFields(projectId);
   const { data: labels } = useLabels(projectId ?? "");
 
+  // Debounce the search input so every keystroke doesn't refetch the
+  // backlog / refilter the cached board. We keep the input controlled
+  // locally and only push to the parent (which feeds the BE query) once
+  // typing pauses for DEBOUNCE.SEARCH ms.
+  const [searchDraft, setSearchDraft] = useState(filters.search);
+  // Re-sync when the parent clears filters from outside (e.g. saved-filter
+  // apply). Avoids the input lagging behind the canonical value.
+  useEffect(() => {
+    setSearchDraft(filters.search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.search]);
+  useEffect(() => {
+    if (searchDraft === filters.search) return;
+    const handle = window.setTimeout(() => {
+      onChange({ ...filters, search: searchDraft });
+    }, DEBOUNCE.SEARCH);
+    return () => window.clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchDraft]);
+
   const customFieldCount = Object.values(filters.customFields ?? {}).filter(
     (v) => (Array.isArray(v) ? v.length > 0 : !!v),
   ).length;
@@ -80,8 +101,8 @@ export function BoardFilterBar({
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={t("filter.searchIssues")}
-            value={filters.search}
-            onChange={(e) => onChange({ ...filters, search: e.target.value })}
+            value={searchDraft}
+            onChange={(e) => setSearchDraft(e.target.value)}
             className="h-8 pl-8 text-[12px]"
           />
         </div>
