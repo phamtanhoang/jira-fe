@@ -72,7 +72,6 @@ export function BoardFilterBar({
   // apply). Avoids the input lagging behind the canonical value.
   useEffect(() => {
     setSearchDraft(filters.search);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.search]);
   useEffect(() => {
     if (searchDraft === filters.search) return;
