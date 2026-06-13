@@ -7,6 +7,7 @@ import { STATUS_DOT_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +44,7 @@ export function BoardColumn({
   const [quickSummary, setQuickSummary] = useState("");
   const [editingWip, setEditingWip] = useState(false);
   const [wipValue, setWipValue] = useState(column.wipLimit?.toString() ?? "");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
@@ -127,7 +129,7 @@ export function BoardColumn({
                 )}
                 {onDeleteColumn && (
                   <DropdownMenuItem
-                    onClick={() => onDeleteColumn(column.id)}
+                    onClick={() => setConfirmingDelete(true)}
                     className="text-destructive"
                   >
                     <Trash2 className="mr-2 h-3.5 w-3.5" />
@@ -230,6 +232,23 @@ export function BoardColumn({
           </button>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={t("board.deleteColumnConfirmTitle")}
+        description={t("board.deleteColumnConfirmDescription", {
+          name: column.name,
+          count: String(column.issues?.length ?? 0),
+        })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (onDeleteColumn) onDeleteColumn(column.id);
+          setConfirmingDelete(false);
+        }}
+      />
     </div>
   );
 }

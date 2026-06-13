@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import {
@@ -177,27 +177,54 @@ export function BoardContainer() {
     })) as BoardColumnType[];
   }, [columns, filters, activeSprint]);
 
-  function handleMoveIssue(issueId: string, columnId: string) {
-    // No-op if the target column is the same as the current one
-    const current = board?.columns.find((col) =>
-      col.issues.some((i) => i.id === issueId),
-    );
-    if (current?.id === columnId) return;
-    moveIssue({ id: issueId, columnId, position: 0 });
-  }
+  // Stable callbacks keyed by board id / project id so the memoized
+  // BoardColumn + IssueCard children don't re-render when the parent
+  // re-renders for unrelated reasons (breadcrumb push, refetch, etc.).
+  const handleMoveIssue = useCallback(
+    (issueId: string, columnId: string) => {
+      const current = board?.columns.find((col) =>
+        col.issues.some((i) => i.id === issueId),
+      );
+      if (current?.id === columnId) return;
+      moveIssue({ id: issueId, columnId, position: 0 });
+    },
+    [board, moveIssue],
+  );
 
-  function handleClickIssue(key: string) {
+  const handleClickIssue = useCallback((key: string) => {
     setPreviewKey(key);
-  }
+  }, []);
 
-  function handleQuickCreate(summary: string) {
-    createIssue({ projectId, summary });
-  }
+  const handleQuickCreate = useCallback(
+    (summary: string) => {
+      createIssue({ projectId, summary });
+    },
+    [createIssue, projectId],
+  );
 
-  function handleAddColumn(name: string) {
-    if (!board) return;
-    addColumn({ boardId: board.id, name });
-  }
+  const handleAddColumn = useCallback(
+    (name: string) => {
+      if (!board) return;
+      addColumn({ boardId: board.id, name });
+    },
+    [board, addColumn],
+  );
+
+  const handleDeleteColumn = useCallback(
+    (colId: string) => {
+      if (!board) return;
+      deleteColumn({ boardId: board.id, columnId: colId });
+    },
+    [board, deleteColumn],
+  );
+
+  const handleUpdateWipLimit = useCallback(
+    (colId: string, wipLimit: number | null) => {
+      if (!board) return;
+      updateColumn({ boardId: board.id, columnId: colId, wipLimit });
+    },
+    [board, updateColumn],
+  );
 
   const columnsView = (
     <>
@@ -210,13 +237,8 @@ export function BoardContainer() {
           onMoveIssue={handleMoveIssue}
           onClickIssue={handleClickIssue}
           onQuickCreate={handleQuickCreate}
-          onDeleteColumn={(colId) =>
-            board && deleteColumn({ boardId: board.id, columnId: colId })
-          }
-          onUpdateWipLimit={(colId, wipLimit) =>
-            board &&
-            updateColumn({ boardId: board.id, columnId: colId, wipLimit })
-          }
+          onDeleteColumn={handleDeleteColumn}
+          onUpdateWipLimit={handleUpdateWipLimit}
         />
       ))}
       <AddColumnForm onSubmit={handleAddColumn} />

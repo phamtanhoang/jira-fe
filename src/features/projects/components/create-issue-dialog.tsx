@@ -5,9 +5,9 @@ import { Plus, FileText } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { onShortcutEvent, SHORTCUT_EVENTS } from "@/lib/hooks/use-shortcuts";
 import { useIssueTemplates } from "@/features/issue-templates/hooks";
+import { RichEditor } from "@/components/shared/rich-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -173,12 +173,15 @@ export function CreateIssueDialog({
 
           <div>
             <label className="mb-1.5 block text-[13px] font-medium">{t("common.description")}</label>
-            <Textarea
+            {/* Description is stored as Tiptap HTML — using a plain
+                <Textarea> showed raw `<p>…</p>` markup when templates
+                were applied and lost formatting on save. The minimal
+                editor mirrors the comment editor (no headings/image). */}
+            <RichEditor
+              content={description}
+              onChange={setDescription}
+              minimal
               placeholder={t("issue.descPlaceholder")}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="resize-none"
             />
           </div>
 

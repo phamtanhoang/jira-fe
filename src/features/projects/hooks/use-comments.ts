@@ -32,8 +32,12 @@ export function isOptimisticComment(comment: Comment): boolean {
  * the user sees their text immediately. The placeholder carries a synthetic
  * `id` (`optimistic-<nonce>`) so the UI can detect it; the real row replaces
  * it after `onSettled` invalidates.
+ *
+ * `issueKey` is optional — when provided, the issue detail / list caches
+ * are refreshed too so the comment-count badge updates without a manual
+ * reload. Without it, only the comments list is invalidated.
  */
-export function useAddComment(issueId: string) {
+export function useAddComment(issueId: string, issueKey?: string) {
   const queryClient = useQueryClient();
   const { user } = useCurrentUser();
 
@@ -82,21 +86,39 @@ export function useAddComment(issueId: string) {
     onSettled: () => {
       // Authoritative refetch — replaces optimistic placeholder with real row.
       queryClient.invalidateQueries({ queryKey: commentsKey(issueId) });
+      // Comment count + activity feed are baked into the issue detail
+      // payload — invalidate so the card badge + activity tab refresh.
+      queryClient.invalidateQueries({ queryKey: ["activity", issueId] });
+      if (issueKey) {
+        queryClient.invalidateQueries({ queryKey: ["issue", issueKey] });
+      }
     },
   });
 }
 
-export function useUpdateComment(issueId: string) {
+export function useUpdateComment(issueId: string, issueKey?: string) {
   return useInvalidatingMutation(
     (vars: { commentId: string; content: string }) =>
       issuesApi.updateComment(vars.commentId, vars.content),
     commentsKey(issueId),
+    {
+      extraInvalidateKeys: [
+        ["activity", issueId],
+        ...(issueKey ? ([["issue", issueKey]] as const) : []),
+      ],
+    },
   );
 }
 
-export function useDeleteComment(issueId: string) {
+export function useDeleteComment(issueId: string, issueKey?: string) {
   return useInvalidatingMutation(
     (commentId: string) => issuesApi.deleteComment(commentId),
     commentsKey(issueId),
+    {
+      extraInvalidateKeys: [
+        ["activity", issueId],
+        ...(issueKey ? ([["issue", issueKey]] as const) : []),
+      ],
+    },
   );
 }

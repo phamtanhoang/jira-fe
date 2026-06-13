@@ -50,7 +50,11 @@ export function useDeleteColumn(projectId: string) {
     mutationFn: ({ boardId, columnId }: { boardId: string; columnId: string }) =>
       boardsApi.deleteColumn(boardId, columnId),
     onSuccess: () => {
+      // Issues moved by the BE need their cached board column id refreshed
+      // in the `["issues"]` list too — otherwise the backlog / calendar
+      // keeps pointing at a deleted column id.
       queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
     },
     onError: handleApiError,
   });

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Trash2,
   Search,
   UserPlus,
   LayoutGrid,
 } from "lucide-react";
+import { DEBOUNCE } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useTableDensity } from "@/lib/hooks/use-table-density";
@@ -57,6 +58,19 @@ export function AdminUsersClient() {
   const [filters, setFilters] = useState<
     Omit<AdminUsersFilters, "cursor">
   >({ take: 50 });
+  // Local search input — debounced into the actual filter so we don't
+  // hit `/users?search=...` once per keystroke (was a real perf cliff
+  // on slow networks since each request also runs a BE LIKE-scan).
+  const [searchInput, setSearchInput] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setFilters((f) => ({
+        ...f,
+        search: searchInput.trim() || undefined,
+      }));
+    }, DEBOUNCE.SEARCH);
+    return () => clearTimeout(t);
+  }, [searchInput]);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [bulkInviteOpen, setBulkInviteOpen] = useState(false);
@@ -119,13 +133,8 @@ export function AdminUsersClient() {
           <Input
             className="pl-8"
             placeholder={t("admin.users.filters.searchPlaceholder")}
-            value={filters.search ?? ""}
-            onChange={(e) =>
-              setFilters((f) => ({
-                ...f,
-                search: e.target.value || undefined,
-              }))
-            }
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 

@@ -823,6 +823,8 @@
     "viewAll": "View all",
     "tabAll": "All",
     "tabUnread": "Unread",
+    "deleteConfirmTitle": "Delete this notification?",
+    "deleteConfirmDescription": "The notification will be permanently removed. This cannot be undone.",
     "push": {
       "title": "Browser push",
       "descOff": "Turn on to receive notifications even when this tab is closed (HTTPS required).",
@@ -970,6 +972,8 @@
     "addColumn": "Add column",
     "columnName": "Column name",
     "deleteColumn": "Delete column",
+    "deleteColumnConfirmTitle": "Delete this column?",
+    "deleteColumnConfirmDescription": "Column '{name}' currently holds {count} issue(s). Move them to another column before deleting.",
     "wip": "WIP!",
     "createIssue": "Create issue",
     "quickCreateIssue": "Quick-create issue",
@@ -1005,6 +1009,14 @@
     "deleteIssue": "Delete issue",
     "deleteConfirmTitle": "Delete this issue?",
     "deleteConfirmDesc": "{key} {summary} will be permanently removed along with its comments, worklogs, and attachments. This cannot be undone.",
+    "comment": {
+      "deleteConfirmTitle": "Delete this comment?",
+      "deleteConfirmDescription": "The comment will be permanently removed. This cannot be undone."
+    },
+    "attachment": {
+      "deleteConfirmTitle": "Delete this attachment?",
+      "deleteConfirmDescription": "'{name}' will be permanently removed. This cannot be undone."
+    },
     "estimatePlaceholder": "2h 30m",
     "emptyDash": "—",
     "star": "Star",

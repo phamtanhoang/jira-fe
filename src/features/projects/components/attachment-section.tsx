@@ -29,6 +29,7 @@ import {
 } from "../hooks";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,6 +72,10 @@ export function AttachmentSection({
   const [expanded, setExpanded] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [deletingAttachment, setDeletingAttachment] = useState<{
+    id: string;
+    fileName: string;
+  } | null>(null);
 
   // Hidden file input + the orphan currently waiting on a file re-pick.
   // Resume flow: user clicks "Resume" on an orphan row → we open the
@@ -388,8 +393,13 @@ export function AttachmentSection({
                     </a>
                     {att.uploadedById === currentUserId && (
                       <button
-                        onClick={() => deleteAttachment(att.id)}
+                        type="button"
+                        onClick={() =>
+                          setDeletingAttachment({ id: att.id, fileName: att.fileName })
+                        }
                         className="rounded-md bg-black/50 p-1 text-white hover:bg-red-600"
+                        aria-label={t("common.delete")}
+                        title={t("common.delete")}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -406,15 +416,43 @@ export function AttachmentSection({
       {/* Image preview modal */}
       {preview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setPreview(null)}>
-          <button onClick={() => setPreview(null)} className="absolute top-4 right-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70">
+          <button
+            type="button"
+            onClick={() => setPreview(null)}
+            className="absolute top-4 right-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+            aria-label={t("common.close")}
+          >
             <X className="h-5 w-5" />
           </button>
           {/* Lightbox preview — full-bleed, dimensions intrinsic. next/image
               would force fixed sizing here. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="Preview" className="max-h-[85vh] max-w-[90vw] rounded-lg shadow-2xl" />
+          <img src={preview} alt={t("common.preview")} className="max-h-[85vh] max-w-[90vw] rounded-lg shadow-2xl" />
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deletingAttachment}
+        onOpenChange={(open) => !open && setDeletingAttachment(null)}
+        title={t("issue.attachment.deleteConfirmTitle")}
+        description={t("issue.attachment.deleteConfirmDescription", {
+          name: deletingAttachment?.fileName ?? "",
+        })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deletingAttachment) return;
+          await new Promise<void>((resolve) => {
+            deleteAttachment(deletingAttachment.id, {
+              onSettled: () => {
+                setDeletingAttachment(null);
+                resolve();
+              },
+            });
+          });
+        }}
+      />
     </div>
   );
 }

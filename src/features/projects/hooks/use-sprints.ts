@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { handleApiError } from "@/lib/utils";
+import { handleApiError, showMessage } from "@/lib/utils";
 import { sprintsApi } from "../api";
 import type { UpdateSprintPayload } from "../types";
 
@@ -29,14 +29,31 @@ export function useCfd(boardId: string | undefined, days = 30) {
   });
 }
 
+/**
+ * Sprint mutations all affect the dashboard widget (`["dashboard"]`),
+ * sprint dropdowns (`["sprints", projectId]`), and the global issues
+ * list (`["issues", projectId]`) — invalidating only the board view
+ * left those stale until manual refresh.
+ */
+function invalidateSprintScopes(
+  queryClient: ReturnType<typeof useQueryClient>,
+  projectId: string,
+) {
+  queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+  queryClient.invalidateQueries({ queryKey: ["sprints", projectId] });
+  queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+  queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+}
+
 export function useCreateSprint(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ boardId, name }: { boardId: string; name: string }) =>
       sprintsApi.create(boardId, name),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+    onSuccess: (r) => {
+      invalidateSprintScopes(queryClient, projectId);
+      if (r?.message) showMessage(r.message);
     },
     onError: handleApiError,
   });
@@ -48,8 +65,9 @@ export function useUpdateSprint(projectId: string) {
   return useMutation({
     mutationFn: ({ id, ...data }: UpdateSprintPayload & { id: string }) =>
       sprintsApi.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+    onSuccess: (r) => {
+      invalidateSprintScopes(queryClient, projectId);
+      if (r?.message) showMessage(r.message);
     },
     onError: handleApiError,
   });
@@ -60,8 +78,9 @@ export function useDeleteSprint(projectId: string) {
 
   return useMutation({
     mutationFn: (id: string) => sprintsApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+    onSuccess: (r) => {
+      invalidateSprintScopes(queryClient, projectId);
+      if (r?.message) showMessage(r.message);
     },
     onError: handleApiError,
   });
@@ -72,8 +91,9 @@ export function useStartSprint(projectId: string) {
 
   return useMutation({
     mutationFn: (id: string) => sprintsApi.start(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+    onSuccess: (r) => {
+      invalidateSprintScopes(queryClient, projectId);
+      if (r?.message) showMessage(r.message);
     },
     onError: handleApiError,
   });
@@ -84,8 +104,9 @@ export function useCompleteSprint(projectId: string) {
 
   return useMutation({
     mutationFn: (id: string) => sprintsApi.complete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board", projectId] });
+    onSuccess: (r) => {
+      invalidateSprintScopes(queryClient, projectId);
+      if (r?.message) showMessage(r.message);
     },
     onError: handleApiError,
   });

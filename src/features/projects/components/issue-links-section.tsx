@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Ban,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 import { TYPE_CONFIG } from "@/lib/constants/issue-config";
+import { DEBOUNCE } from "@/lib/constants/ui";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -217,26 +218,44 @@ function AddLinkRow({
     { id: string; key: string; summary: string }[]
   >([]);
   const [searching, setSearching] = useState(false);
+  // Track the most recent request via a per-call sequence number so a
+  // slow response that lands after a newer one can't overwrite the
+  // visible results. (The previous "tiny debounce" comment was a lie —
+  // it fired one request per keystroke with no ordering guarantee.)
+  const seqRef = useRef(0);
 
-  // Tiny debounce — don't pound the search endpoint while typing.
-  function onSearchChange(value: string) {
-    setSearch(value);
-    if (!value.trim() || value.trim().length < 2) {
+  // Real debounce — clears the previous timer on every keystroke and
+  // only fires the network call after typing pauses.
+  useEffect(() => {
+    const trimmed = search.trim();
+    if (trimmed.length < 2) {
       setResults([]);
       return;
     }
     setSearching(true);
-    issuesApi
-      .list(projectId, { search: value.trim() })
-      .then((rs) =>
-        setResults(
-          rs
-            .filter((i) => i.id !== excludeId)
-            .slice(0, 8)
-            .map((i) => ({ id: i.id, key: i.key, summary: i.summary })),
-        ),
-      )
-      .finally(() => setSearching(false));
+    const timer = setTimeout(() => {
+      const mySeq = ++seqRef.current;
+      issuesApi
+        .list(projectId, { search: trimmed })
+        .then((rs) => {
+          // Drop the response if a newer keystroke fired in the meantime.
+          if (mySeq !== seqRef.current) return;
+          setResults(
+            rs
+              .filter((i) => i.id !== excludeId)
+              .slice(0, 8)
+              .map((i) => ({ id: i.id, key: i.key, summary: i.summary })),
+          );
+        })
+        .finally(() => {
+          if (mySeq === seqRef.current) setSearching(false);
+        });
+    }, DEBOUNCE.SEARCH);
+    return () => clearTimeout(timer);
+  }, [search, projectId, excludeId]);
+
+  function onSearchChange(value: string) {
+    setSearch(value);
   }
 
   return (

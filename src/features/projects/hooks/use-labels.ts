@@ -54,10 +54,18 @@ export function useDeleteLabel(projectId: string) {
   );
 }
 
-export function useAddIssueLabel(issueId: string, projectId: string) {
+// Both hooks accept the issue *key* (project key, e.g. PP-1) — that's
+// the cache key the detail page uses (`["issue", key]`). Passing the
+// bare prefix `["issue"]` would match every cached issue across every
+// project and force a global refetch storm.
+export function useAddIssueLabel(
+  issueId: string,
+  projectId: string,
+  issueKey: string,
+) {
   return useInvalidatingMutation(
     (labelId: string) => issuesApi.addLabel(issueId, labelId),
-    ["issue"],
+    ["issue", issueKey],
     {
       extraInvalidateKeys: [
         ["board", projectId],
@@ -67,10 +75,14 @@ export function useAddIssueLabel(issueId: string, projectId: string) {
   );
 }
 
-export function useRemoveIssueLabel(issueId: string, projectId: string) {
+export function useRemoveIssueLabel(
+  issueId: string,
+  projectId: string,
+  issueKey: string,
+) {
   return useInvalidatingMutation(
     (labelId: string) => issuesApi.removeLabel(issueId, labelId),
-    ["issue"],
+    ["issue", issueKey],
     {
       extraInvalidateKeys: [
         ["board", projectId],

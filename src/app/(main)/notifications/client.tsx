@@ -13,6 +13,7 @@ import {
 } from "@/features/notifications/hooks";
 import type { Notification } from "@/features/notifications/types";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/ui/pagination";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +25,7 @@ export default function NotificationsPage() {
   const router = useRouter();
   const [tab, setTab] = useState<"all" | "unread">("all");
   const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data, isLoading } = useNotifications({
     unread: tab === "unread",
@@ -90,10 +92,21 @@ export default function NotificationsPage() {
         <>
           <div className="overflow-hidden rounded-lg border bg-card">
             {data.data.map((n) => (
+              // Use a real <button> so keyboard users can open notifications
+              // (Enter/Space) — the previous <div onClick> was unreachable
+              // without a mouse.
               <div
                 key={n.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleClick(n)}
-                className={`group/n flex cursor-pointer items-start gap-3 border-b px-4 py-3 last:border-b-0 hover:bg-muted/50 ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleClick(n);
+                  }
+                }}
+                className={`group/n flex cursor-pointer items-start gap-3 border-b px-4 py-3 last:border-b-0 outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring ${
                   n.readAt ? "" : "bg-primary/5"
                 }`}
               >
@@ -115,9 +128,11 @@ export default function NotificationsPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    del(n.id);
+                    setDeletingId(n.id);
                   }}
-                  className="rounded p-1.5 text-muted-foreground/40 opacity-0 transition-opacity hover:bg-muted hover:text-destructive group-hover/n:opacity-100"
+                  aria-label={t("common.delete")}
+                  title={t("common.delete")}
+                  className="rounded p-1.5 text-muted-foreground/40 opacity-0 transition-opacity hover:bg-muted hover:text-destructive group-hover/n:opacity-100 focus-visible:opacity-100"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -135,6 +150,21 @@ export default function NotificationsPage() {
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        title={t("notifications.deleteConfirmTitle")}
+        description={t("notifications.deleteConfirmDescription")}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (!deletingId) return;
+          del(deletingId);
+          setDeletingId(null);
+        }}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -18,14 +18,15 @@ import {
 } from "@/components/ui/dialog";
 
 // Static binding map — kept here so the cheatsheet renders the same source
-// of truth that the listener wires up.
+// of truth that the listener wires up. Ctrl+K intentionally absent: the
+// shortcut handler ignores modifier-key combos, so wiring it would be a
+// lie. Re-add when a global search palette is built.
 const BINDINGS = [
   { keys: ["?"], labelKey: "shortcuts.cheatsheet" as const },
   { keys: ["c"], labelKey: "shortcuts.createIssue" as const },
   { keys: ["g", "d"], labelKey: "shortcuts.goDashboard" as const },
   { keys: ["g", "w"], labelKey: "shortcuts.goWorkspaces" as const },
   { keys: ["g", "p"], labelKey: "shortcuts.goProfile" as const },
-  { keys: ["Ctrl", "K"], labelKey: "shortcuts.openSearch" as const },
 ];
 
 export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
@@ -35,22 +36,28 @@ export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
 
   const navigate = useCallback((path: string) => router.push(path), [router]);
 
-  useShortcuts(
-    {
+  // Memoize the bindings object so `useShortcuts` doesn't tear down +
+  // re-attach the global keydown listener every parent render. The
+  // referenced constants (SHORTCUT_EVENTS, ROUTES) are module-level and
+  // never change.
+  const shortcutMap = useMemo(
+    () => ({
       single: {
-        "?": { kind: "event", name: SHORTCUT_EVENTS.TOGGLE_CHEATSHEET },
-        c: { kind: "event", name: SHORTCUT_EVENTS.OPEN_CREATE_ISSUE },
+        "?": { kind: "event" as const, name: SHORTCUT_EVENTS.TOGGLE_CHEATSHEET },
+        c: { kind: "event" as const, name: SHORTCUT_EVENTS.OPEN_CREATE_ISSUE },
       },
       leader: {
         g: {
-          d: { kind: "navigate", path: ROUTES.DASHBOARD },
-          w: { kind: "navigate", path: ROUTES.WORKSPACES },
-          p: { kind: "navigate", path: ROUTES.PROFILE },
+          d: { kind: "navigate" as const, path: ROUTES.DASHBOARD },
+          w: { kind: "navigate" as const, path: ROUTES.WORKSPACES },
+          p: { kind: "navigate" as const, path: ROUTES.PROFILE },
         },
       },
-    },
-    navigate,
+    }),
+    [],
   );
+
+  useShortcuts(shortcutMap, navigate);
 
   useEffect(() => {
     return onShortcutEvent(SHORTCUT_EVENTS.TOGGLE_CHEATSHEET, () => {

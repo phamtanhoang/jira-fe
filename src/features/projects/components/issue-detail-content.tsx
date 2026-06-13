@@ -362,6 +362,7 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             <TabsContent value="comments">
               <IssueComments
                 issueId={issue.id}
+                issueKey={issue.key}
                 currentUser={{ id: user?.id ?? "", name: user?.name ?? null }}
                 members={(project?.members ?? []).map((m) => m.user)}
               />

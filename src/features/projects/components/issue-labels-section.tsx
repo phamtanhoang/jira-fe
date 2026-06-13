@@ -25,8 +25,8 @@ export function IssueLabelsSection({ issue }: { issue: Issue }) {
   const projectId = issue.projectId;
   const { data: allLabels = [], isLoading: loadingCatalog } =
     useLabels(projectId);
-  const addLabel = useAddIssueLabel(issue.id, projectId);
-  const removeLabel = useRemoveIssueLabel(issue.id, projectId);
+  const addLabel = useAddIssueLabel(issue.id, projectId, issue.key);
+  const removeLabel = useRemoveIssueLabel(issue.id, projectId, issue.key);
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");

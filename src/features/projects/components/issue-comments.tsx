@@ -9,27 +9,36 @@ import { useComments, useAddComment, useUpdateComment, useDeleteComment } from "
 import { issuesApi } from "../api";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function IssueComments({
   issueId,
+  issueKey,
   currentUser,
   members,
 }: {
   issueId: string;
+  /** Issue key (e.g. PP-1) — used to invalidate the detail cache after a
+   *  comment mutation so the badge + activity feed pick up the change. */
+  issueKey?: string;
   currentUser: { id: string; name: string | null };
   members?: { id: string; name: string | null; image: string | null; email?: string }[];
 }) {
   const { t } = useAppStore();
   const { data: comments } = useComments(issueId);
-  const { mutate: addComment, isPending: commenting } = useAddComment(issueId);
-  const { mutate: updateComment } = useUpdateComment(issueId);
-  const { mutate: deleteComment } = useDeleteComment(issueId);
+  const { mutate: addComment, isPending: commenting } = useAddComment(
+    issueId,
+    issueKey,
+  );
+  const { mutate: updateComment } = useUpdateComment(issueId, issueKey);
+  const { mutate: deleteComment } = useDeleteComment(issueId, issueKey);
 
   const [text, setText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function uploadInlineImage(file: File): Promise<string> {
     const r = await issuesApi.uploadAttachments(issueId, [file]);
@@ -114,8 +123,11 @@ export function IssueComments({
                         <Pencil className="h-3 w-3" />
                       </button>
                       <button
-                        onClick={() => deleteComment(comment.id)}
+                        type="button"
+                        onClick={() => setDeletingId(comment.id)}
                         className="text-muted-foreground hover:text-destructive"
+                        aria-label={t("common.delete")}
+                        title={t("common.delete")}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -159,6 +171,27 @@ export function IssueComments({
           ))}
         </AnimatePresence>
       </div>
+
+      <ConfirmDialog
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        title={t("issue.comment.deleteConfirmTitle")}
+        description={t("issue.comment.deleteConfirmDescription")}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deletingId) return;
+          await new Promise<void>((resolve) => {
+            deleteComment(deletingId, {
+              onSettled: () => {
+                setDeletingId(null);
+                resolve();
+              },
+            });
+          });
+        }}
+      />
     </div>
   );
 }

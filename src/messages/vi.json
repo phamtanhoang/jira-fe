@@ -823,6 +823,8 @@
     "viewAll": "Xem tất cả",
     "tabAll": "Tất cả",
     "tabUnread": "Chưa đọc",
+    "deleteConfirmTitle": "Xóa thông báo này?",
+    "deleteConfirmDescription": "Thông báo sẽ bị xóa vĩnh viễn. Không thể hoàn tác.",
     "push": {
       "title": "Browser push",
       "descOff": "Bật để nhận noti realtime ngay cả khi tab đóng (yêu cầu HTTPS).",
@@ -970,6 +972,8 @@
     "addColumn": "Thêm cột",
     "columnName": "Tên cột",
     "deleteColumn": "Xóa cột",
+    "deleteColumnConfirmTitle": "Xóa cột này?",
+    "deleteColumnConfirmDescription": "Cột '{name}' đang chứa {count} công việc. Hãy chuyển hết công việc sang cột khác trước khi xóa.",
     "wip": "Quá tải!",
     "createIssue": "Tạo công việc",
     "quickCreateIssue": "Tạo nhanh công việc",
@@ -1005,6 +1009,14 @@
     "deleteIssue": "Xóa công việc",
     "deleteConfirmTitle": "Xóa công việc này?",
     "deleteConfirmDesc": "{key} {summary} sẽ bị xóa vĩnh viễn cùng với toàn bộ bình luận, worklog và file đính kèm. Không thể hoàn tác.",
+    "comment": {
+      "deleteConfirmTitle": "Xóa bình luận này?",
+      "deleteConfirmDescription": "Bình luận sẽ bị xóa vĩnh viễn. Không thể hoàn tác."
+    },
+    "attachment": {
+      "deleteConfirmTitle": "Xóa tệp đính kèm?",
+      "deleteConfirmDescription": "Tệp '{name}' sẽ bị xóa vĩnh viễn. Không thể hoàn tác."
+    },
     "estimatePlaceholder": "2h 30m",
     "emptyDash": "—",
     "star": "Đánh dấu yêu thích",
