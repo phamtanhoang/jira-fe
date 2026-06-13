@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { QueryKey } from "@tanstack/react-query";
 import { pushRecent } from "@/lib/utils";
 import { useRealtime, type RealtimeEvent } from "@/lib/realtime/use-realtime";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import {
   Check,
   X,
@@ -18,7 +19,6 @@ import {
   Maximize2,
   Star,
   Eye,
-  EyeOff,
   Share2,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
@@ -75,6 +75,16 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
   const [sidebarWidth, setSidebarWidth] = useState(modal ? 280 : 320);
   const [shareOpen, setShareOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  // Tab persisted to `?issueTab=` (not `?tab=`) so it doesn't collide
+  // with the board's view tab when the issue is opened in a modal on
+  // top of the board page. Standalone /issues/[key] pages also benefit
+  // — refresh / share-link both preserve which tab was open.
+  const ISSUE_TABS = ["comments", "activity"] as const;
+  const [issueTab, setIssueTab] = useUrlTab<(typeof ISSUE_TABS)[number]>(
+    ISSUE_TABS,
+    "comments",
+    "issueTab",
+  );
 
   function handleConfirmDelete() {
     if (!issue) return;
@@ -236,12 +246,19 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
         </div>
 
         <div className="flex items-center gap-1">
+          {/* Star + Watch — both icon-only ghost buttons so they share
+              the same footprint. Active state is conveyed via icon fill
+              (yellow / primary), not by swapping the button variant —
+              the old "Watch" button toggled `secondary` and grew/shrank
+              its label, shifting every neighbouring icon left and right
+              on every click. */}
           <Button
             variant="ghost"
             size="icon-xs"
             onClick={() => toggleStar({ id: issue.id, starred: !issue.starredByMe })}
             title={issue.starredByMe ? t("issue.unstar") : t("issue.star")}
             aria-pressed={!!issue.starredByMe}
+            aria-label={issue.starredByMe ? t("issue.unstar") : t("issue.star")}
           >
             <Star
               className={`h-4 w-4 transition-colors ${
@@ -252,24 +269,24 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
             />
           </Button>
           <Button
-            variant={issue.watchedByMe ? "secondary" : "ghost"}
-            size="xs"
+            variant="ghost"
+            size="icon-xs"
             onClick={() =>
               toggleWatch({ id: issue.id, watching: !issue.watchedByMe })
             }
-            title={
+            title={issue.watchedByMe ? t("issue.unwatch") : t("issue.watch")}
+            aria-pressed={!!issue.watchedByMe}
+            aria-label={
               issue.watchedByMe ? t("issue.unwatch") : t("issue.watch")
             }
-            aria-pressed={!!issue.watchedByMe}
           >
-            {issue.watchedByMe ? (
-              <Eye className="mr-1 h-3.5 w-3.5" />
-            ) : (
-              <EyeOff className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
-            )}
-            <span className="text-[11px]">
-              {issue.watchedByMe ? t("issue.watching") : t("issue.watch")}
-            </span>
+            <Eye
+              className={`h-4 w-4 transition-colors ${
+                issue.watchedByMe
+                  ? "fill-primary/15 text-primary"
+                  : "text-muted-foreground"
+              }`}
+            />
           </Button>
           <Button
             variant="ghost"
@@ -386,7 +403,12 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
           <Separator className="mb-5" />
 
           {/* Tabs: Comments / Activity */}
-          <Tabs defaultValue="comments">
+          <Tabs
+            value={issueTab}
+            onValueChange={(v) =>
+              v && setIssueTab(v as (typeof ISSUE_TABS)[number])
+            }
+          >
             <TabsList variant="line" className="mb-4">
               <TabsTrigger value="comments">
                 <MessageSquare className="mr-1.5 h-3.5 w-3.5" />

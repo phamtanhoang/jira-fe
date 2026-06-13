@@ -319,6 +319,44 @@ export function useDeleteIssue(projectId: string) {
       await queryClient.cancelQueries({ queryKey: ["board", projectId] });
       await queryClient.cancelQueries({ queryKey: ["issues", projectId] });
 
+      // Look up the issue in the cache so we know its key + parent key +
+      // epic key before optimistic removal. Without these, `onSettled`
+      // can't invalidate the parent/epic detail caches → the deleted
+      // subtask keeps rendering on the parent's detail page.
+      let issueKey: string | null = null;
+      let parentKey: string | null = null;
+      let epicKey: string | null = null;
+      const issuesCache = queryClient.getQueriesData<Issue[]>({
+        queryKey: ["issues", projectId],
+      });
+      for (const [, list] of issuesCache) {
+        if (!Array.isArray(list)) continue;
+        const hit = list.find((i) => i.id === id);
+        if (hit) {
+          issueKey = hit.key;
+          parentKey = hit.parent?.key ?? null;
+          epicKey = hit.epic?.key ?? null;
+          break;
+        }
+      }
+      if (!issueKey) {
+        const boardCache = queryClient.getQueriesData<Board>({
+          queryKey: ["board", projectId],
+        });
+        outer: for (const [, board] of boardCache) {
+          if (!board) continue;
+          for (const col of board.columns) {
+            const hit = col.issues.find((i) => i.id === id);
+            if (hit) {
+              issueKey = hit.key;
+              parentKey = hit.parent?.key ?? null;
+              epicKey = hit.epic?.key ?? null;
+              break outer;
+            }
+          }
+        }
+      }
+
       const boardSnapshot = queryClient.getQueriesData<Board>({
         queryKey: ["board", projectId],
       });
@@ -344,7 +382,7 @@ export function useDeleteIssue(projectId: string) {
         (old) => (Array.isArray(old) ? old.filter((i) => i.id !== id) : old),
       );
 
-      return { boardSnapshot, issuesSnapshot };
+      return { boardSnapshot, issuesSnapshot, issueKey, parentKey, epicKey };
     },
     onError: (err, _id, context) => {
       // Rollback both caches on failure.
@@ -358,9 +396,25 @@ export function useDeleteIssue(projectId: string) {
       }
       handleApiError(err);
     },
-    onSettled: () => {
+    onSettled: (_data, _err, _id, context) => {
       queryClient.invalidateQueries({ queryKey: ["board", projectId] });
       queryClient.invalidateQueries({ queryKey: ["issues", projectId] });
+      // Wipe the dead issue's own cache so users landing on the stale
+      // URL from "Recents" get a fresh 404 instead of zombie content.
+      if (context?.issueKey) {
+        queryClient.removeQueries({ queryKey: ["issue", context.issueKey] });
+      }
+      // Refresh parent + epic detail so their children list drops the
+      // deleted row (the exact bug user reported: deleted subtask still
+      // visible on the parent issue page).
+      if (context?.parentKey) {
+        queryClient.invalidateQueries({
+          queryKey: ["issue", context.parentKey],
+        });
+      }
+      if (context?.epicKey) {
+        queryClient.invalidateQueries({ queryKey: ["issue", context.epicKey] });
+      }
     },
   });
 }

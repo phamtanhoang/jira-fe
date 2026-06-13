@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Check, Trash2, Inbox } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import { formatDateTime } from "@/lib/utils";
 import {
   useDeleteNotification,
@@ -23,7 +24,13 @@ const PAGE_SIZE = 20;
 export default function NotificationsPage() {
   const { t } = useAppStore();
   const router = useRouter();
-  const [tab, setTab] = useState<"all" | "unread">("all");
+  // Tab in `?tab=` so refresh + share-link preserve the filter; the
+  // previous useState reset to "all" on every page reload.
+  const NOTIFICATION_TABS = ["all", "unread"] as const;
+  const [tab, setTab] = useUrlTab<(typeof NOTIFICATION_TABS)[number]>(
+    NOTIFICATION_TABS,
+    "all",
+  );
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -63,7 +70,8 @@ export default function NotificationsPage() {
       <Tabs
         value={tab}
         onValueChange={(v) => {
-          setTab((v as "all" | "unread") ?? "all");
+          if (!v) return;
+          setTab(v as (typeof NOTIFICATION_TABS)[number]);
           setPage(1);
         }}
       >

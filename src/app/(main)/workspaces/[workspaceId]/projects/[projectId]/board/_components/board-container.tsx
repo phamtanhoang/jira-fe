@@ -15,6 +15,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { pushRecent } from "@/lib/utils";
 import { useRealtime, type RealtimeEvent } from "@/lib/realtime/use-realtime";
 import { useAppStore } from "@/lib/stores/use-app-store";
+import { useUrlTab } from "@/lib/hooks/use-url-tab";
 import {
   useProject,
   useBoard,
@@ -86,6 +87,24 @@ export function BoardContainer() {
   const { data: workspace } = useWorkspace(workspaceId);
   const { data: project } = useProject(projectId);
   const { data: board, isLoading } = useBoard(projectId);
+
+  // Active view tab persisted to `?tab=` so F5 / share-URL / browser
+  // back/forward all preserve the user's selection instead of snapping
+  // back to "Summary". Both board types share the same query param —
+  // values that don't apply to the current type fall back to the
+  // type's default (Summary for Scrum, Board for Kanban).
+  const BOARD_TABS = [
+    "summary",
+    "epics",
+    "backlog",
+    "board",
+    "calendar",
+    "roadmap",
+  ] as const;
+  const [tab, setTab] = useUrlTab<(typeof BOARD_TABS)[number]>(
+    BOARD_TABS,
+    board?.type === "SCRUM" ? "summary" : "board",
+  );
   const { data: allIssues } = useIssues(projectId);
   const { mutate: moveIssue } = useMoveIssue();
   const { mutate: createIssue } = useCreateIssue();
@@ -303,7 +322,8 @@ export function BoardContainer() {
         </div>
       ) : board?.type === "SCRUM" ? (
         <Tabs
-          defaultValue="summary"
+          value={tab}
+          onValueChange={(v) => v && setTab(v as (typeof BOARD_TABS)[number])}
           className="flex flex-1 flex-col overflow-hidden"
         >
           <div className="border-b px-6">
@@ -434,7 +454,8 @@ export function BoardContainer() {
         </Tabs>
       ) : (
         <Tabs
-          defaultValue="board"
+          value={tab}
+          onValueChange={(v) => v && setTab(v as (typeof BOARD_TABS)[number])}
           className="flex flex-1 flex-col overflow-hidden"
         >
           <div className="border-b px-6">

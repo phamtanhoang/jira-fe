@@ -545,7 +545,11 @@ export function IssueDetailFields({
         )}
       </EditableField>
 
-      {/* Start Date — click to edit */}
+      {/* Start Date — click to edit. Commits on `change` (native picker
+          selection) because <input type=date> keeps focus after the user
+          picks a date — onBlur never fires until they click away, and
+          by then the EditableField's click-outside detector has already
+          torn down the input. */}
       <EditableField
         label={t("issue.startDate")}
         displayValue={
@@ -556,14 +560,20 @@ export function IssueDetailFields({
           <Input
             type="date"
             defaultValue={issue.startDate ? issue.startDate.split("T")[0] : ""}
-            onBlur={(e) => { onUpdate("startDate", e.target.value ? new Date(e.target.value).toISOString() : null); close(); }}
+            onChange={(e) => {
+              onUpdate(
+                "startDate",
+                e.target.value ? new Date(e.target.value).toISOString() : null,
+              );
+              close();
+            }}
             className="h-8 text-[12px]"
             autoFocus
           />
         )}
       </EditableField>
 
-      {/* Due Date — click to edit */}
+      {/* Due Date — same caveat as Start Date above. */}
       <EditableField
         label={t("issue.dueDate")}
         displayValue={
@@ -574,7 +584,13 @@ export function IssueDetailFields({
           <Input
             type="date"
             defaultValue={issue.dueDate ? issue.dueDate.split("T")[0] : ""}
-            onBlur={(e) => { onUpdate("dueDate", e.target.value ? new Date(e.target.value).toISOString() : null); close(); }}
+            onChange={(e) => {
+              onUpdate(
+                "dueDate",
+                e.target.value ? new Date(e.target.value).toISOString() : null,
+              );
+              close();
+            }}
             className="h-8 text-[12px]"
             autoFocus
           />
