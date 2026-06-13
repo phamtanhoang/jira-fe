@@ -1,23 +1,55 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, FileText, Lock, Paperclip } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarClock,
+  CalendarDays,
+  CheckCircle2,
+  FileText,
+  Lock,
+  Paperclip,
+  Target,
+} from "lucide-react";
 import { TYPE_CONFIG, PRIORITY_CONFIG } from "@/lib/constants/issue-config";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateShort, formatDateTime } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { issueShareApi } from "@/features/issue-share/api";
+import {
+  AttachmentLightbox,
+  type LightboxAttachment,
+} from "@/features/projects/components/attachment-lightbox";
 import { RichContent } from "@/components/shared/rich-editor";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function isImage(mimeType: string): boolean {
+  return mimeType.startsWith("image/");
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
 export default function PublicIssuePage() {
   const { token } = useParams<{ token: string }>();
   const { t } = useAppStore();
+  const [preview, setPreview] = useState<LightboxAttachment | null>(null);
   const { data: issue, isLoading, error } = useQuery({
     queryKey: ["public-issue", token],
     queryFn: () => issueShareApi.fetchPublic(token),
     retry: false,
+    // 5-min refetch — matches the signed-URL TTL. Without this the URL
+    // returned at first load expires before the user clicks an
+    // attachment, breaking preview.
+    refetchInterval: 4 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
   if (isLoading) {
@@ -61,13 +93,21 @@ export default function PublicIssuePage() {
       </div>
 
       <article className="mx-auto max-w-3xl px-6 py-8">
-        {/* Key + type */}
+        {/* Key + type + parent breadcrumb */}
         <div className="mb-3 flex items-center gap-2 text-[13px]">
           <div
             className={`flex h-5 w-5 items-center justify-center rounded ${typeConf.bg}`}
           >
             <TypeIcon className="h-3 w-3 text-white" />
           </div>
+          {issue.parent && (
+            <>
+              <span className="font-mono text-muted-foreground">
+                {issue.parent.key}
+              </span>
+              <span className="text-muted-foreground/40">/</span>
+            </>
+          )}
           <span className="font-mono text-muted-foreground">{issue.key}</span>
           <PrioIcon className={`ml-auto h-4 w-4 ${prioConf.color}`} />
           {issue.boardColumn && (
@@ -99,8 +139,32 @@ export default function PublicIssuePage() {
           </div>
         )}
 
+        {/* Sprint + Epic context */}
+        {(issue.sprint || issue.epic) && (
+          <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted-foreground">
+            {issue.epic && (
+              <span className="flex items-center gap-1.5">
+                <Target className="h-3.5 w-3.5" />
+                Epic:
+                <span className="text-foreground">
+                  {issue.epic.key} {issue.epic.summary}
+                </span>
+              </span>
+            )}
+            {issue.sprint && (
+              <span className="flex items-center gap-1.5">
+                Sprint:
+                <span className="text-foreground">{issue.sprint.name}</span>
+                <span className="rounded bg-muted px-1.5 py-px text-[10px]">
+                  {issue.sprint.status}
+                </span>
+              </span>
+            )}
+          </div>
+        )}
+
         {/* People */}
-        <div className="mb-6 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-muted-foreground">
+        <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-muted-foreground">
           {issue.reporter && (
             <span className="flex items-center gap-2">
               {t("share.publicPage.reportedBy")}
@@ -123,11 +187,43 @@ export default function PublicIssuePage() {
               <span className="text-foreground">{issue.assignee.name}</span>
             </span>
           )}
-          <span>
-            {t("share.publicPage.created", {
-              date: formatDateTime(issue.createdAt),
-            })}
-          </span>
+        </div>
+
+        {/* Dates + story points strip */}
+        <div className="mb-6 grid grid-cols-2 gap-x-6 gap-y-1 rounded-md border bg-card p-3 text-[12px] sm:grid-cols-4">
+          <DateRow
+            icon={<CalendarDays className="h-3.5 w-3.5" />}
+            label={t("share.publicPage.created").replace(/[{:].*$/, "").trim()}
+            value={formatDateTime(issue.createdAt)}
+          />
+          {issue.startDate && (
+            <DateRow
+              icon={<CalendarDays className="h-3.5 w-3.5" />}
+              label="Start"
+              value={formatDateShort(issue.startDate)}
+            />
+          )}
+          {issue.dueDate && (
+            <DateRow
+              icon={<CalendarClock className="h-3.5 w-3.5" />}
+              label="Due"
+              value={formatDateShort(issue.dueDate)}
+            />
+          )}
+          {issue.completedAt && (
+            <DateRow
+              icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+              label="Completed"
+              value={formatDateShort(issue.completedAt)}
+            />
+          )}
+          {typeof issue.storyPoints === "number" && (
+            <DateRow
+              icon={<Target className="h-3.5 w-3.5" />}
+              label="Story points"
+              value={String(issue.storyPoints)}
+            />
+          )}
         </div>
 
         {/* Description */}
@@ -137,7 +233,9 @@ export default function PublicIssuePage() {
           </section>
         )}
 
-        {/* Attachments — names only, no download links to avoid storage URL leaks */}
+        {/* Attachments — click to preview (image / PDF / video / audio /
+            text inline). Signed URLs expire in 5 min; the query refetches
+            every 4 min to keep them fresh while the tab is open. */}
         {issue.attachments && issue.attachments.length > 0 && (
           <section className="mb-8">
             <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -146,20 +244,46 @@ export default function PublicIssuePage() {
                 count: String(issue.attachments.length),
               })}
             </h2>
-            <ul className="space-y-1">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
               {issue.attachments.map((a) => (
-                <li
+                <button
                   key={a.id}
-                  className="flex items-center gap-2 rounded border bg-card px-3 py-2 text-[13px]"
+                  type="button"
+                  disabled={!a.signedUrl}
+                  onClick={() => {
+                    if (a.signedUrl) {
+                      setPreview({
+                        fileName: a.fileName,
+                        mimeType: a.mimeType,
+                        url: a.signedUrl,
+                      });
+                    }
+                  }}
+                  className="group overflow-hidden rounded-lg border bg-card text-left transition-all duration-150 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span>{a.fileName}</span>
-                  <span className="ml-auto text-[11px] text-muted-foreground">
-                    {Math.round(a.fileSize / 1024)} KB
-                  </span>
-                </li>
+                  <div className="flex h-24 items-center justify-center bg-muted/50">
+                    {isImage(a.mimeType) && a.signedUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={a.signedUrl}
+                        alt={a.fileName}
+                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                    ) : (
+                      <FileText className="h-8 w-8 text-muted-foreground/40" />
+                    )}
+                  </div>
+                  <div className="px-2 py-1.5">
+                    <p className="truncate text-[11px] font-medium">
+                      {a.fileName}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {formatSize(a.fileSize)}
+                    </p>
+                  </div>
+                </button>
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
@@ -199,6 +323,26 @@ export default function PublicIssuePage() {
           </section>
         )}
       </article>
+
+      <AttachmentLightbox attachment={preview} onClose={() => setPreview(null)} />
+    </div>
+  );
+}
+
+function DateRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-muted-foreground">{icon}</span>
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="text-foreground">{value}</span>
     </div>
   );
 }

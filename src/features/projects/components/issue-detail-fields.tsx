@@ -113,7 +113,7 @@ function CollapsibleSection({
 export function IssueDetailFields({
   issue,
   members,
-  // currentUserId is part of the public API for future use
+  currentUserId,
   onUpdate,
 }: {
   issue: Issue;
@@ -125,6 +125,15 @@ export function IssueDetailFields({
   const { data: board } = useBoard(issue.projectId);
   const { mutate: moveIssue } = useMoveIssue();
   const { data: epics } = useIssues(issue.projectId, { type: "EPIC" });
+
+  // Reporter edit is reserved for project leads/admins — matches Atlassian
+  // semantics where the reporter is who *filed* the issue, not a free-text
+  // field. Members with VIEWER/DEVELOPER role see read-only.
+  const currentMember = members.find((m) => m.user.id === currentUserId);
+  const canEditReporter =
+    currentMember?.role === "LEAD" || currentMember?.role === "ADMIN";
+
+  const sprints = board?.sprints ?? [];
 
   const typeConf = TYPE_CONFIG[issue.type] ?? TYPE_CONFIG.TASK;
   const TypeIcon = typeConf.icon;
@@ -316,19 +325,81 @@ export function IssueDetailFields({
         )}
       </EditableField>
 
-      {/* Reporter — read only */}
-      <DetailRow label={t("issue.reporter")}>
-        {issue.reporter && (
-          <div className="flex items-center gap-2 px-2 py-1">
-            <UserAvatar
-              user={issue.reporter}
-              className="h-5 w-5"
-              fallbackClassName="text-[9px]"
-            />
-            <span className="text-[12px]">{issue.reporter.name}</span>
-          </div>
-        )}
-      </DetailRow>
+      {/* Reporter — editable for LEAD/ADMIN only (mirrors Atlassian) */}
+      {canEditReporter ? (
+        <EditableField
+          label={t("issue.reporter")}
+          displayValue={
+            issue.reporter ? (
+              <span className="flex items-center gap-2">
+                <UserAvatar
+                  user={issue.reporter}
+                  className="h-5 w-5"
+                  fallbackClassName="text-[9px]"
+                />
+                {issue.reporter.name}
+              </span>
+            ) : (
+              <span className="text-muted-foreground/60">—</span>
+            )
+          }
+        >
+          {({ close }) => (
+            <Select
+              value={issue.reporterId ?? ""}
+              onValueChange={(v) => {
+                if (v && v !== issue.reporterId) onUpdate("reporterId", v);
+                close();
+              }}
+              defaultOpen
+            >
+              <SelectTrigger className="h-8 w-full text-[12px]">
+                <span className="flex items-center gap-2">
+                  {issue.reporter ? (
+                    <>
+                      <UserAvatar
+                        user={issue.reporter}
+                        className="h-4 w-4"
+                        fallbackClassName="text-[8px]"
+                      />
+                      {issue.reporter.name || issue.reporter.email}
+                    </>
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                {members.map((m) => (
+                  <SelectItem key={m.user.id} value={m.user.id}>
+                    <span className="flex items-center gap-2">
+                      <UserAvatar
+                        user={m.user}
+                        className="h-4 w-4"
+                        fallbackClassName="text-[8px]"
+                      />
+                      {m.user.name || m.user.email}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </EditableField>
+      ) : (
+        <DetailRow label={t("issue.reporter")}>
+          {issue.reporter && (
+            <div className="flex items-center gap-2 px-2 py-1">
+              <UserAvatar
+                user={issue.reporter}
+                className="h-5 w-5"
+                fallbackClassName="text-[9px]"
+              />
+              <span className="text-[12px]">{issue.reporter.name}</span>
+            </div>
+          )}
+        </DetailRow>
+      )}
 
       {/* Story Points — click to edit */}
       <EditableField
@@ -427,12 +498,52 @@ export function IssueDetailFields({
         </EditableField>
       )}
 
-      {/* Sprint — read only */}
-      {issue.sprint && (
-        <DetailRow label={t("issue.sprint")}>
-          <div className="px-2 py-1 text-[12px]">{issue.sprint.name}</div>
-        </DetailRow>
-      )}
+      {/* Sprint — click to change (assign / move / send to backlog).
+          BE already accepts `sprintId` on PATCH; this just wires the UI. */}
+      <EditableField
+        label={t("issue.sprint")}
+        displayValue={
+          issue.sprint ? (
+            <span className="flex items-center gap-1.5">
+              {issue.sprint.name}
+              <span className="rounded bg-muted px-1.5 py-px text-[10px] uppercase tracking-wide">
+                {issue.sprint.status}
+              </span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground/60">{t("issue.backlogStatus")}</span>
+          )
+        }
+      >
+        {({ close }) => (
+          <Select
+            value={issue.sprintId ?? UNASSIGNED_VALUE}
+            onValueChange={(v) => {
+              const newVal = v === UNASSIGNED_VALUE ? null : v;
+              if (newVal !== issue.sprintId) onUpdate("sprintId", newVal);
+              close();
+            }}
+            defaultOpen
+          >
+            <SelectTrigger className="h-8 w-full text-[12px]">
+              {issue.sprint ? issue.sprint.name : t("issue.backlogStatus")}
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={UNASSIGNED_VALUE}>{t("issue.backlogStatus")}</SelectItem>
+              {sprints.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  <span className="flex items-center gap-1.5">
+                    {s.name}
+                    <span className="rounded bg-muted px-1.5 py-px text-[10px] uppercase tracking-wide">
+                      {s.status}
+                    </span>
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </EditableField>
 
       {/* Start Date — click to edit */}
       <EditableField

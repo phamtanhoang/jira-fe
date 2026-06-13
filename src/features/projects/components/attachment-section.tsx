@@ -36,6 +36,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AttachmentLightbox,
+  type LightboxAttachment,
+} from "./attachment-lightbox";
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -71,7 +75,7 @@ export function AttachmentSection({
   } = useUploadLargeAttachment(issueId);
   const [expanded, setExpanded] = useState(true);
   const [dragOver, setDragOver] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<LightboxAttachment | null>(null);
   const [deletingAttachment, setDeletingAttachment] = useState<{
     id: string;
     fileName: string;
@@ -340,32 +344,36 @@ export function AttachmentSection({
                   key={att.id}
                   className="group relative overflow-hidden rounded-lg border bg-card transition-all duration-150 hover:shadow-md"
                 >
-                  {/* Thumbnail / file icon */}
-                  {isImage(att.mimeType) ? (
-                    <button
-                      onClick={() => setPreview((att.signedUrl ?? att.fileUrl))}
-                      className="block h-28 w-full overflow-hidden bg-muted"
-                    >
-                      {/* Supabase signed URL with rotating query string —
-                          next/image's loader would re-cache every refresh
-                          for tiny gain. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={(att.signedUrl ?? att.fileUrl)}
-                        alt={att.fileName}
-                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-                      />
-                    </button>
-                  ) : (
-                    <a
-                      href={(att.signedUrl ?? att.fileUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-28 w-full items-center justify-center bg-muted/50"
-                    >
-                      <FileText className="h-10 w-10 text-muted-foreground/30" />
-                    </a>
-                  )}
+                  {/* Thumbnail / file icon — click opens the universal
+                      lightbox (image/PDF/video/audio/text inline; fallback
+                      "open in new tab" for everything else). */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPreview({
+                        fileName: att.fileName,
+                        mimeType: att.mimeType,
+                        url: att.signedUrl ?? att.fileUrl,
+                      })
+                    }
+                    className="block h-28 w-full overflow-hidden bg-muted"
+                    aria-label={t("common.preview")}
+                  >
+                    {isImage(att.mimeType) ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={att.signedUrl ?? att.fileUrl}
+                          alt={att.fileName}
+                          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        />
+                      </>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted/50">
+                        <FileText className="h-10 w-10 text-muted-foreground/30" />
+                      </div>
+                    )}
+                  </button>
 
                   {/* Info bar */}
                   <div className="px-2 py-1.5">
@@ -413,23 +421,9 @@ export function AttachmentSection({
         </>
       )}
 
-      {/* Image preview modal */}
-      {preview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setPreview(null)}>
-          <button
-            type="button"
-            onClick={() => setPreview(null)}
-            className="absolute top-4 right-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
-            aria-label={t("common.close")}
-          >
-            <X className="h-5 w-5" />
-          </button>
-          {/* Lightbox preview — full-bleed, dimensions intrinsic. next/image
-              would force fixed sizing here. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt={t("common.preview")} className="max-h-[85vh] max-w-[90vw] rounded-lg shadow-2xl" />
-        </div>
-      )}
+      {/* Universal preview lightbox — image / PDF / video / audio / text */}
+      <AttachmentLightbox attachment={preview} onClose={() => setPreview(null)} />
+
 
       <ConfirmDialog
         open={!!deletingAttachment}

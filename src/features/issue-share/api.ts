@@ -19,10 +19,18 @@ export type PublicIssue = {
   type: string;
   priority: string;
   createdAt: string;
+  updatedAt: string;
+  storyPoints?: number | null;
+  startDate?: string | null;
+  dueDate?: string | null;
+  completedAt?: string | null;
   reporter?: { id: string; name: string | null; image: string | null };
   assignee?: { id: string; name: string | null; image: string | null } | null;
   boardColumn?: { id: string; name: string; category: string } | null;
   labels?: { label: { id: string; name: string; color: string } }[];
+  sprint?: { id: string; name: string; status: string } | null;
+  epic?: { id: string; key: string; summary: string } | null;
+  parent?: { id: string; key: string; summary: string } | null;
   comments?: {
     id: string;
     content: string;
@@ -35,6 +43,8 @@ export type PublicIssue = {
     mimeType: string;
     fileSize: number;
     createdAt: string;
+    /** Short-TTL signed URL (5 min). Regenerated on each fetch. */
+    signedUrl: string | null;
   }[];
 };
 

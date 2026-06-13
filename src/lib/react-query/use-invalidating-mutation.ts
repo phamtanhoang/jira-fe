@@ -36,8 +36,17 @@ export function useInvalidatingMutation<TVars, TData>(
   opts: UseInvalidatingMutationOptions<TData> = {},
 ) {
   const queryClient = useQueryClient();
+  // Bundle the primary + extra keys into `meta.broadcastKeys` so the
+  // MutationCache observer in QueryProvider can postMessage them to
+  // other tabs. Without this, cross-tab cache stays stale until
+  // window-focus refetch (which only fires when the user switches tabs).
+  const broadcastKeys: QueryKey[] = [
+    invalidateKey,
+    ...(opts.extraInvalidateKeys ?? []),
+  ];
   return useMutation<TData, unknown, TVars>({
     mutationFn,
+    meta: { broadcastKeys },
     onSuccess: (data) => {
       const msg = opts.successMessage?.(data);
       if (msg) showMessage(msg);

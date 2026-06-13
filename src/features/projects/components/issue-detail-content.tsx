@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import type { QueryKey } from "@tanstack/react-query";
 import { pushRecent } from "@/lib/utils";
+import { useRealtime, type RealtimeEvent } from "@/lib/realtime/use-realtime";
 import {
   Check,
   X,
@@ -99,6 +101,43 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
       issueType: recentIssueType ?? "TASK",
     });
   }, [recentIssueId, recentIssueKey, recentIssueSummary, recentIssueType]);
+
+  // Realtime — subscribe to the per-issue SSE channel so edits made by
+  // another user (or another tab) push the relevant cache keys to
+  // invalidate. The hook auto-reconnects and skips events from the
+  // current user (BE filters by `excludeActorId`).
+  const resolveInvalidations = useCallback(
+    (event: RealtimeEvent): QueryKey[] => {
+      const keys: QueryKey[] = [];
+      if (!recentIssueKey || !recentIssueId) return keys;
+      switch (event.type) {
+        case "issue.updated":
+        case "issue.moved":
+          keys.push(["issue", recentIssueKey]);
+          break;
+        case "comment.added":
+        case "comment.updated":
+        case "comment.deleted":
+          keys.push(["comments", recentIssueId]);
+          keys.push(["activity", recentIssueId]);
+          break;
+        case "attachment.added":
+        case "attachment.deleted":
+          keys.push(["attachments", recentIssueId]);
+          keys.push(["activity", recentIssueId]);
+          break;
+        default:
+          break;
+      }
+      return keys;
+    },
+    [recentIssueId, recentIssueKey],
+  );
+  useRealtime(
+    recentIssueId ? `/events/issue/${recentIssueId}` : null,
+    resolveInvalidations,
+    { enabled: !!recentIssueId },
+  );
 
   function saveSummary() {
     if (issue && summaryDraft.trim() && summaryDraft.trim() !== issue.summary) {

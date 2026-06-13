@@ -11,7 +11,9 @@ import {
   List,
   Zap,
 } from "lucide-react";
+import type { QueryKey } from "@tanstack/react-query";
 import { pushRecent } from "@/lib/utils";
+import { useRealtime, type RealtimeEvent } from "@/lib/realtime/use-realtime";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import {
   useProject,
@@ -95,6 +97,42 @@ export function BoardContainer() {
     useCompleteSprint(projectId);
   const { mutate: updateSprint } = useUpdateSprint(projectId);
   const { mutate: deleteSprint } = useDeleteSprint(projectId);
+
+  // Realtime — subscribe to project channel so any teammate's drag, create,
+  // sprint change, or column edit refreshes the board for everyone within
+  // a second. BE filters by `excludeActorId` so the originating tab doesn't
+  // round-trip back.
+  const resolveProjectEvents = useCallback(
+    (event: RealtimeEvent): QueryKey[] => {
+      const keys: QueryKey[] = [];
+      switch (event.type) {
+        case "issue.moved":
+        case "issue.created":
+        case "issue.deleted":
+        case "issue.updated":
+          keys.push(["board", projectId]);
+          keys.push(["issues", projectId]);
+          break;
+        case "sprint.updated":
+          keys.push(["board", projectId]);
+          keys.push(["sprints", projectId]);
+          keys.push(["issues", projectId]);
+          break;
+        case "board.changed":
+          keys.push(["board", projectId]);
+          break;
+        default:
+          break;
+      }
+      return keys;
+    },
+    [projectId],
+  );
+  useRealtime(
+    projectId ? `/events/project/${projectId}` : null,
+    resolveProjectEvents,
+    { enabled: !!projectId },
+  );
   const { mutate: updateIssue } = useUpdateIssue();
   const { mutate: addColumn } = useAddColumn(projectId);
   const { mutate: updateColumn } = useUpdateColumn(projectId);

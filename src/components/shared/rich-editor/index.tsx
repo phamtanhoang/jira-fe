@@ -65,9 +65,14 @@ export function RichContent({
 
   if (!safeHtml || safeHtml === "<p></p>") return null;
 
+  // `tiptap-prose` mirrors the editor's class so read-only render matches
+  // what the user saw while writing. Tailwind v4 ships no typography
+  // plugin — the previous `prose prose-sm` classes were no-ops and let
+  // headings fall back to browser-default 32px/24px which dwarfed the
+  // 12-13px surrounding UI. See globals.css for the rules.
   return (
     <div
-      className={cn("prose prose-sm dark:prose-invert max-w-none", className)}
+      className={cn("tiptap-prose max-w-none", className)}
       onClick={handleClick}
       dangerouslySetInnerHTML={{ __html: safeHtml }}
     />

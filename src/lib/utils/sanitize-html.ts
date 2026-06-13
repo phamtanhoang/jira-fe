@@ -37,6 +37,10 @@ const ALLOWED_TAGS = [
   "span",
   "a",
   "img",
+  // Tiptap TaskList — keep in sync with BE config.
+  "div",
+  "label",
+  "input",
 ];
 
 const SHARED_ATTRS = [
@@ -45,6 +49,7 @@ const SHARED_ATTRS = [
   "data-id",
   "data-label",
   "data-mention",
+  "data-checked",
   "title",
 ];
 
@@ -54,12 +59,20 @@ const OPTIONS: sanitizeHtml.IOptions = {
     a: ["href", "target", "rel", ...SHARED_ATTRS],
     img: ["src", "alt", ...SHARED_ATTRS],
     span: SHARED_ATTRS,
-    "*": SHARED_ATTRS,
+    input: ["type", "checked", "disabled", ...SHARED_ATTRS],
+    label: ["contenteditable", ...SHARED_ATTRS],
+    li: ["data-checked", ...SHARED_ATTRS],
+    "*": [...SHARED_ATTRS, "style"],
   },
   allowedSchemes: ["http", "https", "mailto", "tel"],
   allowedSchemesAppliedToAttributes: ["href"],
   allowedSchemesByTag: {
     img: ["http", "https", "data"],
+  },
+  allowedStyles: {
+    "*": {
+      "text-align": [/^(left|center|right|justify)$/],
+    },
   },
   disallowedTagsMode: "discard",
   transformTags: {
@@ -67,6 +80,13 @@ const OPTIONS: sanitizeHtml.IOptions = {
       if (attribs.target === "_blank") {
         attribs.rel = "noopener noreferrer";
       }
+      return { tagName, attribs };
+    },
+    input: (tagName, attribs) => {
+      if (attribs.type !== "checkbox") {
+        return { tagName: "", attribs: {} };
+      }
+      attribs.disabled = "disabled";
       return { tagName, attribs };
     },
   },

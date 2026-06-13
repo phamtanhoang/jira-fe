@@ -1,24 +1,41 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent, ReactRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
 import Image from "@tiptap/extension-image";
 import Mention from "@tiptap/extension-mention";
+import Link from "@tiptap/extension-link";
+import Underline from "@tiptap/extension-underline";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import TextAlign from "@tiptap/extension-text-align";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Bold,
-  Italic,
+  Code,
+  Code2,
+  Eraser,
   Heading1,
   Heading2,
   Heading3,
-  Code,
-  List,
-  ListOrdered,
   ImageIcon,
-  Undo,
+  Italic,
+  Link as LinkIcon,
+  List,
+  ListChecks,
+  ListOrdered,
+  Minus,
+  Quote,
   Redo,
+  Strikethrough,
+  Underline as UnderlineIcon,
+  Undo,
+  Unlink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RICH_EDITOR } from "@/lib/constants/ui";
@@ -67,6 +84,8 @@ export default function RichEditor({
 }: RichEditorProps) {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
 
   // Keep a live ref to mentionMembers so the suggestion query reads fresh
   // data even though the editor extensions are configured once at mount.
@@ -81,6 +100,21 @@ export default function RichEditor({
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
       }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        // Reject `javascript:` / `data:` URLs at the Tiptap layer too —
+        // BE sanitization is the source of truth but defense-in-depth.
+        protocols: ["http", "https", "mailto", "tel"],
+        HTMLAttributes: {
+          rel: "noopener noreferrer nofollow",
+          target: "_blank",
+        },
+      }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
       CharacterCount.configure({ limit: RICH_EDITOR.CHAR_LIMIT }),
       Image.configure({ inline: true, allowBase64: true }),
@@ -126,9 +160,13 @@ export default function RichEditor({
     },
     editorProps: {
       attributes: {
+        // `tiptap-prose` is the custom selector defined in globals.css —
+        // gives all editor output the compact, app-aligned typography
+        // that Tailwind v4's missing typography plugin would otherwise
+        // provide. `min-h-` keeps the click target reasonable when empty.
         class: cn(
-          "prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[60px] px-3 py-2",
-          minimal && "min-h-[40px]",
+          "tiptap-prose focus:outline-none px-3 py-2",
+          minimal ? "min-h-[80px]" : "min-h-[120px]",
         ),
       },
       handlePaste: (view, event) => {
@@ -170,6 +208,15 @@ export default function RichEditor({
     },
   });
 
+  // Open the link dialog and prefill with the current link's href when the
+  // selection is already inside one — turns the button into "edit link".
+  const openLinkDialog = useCallback(() => {
+    if (!editor) return;
+    const existing = editor.getAttributes("link").href as string | undefined;
+    setLinkUrl(existing ?? "");
+    setLinkDialogOpen(true);
+  }, [editor]);
+
   if (!editor) return null;
 
   const charCount = editor.storage.characterCount?.characters() ?? 0;
@@ -182,126 +229,237 @@ export default function RichEditor({
         className,
       )}
     >
-      {/* Toolbar */}
+      {/* Toolbar — 2 rows in full mode, 1 row in minimal mode */}
       {editable && (
-        <div className="flex flex-wrap items-center gap-0.5 border-b px-1.5 py-1">
-          <ToolbarButton
-            active={editor.isActive("bold")}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            title="Bold"
-          >
-            <Bold className="h-3.5 w-3.5" />
-          </ToolbarButton>
-          <ToolbarButton
-            active={editor.isActive("italic")}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            title="Italic"
-          >
-            <Italic className="h-3.5 w-3.5" />
-          </ToolbarButton>
+        <div className="border-b">
+          {/* Row 1 — inline formatting + link + clear + undo/redo */}
+          <div className="flex flex-wrap items-center gap-0.5 px-1.5 py-1">
+            <ToolbarButton
+              active={editor.isActive("bold")}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              title="Bold (Ctrl+B)"
+            >
+              <Bold className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("italic")}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              title="Italic (Ctrl+I)"
+            >
+              <Italic className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("underline")}
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              title="Underline (Ctrl+U)"
+            >
+              <UnderlineIcon className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("strike")}
+              onClick={() => editor.chain().focus().toggleStrike().run()}
+              title="Strikethrough"
+            >
+              <Strikethrough className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("code")}
+              onClick={() => editor.chain().focus().toggleCode().run()}
+              title="Inline code"
+            >
+              <Code className="h-3.5 w-3.5" />
+            </ToolbarButton>
 
-          <ToolbarSep />
+            <ToolbarSep />
 
+            <ToolbarButton
+              active={editor.isActive("link")}
+              onClick={openLinkDialog}
+              title="Link (Ctrl+K)"
+            >
+              <LinkIcon className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            {editor.isActive("link") && (
+              <ToolbarButton
+                onClick={() => editor.chain().focus().unsetLink().run()}
+                title="Remove link"
+              >
+                <Unlink className="h-3.5 w-3.5" />
+              </ToolbarButton>
+            )}
+
+            <ToolbarSep />
+
+            <ToolbarButton
+              onClick={() =>
+                editor.chain().focus().unsetAllMarks().clearNodes().run()
+              }
+              title="Clear formatting"
+            >
+              <Eraser className="h-3.5 w-3.5" />
+            </ToolbarButton>
+
+            <div className="ml-auto flex items-center gap-1">
+              <ToolbarButton
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().undo()}
+                title="Undo (Ctrl+Z)"
+              >
+                <Undo className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().redo()}
+                title="Redo (Ctrl+Shift+Z)"
+              >
+                <Redo className="h-3.5 w-3.5" />
+              </ToolbarButton>
+
+              {isNearLimit && (
+                <span
+                  className={cn(
+                    "ml-2 text-[10px] tabular-nums",
+                    charCount >= RICH_EDITOR.CHAR_LIMIT
+                      ? "text-destructive font-medium"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {charCount}/{RICH_EDITOR.CHAR_LIMIT}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2 — block formatting (hidden in minimal mode) */}
           {!minimal && (
-            <>
+            <div className="flex flex-wrap items-center gap-0.5 border-t px-1.5 py-1">
               <ToolbarButton
                 active={editor.isActive("heading", { level: 1 })}
-                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 1 }).run()
+                }
                 title="Heading 1"
               >
                 <Heading1 className="h-3.5 w-3.5" />
               </ToolbarButton>
               <ToolbarButton
                 active={editor.isActive("heading", { level: 2 })}
-                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 2 }).run()
+                }
                 title="Heading 2"
               >
                 <Heading2 className="h-3.5 w-3.5" />
               </ToolbarButton>
               <ToolbarButton
                 active={editor.isActive("heading", { level: 3 })}
-                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 3 }).run()
+                }
                 title="Heading 3"
               >
                 <Heading3 className="h-3.5 w-3.5" />
               </ToolbarButton>
 
               <ToolbarSep />
-            </>
-          )}
 
-          <ToolbarButton
-            active={editor.isActive("codeBlock")}
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            title="Code Block"
-          >
-            <Code className="h-3.5 w-3.5" />
-          </ToolbarButton>
-          <ToolbarButton
-            active={editor.isActive("bulletList")}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            title="Bullet List"
-          >
-            <List className="h-3.5 w-3.5" />
-          </ToolbarButton>
-          <ToolbarButton
-            active={editor.isActive("orderedList")}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            title="Numbered List"
-          >
-            <ListOrdered className="h-3.5 w-3.5" />
-          </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("bulletList")}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                title="Bullet list"
+              >
+                <List className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("orderedList")}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                title="Numbered list"
+              >
+                <ListOrdered className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("taskList")}
+                onClick={() => editor.chain().focus().toggleTaskList().run()}
+                title="Task list"
+              >
+                <ListChecks className="h-3.5 w-3.5" />
+              </ToolbarButton>
 
-          {!minimal && (
-            <>
               <ToolbarSep />
+
+              <ToolbarButton
+                active={editor.isActive("blockquote")}
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                title="Blockquote"
+              >
+                <Quote className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("codeBlock")}
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                title="Code block"
+              >
+                <Code2 className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() =>
+                  editor.chain().focus().setHorizontalRule().run()
+                }
+                title="Horizontal rule"
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </ToolbarButton>
+
+              <ToolbarSep />
+
+              <ToolbarButton
+                active={editor.isActive({ textAlign: "left" })}
+                onClick={() =>
+                  editor.chain().focus().setTextAlign("left").run()
+                }
+                title="Align left"
+              >
+                <AlignLeft className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive({ textAlign: "center" })}
+                onClick={() =>
+                  editor.chain().focus().setTextAlign("center").run()
+                }
+                title="Align center"
+              >
+                <AlignCenter className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive({ textAlign: "right" })}
+                onClick={() =>
+                  editor.chain().focus().setTextAlign("right").run()
+                }
+                title="Align right"
+              >
+                <AlignRight className="h-3.5 w-3.5" />
+              </ToolbarButton>
+
+              <ToolbarSep />
+
               <ToolbarButton
                 onClick={() => {
                   setImageUrl("");
                   setImageDialogOpen(true);
                 }}
-                title="Insert Image"
+                title="Insert image"
               >
                 <ImageIcon className="h-3.5 w-3.5" />
               </ToolbarButton>
-            </>
+            </div>
           )}
-
-          <div className="ml-auto flex items-center gap-1">
-            <ToolbarButton
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().undo()}
-              title="Undo"
-            >
-              <Undo className="h-3.5 w-3.5" />
-            </ToolbarButton>
-            <ToolbarButton
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().redo()}
-              title="Redo"
-            >
-              <Redo className="h-3.5 w-3.5" />
-            </ToolbarButton>
-
-            {isNearLimit && (
-              <span
-                className={cn(
-                  "ml-2 text-[10px] tabular-nums",
-                  charCount >= RICH_EDITOR.CHAR_LIMIT
-                    ? "text-destructive font-medium"
-                    : "text-muted-foreground",
-                )}
-              >
-                {charCount}/{RICH_EDITOR.CHAR_LIMIT}
-              </span>
-            )}
-          </div>
         </div>
       )}
 
       {/* Editor */}
       <EditorContent editor={editor} />
 
+      {/* Image dialog — URL only; paste/drop handled by editorProps */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
@@ -340,21 +498,73 @@ export default function RichEditor({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Link dialog — set or edit href; empty submit unsets */}
+      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {editor.isActive("link") ? "Edit link" : "Insert link"}
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const url = linkUrl.trim();
+              if (!url) {
+                editor.chain().focus().unsetLink().run();
+              } else {
+                editor
+                  .chain()
+                  .focus()
+                  .extendMarkRange("link")
+                  .setLink({ href: url })
+                  .run();
+              }
+              setLinkDialogOpen(false);
+            }}
+            className="space-y-3"
+          >
+            <Input
+              type="url"
+              placeholder="https://..."
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              autoFocus
+            />
+            <DialogFooter>
+              {editor.isActive("link") && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    editor.chain().focus().unsetLink().run();
+                    setLinkDialogOpen(false);
+                  }}
+                >
+                  Remove
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setLinkDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 // Suggestion config factory for the @-mention extension. Reads members from
-// a ref so the editor (which is configured once at mount) sees fresh data
-// when the parent's prop updates. Positions the popup with a fixed-position
-// portal via React's createPortal — no tippy.js dependency.
-//
-// Lifecycle:
-//   onStart  — caret hit `@`, mount popup at clientRect
-//   onUpdate — query changed or members updated, re-render with new items
-//   onKeyDown — forward ↑/↓/Enter to the list (ref's onKeyDown returns true
-//               when the key was handled, so the editor lets it through)
-//   onExit   — caret left the trigger context, unmount popup
+// a ref so the editor (configured once at mount) sees fresh data when the
+// parent's prop updates. Positions the popup with a fixed-position portal
+// via React's createPortal — no tippy.js dependency.
 function makeMentionSuggestion(getMembers: () => MentionItem[]) {
   return {
     items: ({ query }: { query: string }) => {
@@ -472,6 +682,8 @@ function ToolbarButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
+      aria-label={title}
+      aria-pressed={active}
       className={cn(
         "rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30",
         active && "bg-muted text-foreground",
