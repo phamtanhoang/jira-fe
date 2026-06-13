@@ -12,6 +12,19 @@ import {
   Zap,
 } from "lucide-react";
 import type { QueryKey } from "@tanstack/react-query";
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { pushRecent } from "@/lib/utils";
 import { useRealtime, type RealtimeEvent } from "@/lib/realtime/use-realtime";
 import { useAppStore } from "@/lib/stores/use-app-store";
@@ -21,7 +34,6 @@ import {
   useBoard,
   useIssues,
   useMoveIssue,
-  useCreateIssue,
   useCreateSprint,
   useUpdateSprint,
   useDeleteSprint,
@@ -31,6 +43,7 @@ import {
   useAddColumn,
   useUpdateColumn,
   useDeleteColumn,
+  useReorderColumns,
 } from "@/features/projects/hooks";
 import { useWorkspace } from "@/features/workspaces/hooks";
 import { BoardColumn } from "@/features/projects/components/board-column";
@@ -75,6 +88,7 @@ import type {
   BoardColumn as BoardColumnType,
   UserPreview,
 } from "@/features/projects/types";
+import { CreateIssueModal } from "@/features/projects/components/create-issue-dialog";
 import { AddColumnForm } from "./add-column-form";
 import { BoardHeader } from "./board-header";
 
@@ -107,7 +121,7 @@ export function BoardContainer() {
   );
   const { data: allIssues } = useIssues(projectId);
   const { mutate: moveIssue } = useMoveIssue();
-  const { mutate: createIssue } = useCreateIssue();
+  const { mutate: reorderColumns } = useReorderColumns(projectId);
   const { mutate: createSprint, isPending: isCreatingSprint } =
     useCreateSprint(projectId);
   const { mutate: startSprint, isPending: isStartingSprint } =
@@ -152,6 +166,21 @@ export function BoardContainer() {
     resolveProjectEvents,
     { enabled: !!projectId },
   );
+
+  // Centralised create-modal state — shared by board columns' "+ Create"
+  // button AND the Epics tab's "Create Epic" button. Previously each
+  // surface had its own inline create form, which forced users to enter
+  // issues with no review (no priority, no description, no labels). The
+  // modal route lets us reuse the rich create form everywhere.
+  //
+  // `createInColumnId` carries the column the user clicked in. After
+  // BE creation, if the new issue didn't land in that column (BE always
+  // places new issues in the first column today), we follow up with a
+  // moveIssue to honour the user's intent.
+  const [createInColumnId, setCreateInColumnId] = useState<string | null>(
+    null,
+  );
+  const [createEpicOpen, setCreateEpicOpen] = useState(false);
   const { mutate: updateIssue } = useUpdateIssue();
   const { mutate: addColumn } = useAddColumn(projectId);
   const { mutate: updateColumn } = useUpdateColumn(projectId);
@@ -252,12 +281,19 @@ export function BoardContainer() {
     setPreviewKey(key);
   }, []);
 
-  const handleQuickCreate = useCallback(
-    (summary: string) => {
-      createIssue({ projectId, summary });
-    },
-    [createIssue, projectId],
-  );
+  // Opens the rich create modal with the column pre-selected. The
+  // modal already populates priority/type/template/custom-fields —
+  // strictly better UX than the previous inline single-input quick
+  // create which created issues with no review.
+  const handleOpenCreate = useCallback((columnId: string) => {
+    setCreateInColumnId(columnId);
+  }, []);
+
+  // Sprint dialog → modal trigger. Same modal, but defaultSprintId
+  // is honoured because the modal accepts that prop.
+  const handleOpenCreateEpic = useCallback(() => {
+    setCreateEpicOpen(true);
+  }, []);
 
   const handleAddColumn = useCallback(
     (name: string) => {
@@ -283,23 +319,57 @@ export function BoardContainer() {
     [board, updateColumn],
   );
 
+  // dnd-kit sensor with 6px activation so the grip handle doesn't
+  // hijack a regular click on the column's own buttons.
+  const columnDragSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+  );
+
+  const handleColumnDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!board || !over || active.id === over.id) return;
+      const ordered = board.columns.map((c) => c.id);
+      const oldIndex = ordered.indexOf(String(active.id));
+      const newIndex = ordered.indexOf(String(over.id));
+      if (oldIndex === -1 || newIndex === -1) return;
+      const next = arrayMove(ordered, oldIndex, newIndex);
+      reorderColumns({ boardId: board.id, columnIds: next });
+    },
+    [board, reorderColumns],
+  );
+
+  const sortableColumnIds = useMemo(
+    () => filteredColumns.map((c) => c.id),
+    [filteredColumns],
+  );
+
   const columnsView = (
-    <>
-      {filteredColumns.map((column, idx) => (
-        <BoardColumn
-          key={column.id}
-          column={column}
-          prevColumnId={filteredColumns[idx - 1]?.id ?? null}
-          nextColumnId={filteredColumns[idx + 1]?.id ?? null}
-          onMoveIssue={handleMoveIssue}
-          onClickIssue={handleClickIssue}
-          onQuickCreate={handleQuickCreate}
-          onDeleteColumn={handleDeleteColumn}
-          onUpdateWipLimit={handleUpdateWipLimit}
-        />
-      ))}
+    <DndContext
+      sensors={columnDragSensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleColumnDragEnd}
+    >
+      <SortableContext
+        items={sortableColumnIds}
+        strategy={horizontalListSortingStrategy}
+      >
+        {filteredColumns.map((column, idx) => (
+          <BoardColumn
+            key={column.id}
+            column={column}
+            prevColumnId={filteredColumns[idx - 1]?.id ?? null}
+            nextColumnId={filteredColumns[idx + 1]?.id ?? null}
+            onMoveIssue={handleMoveIssue}
+            onClickIssue={handleClickIssue}
+            onOpenCreate={handleOpenCreate}
+            onDeleteColumn={handleDeleteColumn}
+            onUpdateWipLimit={handleUpdateWipLimit}
+          />
+        ))}
+      </SortableContext>
       <AddColumnForm onSubmit={handleAddColumn} />
-    </>
+    </DndContext>
   );
 
   return (
@@ -378,7 +448,11 @@ export function BoardContainer() {
             />
           </TabsContent>
           <TabsContent value="epics" className="flex-1 overflow-auto">
-            <EpicView projectId={projectId} onClickIssue={handleClickIssue} />
+            <EpicView
+              projectId={projectId}
+              onClickIssue={handleClickIssue}
+              onOpenCreateEpic={handleOpenCreateEpic}
+            />
           </TabsContent>
           <TabsContent value="backlog" className="flex-1 overflow-auto">
             <BacklogView
@@ -521,6 +595,36 @@ export function BoardContainer() {
           onClose={() => setPreviewKey(null)}
         />
       )}
+      {/* Shared create modal — opened by both the column "+" button and
+          the Epics tab "Create epic" button. When a column was the
+          trigger, we capture that id so we can move the freshly-created
+          issue if BE didn't already place it there (BE drops new issues
+          into the first column of the active sprint by default). */}
+      <CreateIssueModal
+        projectId={projectId}
+        sprints={board?.sprints ?? []}
+        open={createInColumnId !== null || createEpicOpen}
+        onOpenChange={(next) => {
+          if (!next) {
+            setCreateInColumnId(null);
+            setCreateEpicOpen(false);
+          }
+        }}
+        defaultSprintId={
+          createInColumnId && activeSprint ? activeSprint.id : undefined
+        }
+        defaultType={createEpicOpen ? "EPIC" : undefined}
+        lockType={createEpicOpen}
+        onCreated={(issue) => {
+          if (
+            createInColumnId &&
+            issue.boardColumnId &&
+            issue.boardColumnId !== createInColumnId
+          ) {
+            moveIssue({ id: issue.id, columnId: createInColumnId, position: 0 });
+          }
+        }}
+      />
     </div>
   );
 }

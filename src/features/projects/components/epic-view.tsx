@@ -4,10 +4,9 @@ import { useState, useMemo } from "react";
 import { Zap, Plus, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock } from "lucide-react";
 import { STATUS_BADGE_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useIssues, useCreateIssue } from "../hooks";
+import { useIssues } from "../hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { Issue } from "../types";
 
 type EpicFilter = "all" | "open" | "done";
@@ -15,16 +14,18 @@ type EpicFilter = "all" | "open" | "done";
 export function EpicView({
   projectId,
   onClickIssue,
+  onOpenCreateEpic,
 }: {
   projectId: string;
   onClickIssue: (key: string) => void;
+  /** Open the shared create modal pre-locked to type EPIC. Replaces
+   *  the former inline name-only form so users can attach a description,
+   *  priority, labels, and sprint to the epic during creation. */
+  onOpenCreateEpic?: () => void;
 }) {
   const { t } = useAppStore();
   const { data: allIssues } = useIssues(projectId);
-  const { mutate: createIssue, isPending } = useCreateIssue();
   const [filter, setFilter] = useState<EpicFilter>("all");
-  const [showCreate, setShowCreate] = useState(false);
-  const [newEpicName, setNewEpicName] = useState("");
 
   const { epics, childrenByEpic } = useMemo(() => {
     if (!allIssues) return { epics: [], childrenByEpic: new Map<string, Issue[]>() };
@@ -54,15 +55,6 @@ export function EpicView({
     });
   }, [epics, childrenByEpic, filter]);
 
-  function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newEpicName.trim()) return;
-    createIssue(
-      { projectId, summary: newEpicName.trim(), type: "EPIC" },
-      { onSuccess: () => { setNewEpicName(""); setShowCreate(false); } },
-    );
-  }
-
   return (
     <div className="p-5">
       {/* Header */}
@@ -83,30 +75,13 @@ export function EpicView({
             </button>
           ))}
         </div>
-        <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          {t("issue.createEpic")}
-        </Button>
+        {onOpenCreateEpic && (
+          <Button size="sm" onClick={onOpenCreateEpic}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            {t("issue.createEpic")}
+          </Button>
+        )}
       </div>
-
-      {/* Create form */}
-      {showCreate && (
-        <form onSubmit={handleCreate} className="mb-4 flex gap-2">
-          <Input
-            value={newEpicName}
-            onChange={(e) => setNewEpicName(e.target.value)}
-            placeholder={t("issue.epicNamePlaceholder")}
-            className="h-9 text-[13px]"
-            autoFocus
-          />
-          <Button size="sm" type="submit" disabled={isPending || !newEpicName.trim()}>
-            {t("common.create")}
-          </Button>
-          <Button size="sm" variant="ghost" type="button" onClick={() => setShowCreate(false)}>
-            {t("common.cancel")}
-          </Button>
-        </form>
-      )}
 
       {/* Epic list */}
       {filteredEpics.length === 0 ? (

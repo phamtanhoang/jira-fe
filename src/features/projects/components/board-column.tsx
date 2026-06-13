@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, MoreHorizontal, Trash2, Gauge } from "lucide-react";
+import { Plus, MoreHorizontal, Trash2, Gauge, GripVertical } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { STATUS_DOT_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
@@ -23,7 +25,7 @@ export function BoardColumn({
   nextColumnId = null,
   onMoveIssue,
   onClickIssue,
-  onQuickCreate,
+  onOpenCreate,
   onDeleteColumn,
   onUpdateWipLimit,
 }: {
@@ -34,17 +36,38 @@ export function BoardColumn({
   nextColumnId?: string | null;
   onMoveIssue: (issueId: string, columnId: string) => void;
   onClickIssue: (issueKey: string) => void;
-  onQuickCreate?: (summary: string, columnId: string) => void;
+  /** Open the shared create modal pre-bound to this column. Replaces the
+   *  former inline single-input form — modal flow lets users review
+   *  priority, description, labels, custom fields before submit. */
+  onOpenCreate?: (columnId: string) => void;
   onDeleteColumn?: (columnId: string) => void;
   onUpdateWipLimit?: (columnId: string, wipLimit: number | null) => void;
 }) {
   const { t } = useAppStore();
   const [dragOver, setDragOver] = useState(false);
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
-  const [quickSummary, setQuickSummary] = useState("");
   const [editingWip, setEditingWip] = useState(false);
   const [wipValue, setWipValue] = useState(column.wipLimit?.toString() ?? "");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  // Column reorder via @dnd-kit. We deliberately bind the activator
+  // (drag handle) to a small grip icon in the header so the rest of the
+  // column body is free to receive native HTML5 dragover/drop events
+  // for moving issue cards between columns. Mixing both DnD systems on
+  // the same element causes pointer-event stealing.
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: column.id });
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+  } as React.CSSProperties;
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
@@ -63,16 +86,11 @@ export function BoardColumn({
     if (issueId) onMoveIssue(issueId, column.id);
   }
 
-  function handleQuickCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!quickSummary.trim() || !onQuickCreate) return;
-    onQuickCreate(quickSummary.trim(), column.id);
-    setQuickSummary("");
-    setShowQuickCreate(false);
-  }
-
   return (
     <div
+      ref={setNodeRef}
+      style={sortableStyle}
+      {...attributes}
       className={`flex w-full shrink-0 flex-col rounded-lg transition-all duration-200 sm:h-full sm:w-68 ${
         dragOver
           ? "bg-primary/8 ring-2 ring-primary/30 scale-[1.02] shadow-lg dark:bg-primary/10"
@@ -84,6 +102,14 @@ export function BoardColumn({
     >
       {/* Header */}
       <div className="flex items-center gap-2 px-2 py-2.5">
+        <button
+          ref={setActivatorNodeRef}
+          {...listeners}
+          aria-label={t("project.columns.dragHandle")}
+          className="cursor-grab touch-none rounded p-0.5 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </button>
         <div
           className={`h-2 w-2 rounded-full ${STATUS_DOT_COLORS[column.category] ?? "bg-gray-400"}`}
         />
@@ -100,9 +126,9 @@ export function BoardColumn({
         )}
 
         <div className="ml-auto flex items-center gap-0.5">
-          {onQuickCreate && (
+          {onOpenCreate && (
             <button
-              onClick={() => setShowQuickCreate(true)}
+              onClick={() => onOpenCreate(column.id)}
               aria-label={t("board.quickCreateIssue")}
               className="rounded p-1 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
             >
@@ -205,32 +231,19 @@ export function BoardColumn({
           ))}
         </AnimatePresence>
 
-        {/* Quick create */}
-        {showQuickCreate && onQuickCreate ? (
-          <form onSubmit={handleQuickCreate} className="p-1">
-            <Input
-              placeholder={t("board.quickCreatePlaceholder")}
-              value={quickSummary}
-              onChange={(e) => setQuickSummary(e.target.value)}
-              onBlur={() => {
-                if (!quickSummary.trim()) setShowQuickCreate(false);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") setShowQuickCreate(false);
-              }}
-              className="h-8 text-[12px]"
-              autoFocus
-            />
-          </form>
-        ) : onQuickCreate ? (
+        {/* Create-issue trigger — opens the shared modal pre-bound to
+            this column. The legacy inline single-input form was removed
+            in favour of the modal so users always see priority, labels,
+            description, and custom-field requirements before submit. */}
+        {onOpenCreate && (
           <button
-            onClick={() => setShowQuickCreate(true)}
+            onClick={() => onOpenCreate(column.id)}
             className="flex w-full items-center gap-1.5 rounded-sm p-2 text-[12px] text-muted-foreground/70 transition-colors hover:bg-muted/60 hover:text-foreground"
           >
             <Plus className="h-3 w-3" />
             {t("board.createIssue")}
           </button>
-        ) : null}
+        )}
       </div>
 
       <ConfirmDialog

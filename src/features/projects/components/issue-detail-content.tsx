@@ -72,7 +72,35 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
   const [summaryDraft, setSummaryDraft] = useState("");
   const [editingDesc, setEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState("");
-  const [sidebarWidth, setSidebarWidth] = useState(modal ? 280 : 320);
+  // Sidebar width — persisted across reloads via localStorage so a user
+  // who drags wider once doesn't have to redo it every time. Default is
+  // 1/3 of the body's width (main 2/3 / sidebar 1/3 = Jira's default
+  // layout). Stored as a pixel value because computing from a ratio at
+  // each window resize would jump the column under the user's mouse.
+  //
+  // Two distinct keys for modal vs standalone — the modal sits in a
+  // narrower dialog, so its "1/3" is much smaller in pixels.
+  const sidebarStorageKey = modal
+    ? "issue-detail-sidebar-modal"
+    : "issue-detail-sidebar";
+  const SIDEBAR_MIN = 260;
+  const SIDEBAR_MAX = 720;
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    if (typeof window === "undefined") return modal ? 320 : 420;
+    const stored = window.localStorage.getItem(sidebarStorageKey);
+    if (stored) {
+      const n = parseInt(stored, 10);
+      if (Number.isFinite(n) && n >= SIDEBAR_MIN && n <= SIDEBAR_MAX) return n;
+    }
+    // First-visit default: ~1/3 of viewport width, clamped.
+    const ratio = Math.round(window.innerWidth / 3);
+    return Math.max(
+      modal ? 300 : 360,
+      Math.min(modal ? 480 : 600, ratio),
+    );
+  });
+  // Persist on every drag end. We do it in the mouseup handler below
+  // rather than on every move to avoid a localStorage write per frame.
   const [shareOpen, setShareOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   // Tab persisted to `?issueTab=` (not `?tab=`) so it doesn't collide
@@ -436,24 +464,65 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
         </div>
       </div>
 
-      {/* Resize handle */}
+      {/* Resize handle — drag to widen / narrow the sidebar. Persists
+          the final width to localStorage on mouseup so refresh / next
+          issue navigation keeps the user's preference. Limits SIDEBAR_MIN
+          / SIDEBAR_MAX prevent the sidebar from disappearing or eating
+          the description column. */}
       <div
         className="group/resize relative w-1.5 shrink-0 cursor-col-resize"
         onMouseDown={(e) => {
           e.preventDefault();
           const startX = e.clientX;
           const startWidth = sidebarWidth;
+          // Prevent text selection during the drag — without this, dragging
+          // over editable regions highlights random text.
+          const prevUserSelect = document.body.style.userSelect;
+          document.body.style.userSelect = "none";
+          let lastWidth = startWidth;
           function onMove(ev: MouseEvent) {
             const delta = startX - ev.clientX;
-            setSidebarWidth(Math.max(240, Math.min(500, startWidth + delta)));
+            const next = Math.max(
+              SIDEBAR_MIN,
+              Math.min(SIDEBAR_MAX, startWidth + delta),
+            );
+            lastWidth = next;
+            setSidebarWidth(next);
           }
           function onUp() {
             document.removeEventListener("mousemove", onMove);
             document.removeEventListener("mouseup", onUp);
+            document.body.style.userSelect = prevUserSelect;
+            try {
+              window.localStorage.setItem(
+                sidebarStorageKey,
+                String(lastWidth),
+              );
+            } catch {
+              // localStorage can throw in private-mode browsers — width is
+              // still applied for the current session, just not persisted.
+            }
           }
           document.addEventListener("mousemove", onMove);
           document.addEventListener("mouseup", onUp);
         }}
+        onDoubleClick={() => {
+          // Double-click resets to default 1/3 — handy when the user
+          // wants the original layout back without remembering pixels.
+          if (typeof window === "undefined") return;
+          const ratio = Math.round(window.innerWidth / 3);
+          const next = Math.max(
+            modal ? 300 : 360,
+            Math.min(modal ? 480 : 600, ratio),
+          );
+          setSidebarWidth(next);
+          try {
+            window.localStorage.removeItem(sidebarStorageKey);
+          } catch {
+            // ignore
+          }
+        }}
+        title="Drag to resize · Double-click to reset"
       >
         <div className="mx-auto h-full w-px bg-border transition-colors group-hover/resize:w-0.5 group-hover/resize:bg-primary/40 group-active/resize:bg-primary/60" />
       </div>

@@ -193,6 +193,11 @@ export type CreateIssuePayload = {
   sprintId?: string;
   epicId?: string;
   storyPoints?: number;
+  dueDate?: string;
+  /** Map of customFieldId -> value. Values mirror the per-type shape used
+   *  on the issue update DTO (string for TEXT/SELECT, number for NUMBER,
+   *  ISO date for DATE, string[] for MULTI_SELECT). */
+  customFields?: Record<string, unknown>;
 };
 
 export type MoveIssuePayload = {
