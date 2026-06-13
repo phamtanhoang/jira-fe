@@ -225,15 +225,18 @@ function AddLinkRow({
   const seqRef = useRef(0);
 
   // Real debounce — clears the previous timer on every keystroke and
-  // only fires the network call after typing pauses.
+  // only fires the network call (or result-clear) after typing pauses.
+  // All `setState` lives inside the `setTimeout` callback so React's
+  // "no synchronous setState in an effect body" rule is honoured.
   useEffect(() => {
     const trimmed = search.trim();
-    if (trimmed.length < 2) {
-      setResults([]);
-      return;
-    }
-    setSearching(true);
     const timer = setTimeout(() => {
+      if (trimmed.length < 2) {
+        setResults([]);
+        setSearching(false);
+        return;
+      }
+      setSearching(true);
       const mySeq = ++seqRef.current;
       issuesApi
         .list(projectId, { search: trimmed })
