@@ -213,7 +213,7 @@ function CreateIssueForm({
                 value={templateId}
                 onValueChange={(v) => typeof v === "string" && applyTemplate(v)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   {/* Custom-rendered value — show the template *name*,
                       never the raw id. With the default <SelectValue>
                       Radix rendered the value attribute (UUID) for the
@@ -249,7 +249,7 @@ function CreateIssueForm({
                   value={type}
                   onValueChange={(v) => v && setType(v as Issue["type"])}
                 >
-                  <SelectTrigger>{t(`issue.types.${type}` as `issue.types.TASK`)}</SelectTrigger>
+                  <SelectTrigger className="w-full">{t(`issue.types.${type}` as `issue.types.TASK`)}</SelectTrigger>
                   <SelectContent>
                     {TYPE_OPTIONS.map((tt) => (
                       <SelectItem key={tt} value={tt}>
@@ -268,7 +268,7 @@ function CreateIssueForm({
                 value={priority}
                 onValueChange={(v) => v && setPriority(v as Issue["priority"])}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   {t(`issue.priorities.${priority}` as `issue.priorities.HIGH`)}
                 </SelectTrigger>
                 <SelectContent>
@@ -313,7 +313,6 @@ function CreateIssueForm({
             <RichEditor
               content={description}
               onChange={setDescription}
-              minimal
               placeholder={t("issue.descPlaceholder")}
             />
           </div>
@@ -331,7 +330,7 @@ function CreateIssueForm({
                     setSprintId(v === NO_SPRINT ? "" : (v ?? ""))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     {/* Custom-rendered value (see template Select). */}
                     {sprintId
                       ? (availableSprints.find((s) => s.id === sprintId)

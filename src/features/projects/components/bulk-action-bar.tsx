@@ -31,31 +31,74 @@ export function BulkActionBar({
   onClear: () => void;
 }) {
   const { t } = useAppStore();
-  const { mutate: bulkUpdate, isPending: updating } = useBulkUpdateIssues(projectId);
-  const { mutate: bulkDelete, isPending: deleting } = useBulkDeleteIssues(projectId);
+  const { mutate: bulkUpdate, isPending: updating } =
+    useBulkUpdateIssues(projectId);
+  const { mutate: bulkDelete, isPending: deleting } =
+    useBulkDeleteIssues(projectId);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const count = selectedIds.size;
 
+  // base-ui Select is uncontrolled here — it remembers the last picked
+  // value internally. That means a repeat pick of the SAME value (e.g.
+  // "move both issues to Sprint A" twice in a row) fires no
+  // onValueChange, and the user thinks the bar is broken. We bump a
+  // per-control key after each successful pick so the next render
+  // remounts the Select with a fresh empty internal state — every pick
+  // then registers as a "change".
+  const [sprintKey, setSprintKey] = useState(0);
+  const [assigneeKey, setAssigneeKey] = useState(0);
+  const [priorityKey, setPriorityKey] = useState(0);
+
+  const count = selectedIds.size;
   if (count === 0) return null;
 
   const ids = Array.from(selectedIds);
 
   function handleMoveSprint(sprintId: string | null) {
-    bulkUpdate({ issueIds: ids, sprintId }, { onSuccess: onClear });
+    bulkUpdate(
+      { issueIds: ids, sprintId },
+      {
+        onSuccess: () => {
+          setSprintKey((k) => k + 1);
+          onClear();
+        },
+      },
+    );
   }
 
   function handleAssign(assigneeId: string | null) {
-    bulkUpdate({ issueIds: ids, assigneeId }, { onSuccess: onClear });
+    bulkUpdate(
+      { issueIds: ids, assigneeId },
+      {
+        onSuccess: () => {
+          setAssigneeKey((k) => k + 1);
+          onClear();
+        },
+      },
+    );
   }
 
   function handlePriority(priority: string) {
-    bulkUpdate({ issueIds: ids, priority }, { onSuccess: onClear });
+    bulkUpdate(
+      { issueIds: ids, priority },
+      {
+        onSuccess: () => {
+          setPriorityKey((k) => k + 1);
+          onClear();
+        },
+      },
+    );
   }
 
   function confirmDelete() {
     bulkDelete(ids, { onSuccess: onClear });
     setDeleteOpen(false);
   }
+
+  // Disable the trigger Selects while a mutation is in flight — base-ui
+  // would otherwise let the user open another menu and dispatch a second
+  // bulkUpdate before the first invalidation completes, racing the
+  // selection-clear and producing visually-stale state.
+  const busy = updating || deleting;
 
   return (
     <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-xl border bg-popover px-4 py-2.5 shadow-2xl dark:shadow-none">
@@ -64,8 +107,12 @@ export function BulkActionBar({
         <span className="flex h-6 min-w-6 items-center justify-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
           {count}
         </span>
-        <span className="text-[12px] font-medium">{t("common.selected") || "selected"}</span>
-        <button onClick={onClear} className="rounded p-0.5 text-muted-foreground hover:text-foreground">
+        <span className="text-[12px] font-medium">{t("common.selected")}</span>
+        <button
+          onClick={onClear}
+          className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+          aria-label={t("common.clear")}
+        >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -73,21 +120,39 @@ export function BulkActionBar({
       <div className="h-5 w-px bg-border" />
 
       {/* Move to sprint */}
-      <Select onValueChange={(v) => handleMoveSprint(v === "__backlog__" ? null : v as string)}>
+      <Select
+        key={`sprint-${sprintKey}`}
+        disabled={busy}
+        onValueChange={(v) => {
+          if (typeof v !== "string") return;
+          handleMoveSprint(v === "__backlog__" ? null : v);
+        }}
+      >
         <SelectTrigger className="h-7 w-auto gap-1.5 text-[11px]">
           <Zap className="h-3 w-3" />
           {t("issue.sprint")}
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="__backlog__">{t("issue.backlogStatus")}</SelectItem>
-          {sprints.map((s) => (
-            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-          ))}
+          {sprints
+            .filter((s) => s.status === "ACTIVE" || s.status === "PLANNING")
+            .map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                {s.name}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
 
       {/* Assign */}
-      <Select onValueChange={(v) => handleAssign(v === "__none__" ? null : v as string)}>
+      <Select
+        key={`assignee-${assigneeKey}`}
+        disabled={busy}
+        onValueChange={(v) => {
+          if (typeof v !== "string") return;
+          handleAssign(v === "__none__" ? null : v);
+        }}
+      >
         <SelectTrigger className="h-7 w-auto gap-1.5 text-[11px]">
           <UserPlus className="h-3 w-3" />
           {t("issue.assignee")}
@@ -95,20 +160,31 @@ export function BulkActionBar({
         <SelectContent>
           <SelectItem value="__none__">{t("issue.unassigned")}</SelectItem>
           {members.map((m) => (
-            <SelectItem key={m.id} value={m.id}>{m.name || m.email}</SelectItem>
+            <SelectItem key={m.id} value={m.id}>
+              {m.name || m.email}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
       {/* Priority */}
-      <Select onValueChange={(v) => handlePriority(v as string)}>
+      <Select
+        key={`priority-${priorityKey}`}
+        disabled={busy}
+        onValueChange={(v) => {
+          if (typeof v !== "string") return;
+          handlePriority(v);
+        }}
+      >
         <SelectTrigger className="h-7 w-auto gap-1.5 text-[11px]">
           <ArrowUp className="h-3 w-3" />
           {t("issue.priority")}
         </SelectTrigger>
         <SelectContent>
           {PRIORITIES.map((p) => (
-            <SelectItem key={p} value={p}>{t(`issue.priorities.${p}` as MessageKey)}</SelectItem>
+            <SelectItem key={p} value={p}>
+              {t(`issue.priorities.${p}` as MessageKey)}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -120,9 +196,13 @@ export function BulkActionBar({
         size="xs"
         variant="destructive"
         onClick={() => setDeleteOpen(true)}
-        disabled={deleting}
+        disabled={busy}
       >
-        {deleting ? <Spinner className="mr-1 h-3 w-3" /> : <Trash2 className="mr-1 h-3 w-3" />}
+        {deleting ? (
+          <Spinner className="mr-1 h-3 w-3" />
+        ) : (
+          <Trash2 className="mr-1 h-3 w-3" />
+        )}
         {t("common.delete")}
       </Button>
 

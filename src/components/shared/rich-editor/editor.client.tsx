@@ -13,12 +13,19 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import TextAlign from "@tiptap/extension-text-align";
 import {
+  Table,
+  TableRow,
+  TableCell,
+  TableHeader,
+} from "@tiptap/extension-table";
+import {
   AlignCenter,
   AlignLeft,
   AlignRight,
   Bold,
   Code,
   Code2,
+  Columns3,
   Eraser,
   Heading1,
   Heading2,
@@ -30,9 +37,13 @@ import {
   ListChecks,
   ListOrdered,
   Minus,
+  Pilcrow,
   Quote,
   Redo,
+  Rows3,
   Strikethrough,
+  Table as TableIcon,
+  Trash2,
   Underline as UnderlineIcon,
   Undo,
   Unlink,
@@ -118,6 +129,13 @@ export default function RichEditor({
       Placeholder.configure({ placeholder }),
       CharacterCount.configure({ limit: RICH_EDITOR.CHAR_LIMIT }),
       Image.configure({ inline: true, allowBase64: true }),
+      // Tables — basic 3×3 insert with resizable columns. The four
+      // extensions ship as siblings; Table is the parent + must list
+      // the cell/row/header extensions in `resizable: true` mode.
+      Table.configure({ resizable: true, HTMLAttributes: { class: "tiptap-table" } }),
+      TableRow,
+      TableHeader,
+      TableCell,
       // Mention extension only when caller wires `mentionMembers`. The
       // extension matches the BE parser's expected markup —
       // `<span data-mention data-id="UUID">@Name</span>` — so triggers fire
@@ -208,6 +226,27 @@ export default function RichEditor({
     },
   });
 
+  // Keep the editor's document in sync with the `content` prop *when the
+  // parent intentionally resets or fills it from outside* (template apply,
+  // comment-clear-after-submit, form reset). Tiptap's `useEditor({ content })`
+  // only reads `content` at mount; without this effect, a parent
+  // `setDescription(tpl.descriptionHtml)` had no visible effect — that was
+  // the root cause behind both "template description doesn't fill" and
+  // "comment box doesn't clear after submit".
+  //
+  // The guard is critical: we MUST NOT call setContent on every keystroke,
+  // or the cursor jumps to the end and arbitrary deletions feel broken.
+  // The check `current === content` already short-circuits the typical
+  // typing path because the parent state is downstream of `onUpdate`. The
+  // `emitUpdate: false` opt prevents an `onUpdate` echo when we DO sync,
+  // so the parent never sees a fake "user edit" event.
+  useEffect(() => {
+    if (!editor) return;
+    const current = editor.getHTML();
+    if (current === content) return;
+    editor.commands.setContent(content || "", { emitUpdate: false });
+  }, [editor, content]);
+
   // Open the link dialog and prefill with the current link's href when the
   // selection is already inside one — turns the button into "edit link".
   const openLinkDialog = useCallback(() => {
@@ -229,11 +268,21 @@ export default function RichEditor({
         className,
       )}
     >
-      {/* Toolbar — 2 rows in full mode, 1 row in minimal mode */}
+      {/* Toolbar — same actions in both modes, with `minimal` hiding only
+          the advanced row (headings + table + alignment). Comments still
+          get lists, task-list, code block, link, image and quote so the
+          UX is consistent across the app. */}
       {editable && (
         <div className="border-b">
-          {/* Row 1 — inline formatting + link + clear + undo/redo */}
+          {/* Row 1 — inline formatting + block essentials + clear + undo/redo */}
           <div className="flex flex-wrap items-center gap-0.5 px-1.5 py-1">
+            <ToolbarButton
+              active={editor.isActive("paragraph")}
+              onClick={() => editor.chain().focus().setParagraph().run()}
+              title="Paragraph"
+            >
+              <Pilcrow className="h-3.5 w-3.5" />
+            </ToolbarButton>
             <ToolbarButton
               active={editor.isActive("bold")}
               onClick={() => editor.chain().focus().toggleBold().run()}
@@ -273,6 +322,47 @@ export default function RichEditor({
             <ToolbarSep />
 
             <ToolbarButton
+              active={editor.isActive("bulletList")}
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              title="Bullet list"
+            >
+              <List className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("orderedList")}
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              title="Numbered list"
+            >
+              <ListOrdered className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("taskList")}
+              onClick={() => editor.chain().focus().toggleTaskList().run()}
+              title="Checklist / task list"
+            >
+              <ListChecks className="h-3.5 w-3.5" />
+            </ToolbarButton>
+
+            <ToolbarSep />
+
+            <ToolbarButton
+              active={editor.isActive("blockquote")}
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              title="Blockquote"
+            >
+              <Quote className="h-3.5 w-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("codeBlock")}
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+              title="Code block"
+            >
+              <Code2 className="h-3.5 w-3.5" />
+            </ToolbarButton>
+
+            <ToolbarSep />
+
+            <ToolbarButton
               active={editor.isActive("link")}
               onClick={openLinkDialog}
               title="Link (Ctrl+K)"
@@ -287,6 +377,15 @@ export default function RichEditor({
                 <Unlink className="h-3.5 w-3.5" />
               </ToolbarButton>
             )}
+            <ToolbarButton
+              onClick={() => {
+                setImageUrl("");
+                setImageDialogOpen(true);
+              }}
+              title="Insert image"
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+            </ToolbarButton>
 
             <ToolbarSep />
 
@@ -330,7 +429,9 @@ export default function RichEditor({
             </div>
           </div>
 
-          {/* Row 2 — block formatting (hidden in minimal mode) */}
+          {/* Row 2 — advanced: headings, alignment, table, horizontal
+              rule. Hidden in minimal mode (comments) where these would
+              feel out of place. */}
           {!minimal && (
             <div className="flex flex-wrap items-center gap-0.5 border-t px-1.5 py-1">
               <ToolbarButton
@@ -359,55 +460,6 @@ export default function RichEditor({
                 title="Heading 3"
               >
                 <Heading3 className="h-3.5 w-3.5" />
-              </ToolbarButton>
-
-              <ToolbarSep />
-
-              <ToolbarButton
-                active={editor.isActive("bulletList")}
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                title="Bullet list"
-              >
-                <List className="h-3.5 w-3.5" />
-              </ToolbarButton>
-              <ToolbarButton
-                active={editor.isActive("orderedList")}
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                title="Numbered list"
-              >
-                <ListOrdered className="h-3.5 w-3.5" />
-              </ToolbarButton>
-              <ToolbarButton
-                active={editor.isActive("taskList")}
-                onClick={() => editor.chain().focus().toggleTaskList().run()}
-                title="Task list"
-              >
-                <ListChecks className="h-3.5 w-3.5" />
-              </ToolbarButton>
-
-              <ToolbarSep />
-
-              <ToolbarButton
-                active={editor.isActive("blockquote")}
-                onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                title="Blockquote"
-              >
-                <Quote className="h-3.5 w-3.5" />
-              </ToolbarButton>
-              <ToolbarButton
-                active={editor.isActive("codeBlock")}
-                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                title="Code block"
-              >
-                <Code2 className="h-3.5 w-3.5" />
-              </ToolbarButton>
-              <ToolbarButton
-                onClick={() =>
-                  editor.chain().focus().setHorizontalRule().run()
-                }
-                title="Horizontal rule"
-              >
-                <Minus className="h-3.5 w-3.5" />
               </ToolbarButton>
 
               <ToolbarSep />
@@ -443,13 +495,52 @@ export default function RichEditor({
               <ToolbarSep />
 
               <ToolbarButton
-                onClick={() => {
-                  setImageUrl("");
-                  setImageDialogOpen(true);
-                }}
-                title="Insert image"
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                    .run()
+                }
+                title="Insert table"
               >
-                <ImageIcon className="h-3.5 w-3.5" />
+                <TableIcon className="h-3.5 w-3.5" />
+              </ToolbarButton>
+              {/* Contextual table actions — only shown while the cursor is
+                  inside a table cell. Hiding them otherwise avoids a row
+                  of dead buttons on first render. */}
+              {editor.isActive("table") && (
+                <>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().addRowAfter().run()}
+                    title="Add row"
+                  >
+                    <Rows3 className="h-3.5 w-3.5" />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().addColumnAfter().run()}
+                    title="Add column"
+                  >
+                    <Columns3 className="h-3.5 w-3.5" />
+                  </ToolbarButton>
+                  <ToolbarButton
+                    onClick={() => editor.chain().focus().deleteTable().run()}
+                    title="Delete table"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </ToolbarButton>
+                </>
+              )}
+
+              <ToolbarSep />
+
+              <ToolbarButton
+                onClick={() =>
+                  editor.chain().focus().setHorizontalRule().run()
+                }
+                title="Horizontal rule"
+              >
+                <Minus className="h-3.5 w-3.5" />
               </ToolbarButton>
             </div>
           )}
