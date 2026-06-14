@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "편집",
+    "create": "생성",
+    "creating": "생성 중…",
+    "search": "검색",
+    "loading": "로딩 중…",
+    "noResults": "결과 없음",
+    "clear": "지우기",
+    "required": "필수",
+    "select": "선택",
+    "recent": "최근"
+  },
+  "nav": {
+    "dashboard": "대시보드",
+    "workspaces": "워크스페이스",
+    "settings": "설정",
+    "logout": "로그아웃"
+  }
+}

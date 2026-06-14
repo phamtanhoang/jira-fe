@@ -54,7 +54,7 @@ src/
 │   ├── logging/                # breadcrumbs.ts (ring buffer 50), report.ts (bare axios → /logs/client + Sentry), types.ts
 │   ├── stores/                 # Zustand: SettingsSlice + LocaleSlice
 │   └── utils/                  # cn(), getInitials(), formatDate/Short/Time(), toggleArrayItem(), showMessage(), handleApiError()
-├── messages/                   # vi.json + en.json — 30+ admin.logs.* keys added for admin logs UI
+├── messages/                   # en.json + vi.json (tier-1 strict parity) + ja/ko/zh/fr.json (tier-2, fall back to en via t())
 └── middleware.ts               # Checks COOKIE_AUTH cookie → redirect public↔protected routes
 ```
 
@@ -89,7 +89,7 @@ Both no-op when `NEXT_PUBLIC_SENTRY_DSN` is missing OR when `NODE_ENV !== "produ
 - Layout folders: NEVER cross-import between auth-layout and main-layout
 - Shared constants: ALWAYS import TYPE_CONFIG, PRIORITY_CONFIG, AVATAR_GRADIENT from @/lib/constants/issue-config — NEVER redefine locally
 - Shared utils: ALWAYS use getInitials() — NEVER write charAt(0).toUpperCase() inline
-- i18n: EVERY new key must exist in BOTH vi.json AND en.json
+- i18n: 6 locales supported (en, vi, ja, ko, zh, fr). Tier-1 strict parity = en + vi (both REQUIRED for every key). Tier-2 partial = ja/ko/zh/fr (missing keys auto-fall-back to en via `t()`). See `.claude/rules/no-hardcode.md` for the full rule
 - App name: NEVER hardcode "Jira Clone" or any app name — always from store/settings
 - Cookie: ALWAYS use COOKIE_AUTH constant — NEVER hardcode "is_authenticated"
 - Dark mode: ALWAYS add `dark:` variant when using hardcoded bg colors (bg-blue-50 → dark:bg-blue-950)

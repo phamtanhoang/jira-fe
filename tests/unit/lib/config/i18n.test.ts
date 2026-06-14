@@ -5,13 +5,48 @@
 import { t, getMessages, locales, defaultLocale } from "@/lib/config/i18n";
 
 describe("locales config", () => {
-  it("exposes en and vi locales", () => {
+  it("exposes the 6 supported locales", () => {
+    // Tier-1 (strict parity)
     expect(locales).toContain("en");
     expect(locales).toContain("vi");
+    // Tier-2 (partial — fall back to en for missing keys)
+    expect(locales).toContain("ja");
+    expect(locales).toContain("ko");
+    expect(locales).toContain("zh");
+    expect(locales).toContain("fr");
   });
 
   it("defaults to en", () => {
     expect(defaultLocale).toBe("en");
+  });
+});
+
+describe("t() — English fallback for partial locales", () => {
+  // The partial locales (ja/ko/zh/fr) deliberately ship with most keys
+  // unset. The runtime contract is: `t(partialLocale, key)` returns the
+  // English translation rather than the raw dotted key path.
+  it("returns English value when key is missing in ja", () => {
+    // `issue.createIssue` exists in en + vi but NOT in ja.json (which
+    // only ships `common.*` + `nav.*`). Asserting the English value
+    // pins the fallback path.
+    const enValue = t("en", "issue.createIssue");
+    const jaValue = t("ja", "issue.createIssue");
+    expect(jaValue).toBe(enValue);
+  });
+
+  it("returns the locale's own value when defined (no over-fallback)", () => {
+    // `common.save` is defined in ja.json → ja must NOT fall back.
+    const jaSave = t("ja", "common.save");
+    const enSave = t("en", "common.save");
+    expect(jaSave).not.toBe(enSave);
+    expect(jaSave).toBe("保存");
+  });
+
+  it("returns the key path only when ALL locales miss (defensive)", () => {
+    // @ts-expect-error — testing runtime fallback for unknown key
+    expect(t("fr", "nonexistent.totally.fake")).toBe(
+      "nonexistent.totally.fake",
+    );
   });
 });
 

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "creating": "Création…",
+    "search": "Rechercher",
+    "loading": "Chargement…",
+    "noResults": "Aucun résultat",
+    "clear": "Effacer",
+    "required": "Requis",
+    "select": "Sélectionner",
+    "recent": "Récent"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "workspaces": "Espaces de travail",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  }
+}

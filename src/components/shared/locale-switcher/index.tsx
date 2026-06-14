@@ -14,6 +14,13 @@ import {
 const LOCALE_CONFIG: Record<Locale, { flag: string; label: string }> = {
   en: { flag: "\u{1F1FA}\u{1F1F8}", label: "English" },
   vi: { flag: "\u{1F1FB}\u{1F1F3}", label: "Ti\u1EBFng Vi\u1EC7t" },
+  // Partial locales \u2014 most strings fall back to English at runtime via
+  // `t()`. Labels stay in the native script so the selector itself is
+  // recognisable even before the user picks the locale.
+  ja: { flag: "\u{1F1EF}\u{1F1F5}", label: "\u65E5\u672C\u8A9E" },
+  ko: { flag: "\u{1F1F0}\u{1F1F7}", label: "\uD55C\uAD6D\uC5B4" },
+  zh: { flag: "\u{1F1E8}\u{1F1F3}", label: "\u4E2D\u6587" },
+  fr: { flag: "\u{1F1EB}\u{1F1F7}", label: "Fran\u00E7ais" },
 };
 
 export function LocaleSwitcher() {
