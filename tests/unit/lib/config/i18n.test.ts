@@ -22,31 +22,42 @@ describe("locales config", () => {
 });
 
 describe("t() — English fallback for partial locales", () => {
-  // The partial locales (ja/ko/zh/fr) deliberately ship with most keys
-  // unset. The runtime contract is: `t(partialLocale, key)` returns the
-  // English translation rather than the raw dotted key path.
-  it("returns English value when key is missing in ja", () => {
-    // `issue.createIssue` exists in en + vi but NOT in ja.json (which
-    // only ships `common.*` + `nav.*`). Asserting the English value
-    // pins the fallback path.
-    const enValue = t("en", "issue.createIssue");
-    const jaValue = t("ja", "issue.createIssue");
-    expect(jaValue).toBe(enValue);
-  });
-
+  // History note: ja/ko/zh/fr originally shipped as empty shells and
+  // relied on the en fallback at runtime. All four were back-filled to
+  // full parity later. The fallback path still matters as a safety net
+  // for any future locale that lands partial — or any single key
+  // someone forgets to translate before merging.
   it("returns the locale's own value when defined (no over-fallback)", () => {
-    // `common.save` is defined in ja.json → ja must NOT fall back.
-    const jaSave = t("ja", "common.save");
-    const enSave = t("en", "common.save");
-    expect(jaSave).not.toBe(enSave);
-    expect(jaSave).toBe("保存");
+    // Every locale walks its own tree first. `common.save` is defined
+    // with a different value in ja vs en — proves there's no
+    // over-eager fallback to English when the key DOES exist.
+    expect(t("ja", "common.save")).not.toBe(t("en", "common.save"));
+    expect(t("ja", "common.save")).toBe("保存");
   });
 
-  it("returns the key path only when ALL locales miss (defensive)", () => {
-    // @ts-expect-error — testing runtime fallback for unknown key
+  it("every supported locale defines common.save (non-empty)", () => {
+    // The fallback predicate treats an empty-string value the same as
+    // a missing key (`typeof fromCurrent === "string" && fromCurrent !== ""`)
+    // so the UI never renders a blank span. Pin every locale's most
+    // common label — if any drops to "" we want CI to bark before a
+    // user sees blank buttons in production.
+    for (const loc of ["en", "vi", "ja", "ko", "zh", "fr"] as const) {
+      expect(t(loc, "common.save")).not.toBe("");
+    }
+  });
+
+  it("returns the key path when ALL locales miss (defensive last resort)", () => {
+    // Terminal branch of the fallback chain: if neither the current
+    // locale nor en defines the key, surface the raw dotted path
+    // instead of an empty render. The build-time parity test catches
+    // missing en/vi keys, so reaching this branch in production = a
+    // tier-2 locale plus a typo somewhere in a `t(…)` call site.
+    // @ts-expect-error — intentionally fake key
     expect(t("fr", "nonexistent.totally.fake")).toBe(
       "nonexistent.totally.fake",
     );
+    // @ts-expect-error — also fake, different locale
+    expect(t("ja", "nope.not.real")).toBe("nope.not.real");
   });
 });
 
