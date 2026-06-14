@@ -209,6 +209,15 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
     updateIssue({ id: issue.id, [field]: parsed });
   }
 
+  // Custom field updates take a different shape: BE expects
+  // `customFields: { [fieldId]: value }`. The panel passes one fieldId
+  // at a time so the request stays small + targeted (avoids re-sending
+  // the entire custom-field map on every edit).
+  function handleUpdateCustomField(fieldId: string, value: unknown) {
+    if (!issue) return;
+    updateIssue({ id: issue.id, customFields: { [fieldId]: value } });
+  }
+
   function handleExpand() {
     onClose?.();
     router.push(ROUTES.ISSUE(issueKey));
@@ -534,6 +543,7 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
           members={project?.members ?? []}
           currentUserId={user?.id ?? ""}
           onUpdate={handleUpdate}
+          onUpdateCustomField={handleUpdateCustomField}
         />
       </div>
       </div>

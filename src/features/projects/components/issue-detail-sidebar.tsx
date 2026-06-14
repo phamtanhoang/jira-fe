@@ -10,6 +10,7 @@ import { WorklogSection } from "./worklog-section";
 import { IssueLinksSection } from "./issue-links-section";
 import { IssueLabelsSection } from "./issue-labels-section";
 import { IssueDetailFields } from "./issue-detail-fields";
+import { IssueCustomFieldsPanel } from "@/features/custom-fields/components/issue-custom-fields-panel";
 import type { Issue, ProjectMember } from "../types";
 
 function CollapsibleSection({
@@ -44,11 +45,17 @@ export function IssueDetailSidebar({
   members,
   currentUserId,
   onUpdate,
+  onUpdateCustomField,
 }: {
   issue: Issue;
   members: ProjectMember[];
   currentUserId: string;
   onUpdate: (field: string, value: string | null) => void;
+  /** Per-field save callback for the custom-field panel. Fires whenever a
+   *  field's draft value is committed (blur for text/number/date, click
+   *  for select/multi-select). The parent translates `(fieldId, value)`
+   *  into `updateIssue({ id, customFields: { [fieldId]: value } })`. */
+  onUpdateCustomField?: (fieldId: string, value: unknown) => void;
 }) {
   const { t } = useAppStore();
 
@@ -67,6 +74,23 @@ export function IssueDetailSidebar({
         <CollapsibleSection title={t("label.title")}>
           <IssueLabelsSection issue={issue} />
         </CollapsibleSection>
+
+        {/* Custom fields — rendered when the project defines any. The
+            panel internally returns null when no fields exist, so we
+            hide the wrapping section + separator at that point too to
+            avoid an empty "CUSTOM FIELDS" header taking space. */}
+        {onUpdateCustomField && (
+          <>
+            <Separator />
+            <CollapsibleSection title={t("customFields.sidebarTitle")}>
+              <IssueCustomFieldsPanel
+                projectId={issue.projectId}
+                values={issue.customFieldValues ?? []}
+                onChange={onUpdateCustomField}
+              />
+            </CollapsibleSection>
+          </>
+        )}
 
         <Separator />
 
