@@ -32,6 +32,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { IssueDetailSidebar } from "./issue-detail-sidebar";
 import { IssueComments } from "./issue-comments";
 import { SubtaskList } from "./subtask-list";
+import { IssueLinksSection } from "./issue-links-section";
 import { AttachmentSection } from "./attachment-section";
 import { ActivityFeed } from "./activity-feed";
 import { RichEditor, RichContent } from "@/components/shared/rich-editor";
@@ -436,6 +437,12 @@ export function IssueDetailContent({ issueKey, modal, onClose }: Props) {
 
           {/* Subtasks */}
           <SubtaskList issue={issue} />
+
+          {/* Linked issues — moved out of the sidebar so it shares the
+              main panel with Subtasks. Both are "relation" sections and
+              feel cohesive together; the sidebar is now reserved for
+              single-value fields (priority, assignee, custom fields). */}
+          <IssueLinksSection issue={issue} />
 
           <Separator className="mb-5" />
 

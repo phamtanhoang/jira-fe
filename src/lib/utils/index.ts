@@ -8,3 +8,4 @@ export * from "./recent";
 export * from "./sanitize-html";
 export * from "./format-html";
 export * from "./tile-gradient";
+export * from "./permissions";

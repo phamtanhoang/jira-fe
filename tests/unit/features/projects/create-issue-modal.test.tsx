@@ -66,6 +66,10 @@ const mockUseCustomFields = jest.fn();
 
 jest.mock("@/features/projects/hooks", () => ({
   useCreateIssue: () => mockUseCreateIssue(),
+  // The modal now fetches issue candidates when the user manually picks
+  // SUBTASK as the Type (to surface a Parent picker). Tests don't cover
+  // that path, but the import must still resolve to a hook-shaped stub.
+  useIssues: () => ({ data: [] }),
 }));
 jest.mock("@/features/issue-templates/hooks", () => ({
   useIssueTemplates: (projectId: string | undefined) =>

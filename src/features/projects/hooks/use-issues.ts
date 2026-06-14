@@ -88,6 +88,19 @@ export function useCreateIssue() {
       showMessage(result.message);
       queryClient.invalidateQueries({ queryKey: ["board", result.issue.projectId] });
       queryClient.invalidateQueries({ queryKey: ["issues", result.issue.projectId] });
+      // Refresh the parent issue's detail cache — without this, creating
+      // a subtask on PP-7 leaves `["issue","PP-7"]` with the OLD children
+      // array until the 60s staleTime expires (user reports "subtask
+      // doesn't show until I refresh"). The BE include returns the parent
+      // + epic with their `key`, so we can invalidate precisely.
+      const parentKey = result.issue.parent?.key;
+      if (parentKey) {
+        queryClient.invalidateQueries({ queryKey: ["issue", parentKey] });
+      }
+      const epicKey = result.issue.epic?.key;
+      if (epicKey) {
+        queryClient.invalidateQueries({ queryKey: ["issue", epicKey] });
+      }
     },
     onError: handleApiError,
   });

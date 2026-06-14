@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { Layers, Plus, CheckCircle2, Circle } from "lucide-react";
 import { STATUS_BADGE_COLORS } from "@/lib/constants/issue-config";
 import { useAppStore } from "@/lib/stores/use-app-store";
-import { useBoard, useMoveIssue, useCreateIssue } from "../hooks";
+import { useBoard, useMoveIssue } from "../hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { CreateIssueModal } from "./create-issue-dialog";
 import type { Issue } from "../types";
 
 type SubtaskChild = NonNullable<Issue["children"]>[number];
@@ -18,12 +18,17 @@ export function SubtaskList({ issue }: { issue: Issue }) {
   const { t } = useAppStore();
   const { data: board } = useBoard(issue.projectId);
   const { mutate: moveIssue } = useMoveIssue();
-  const { mutate: createIssue } = useCreateIssue();
-  const [showForm, setShowForm] = useState(false);
-  const [summary, setSummary] = useState("");
+
+  // Open the shared CreateIssueModal in SUBTASK-lock mode. Replaces the
+  // previous "summary-only inline input" — that form skipped priority /
+  // assignee / description / custom fields entirely, so subtasks
+  // shipped with worse metadata than every other issue type.
+  const [createOpen, setCreateOpen] = useState(false);
 
   const children = issue.children ?? [];
-  const doneCount = children.filter((c) => c.boardColumn?.category === "DONE").length;
+  const doneCount = children.filter(
+    (c) => c.boardColumn?.category === "DONE",
+  ).length;
   const total = children.length;
   const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
@@ -40,15 +45,6 @@ export function SubtaskList({ issue }: { issue: Issue }) {
     moveIssue({ id: child.id, columnId: targetColumn.id, position: 0 });
   }
 
-  function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!summary.trim()) return;
-    createIssue(
-      { projectId: issue.projectId, summary: summary.trim(), type: "SUBTASK", parentId: issue.id },
-      { onSuccess: () => { setSummary(""); setShowForm(false); } },
-    );
-  }
-
   if (issue.type === "SUBTASK") return null;
 
   return (
@@ -60,8 +56,9 @@ export function SubtaskList({ issue }: { issue: Issue }) {
           {t("issue.subtasks")}
           {total > 0 && ` (${total})`}
         </h3>
-        <Button size="xs" variant="ghost" onClick={() => setShowForm(!showForm)}>
-          <Plus className="mr-1 h-3 w-3" />{t("issue.addSubtask")}
+        <Button size="xs" variant="ghost" onClick={() => setCreateOpen(true)}>
+          <Plus className="mr-1 h-3 w-3" />
+          {t("issue.addSubtask")}
         </Button>
       </div>
 
@@ -78,20 +75,6 @@ export function SubtaskList({ issue }: { issue: Issue }) {
             {doneCount}/{total}
           </span>
         </div>
-      )}
-
-      {/* Create form */}
-      {showForm && (
-        <form onSubmit={handleCreate} className="mb-3 flex gap-2">
-          <Input
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-            placeholder={t("issue.subtaskPlaceholder")}
-            className="h-8 text-[12px]"
-            autoFocus
-          />
-          <Button size="xs" type="submit" disabled={!summary.trim()}>{t("common.create")}</Button>
-        </form>
       )}
 
       {/* Subtask list */}
@@ -123,16 +106,23 @@ export function SubtaskList({ issue }: { issue: Issue }) {
                 </div>
 
                 {/* Key */}
-                <span className="shrink-0 font-medium text-muted-foreground">{child.key}</span>
+                <span className="shrink-0 font-medium text-muted-foreground">
+                  {child.key}
+                </span>
 
                 {/* Summary */}
-                <span className={`min-w-0 flex-1 truncate ${isDone ? "line-through text-muted-foreground/60" : ""}`}>
+                <span
+                  className={`min-w-0 flex-1 truncate ${isDone ? "line-through text-muted-foreground/60" : ""}`}
+                >
                   {child.summary}
                 </span>
 
                 {/* Status badge */}
                 {child.boardColumn && (
-                  <Badge variant="secondary" className={`shrink-0 text-[10px] ${STATUS_BADGE_COLORS[child.boardColumn.category] ?? ""}`}>
+                  <Badge
+                    variant="secondary"
+                    className={`shrink-0 text-[10px] ${STATUS_BADGE_COLORS[child.boardColumn.category] ?? ""}`}
+                  >
                     {child.boardColumn.name}
                   </Badge>
                 )}
@@ -141,6 +131,25 @@ export function SubtaskList({ issue }: { issue: Issue }) {
           })}
         </div>
       )}
+
+      {/* Shared CreateIssueModal — SUBTASK-locked with parent pre-bound.
+          The modal's `onCreated` is wired by the parent-issue cache
+          invalidation in `useCreateIssue` (it now refreshes
+          `["issue", parent.key]` so the new child appears immediately
+          without waiting for staleTime). */}
+      <CreateIssueModal
+        projectId={issue.projectId}
+        sprints={board?.sprints ?? []}
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        defaultType="SUBTASK"
+        lockType
+        defaultParentId={issue.id}
+        // Carry the parent's sprint over by default — subtasks almost
+        // always belong to the same sprint as their parent task, and
+        // surfacing the sprint picker pre-filled saves a click.
+        defaultSprintId={issue.sprintId ?? undefined}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useAppStore } from "@/lib/stores/use-app-store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CreateIssueDialog } from "@/features/projects/components/create-issue-dialog";
+import { useProjectPermissions } from "@/features/projects/hooks/use-permissions";
 import type { Sprint } from "@/features/projects/types";
 
 type BoardHeaderProps = {
@@ -29,6 +30,9 @@ export function BoardHeader({
   sprints,
 }: BoardHeaderProps) {
   const { t } = useAppStore();
+  const can = useProjectPermissions(projectId);
+  const canCreate = can?.("CREATE_ISSUE") ?? false;
+  const canOpenSettings = can?.("UPDATE_PROJECT") ?? false;
 
   return (
     <div className="flex items-center justify-between border-b px-6 py-3">
@@ -66,16 +70,23 @@ export function BoardHeader({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <CreateIssueDialog projectId={projectId} sprints={sprints} />
-        <Link href={ROUTES.PROJECT_SETTINGS(workspaceId, projectId)}>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="text-muted-foreground"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-        </Link>
+        {/* Permission-gated. While `can` is still null (project not
+            loaded yet), we render nothing rather than flashing the
+            action and then hiding it. */}
+        {canCreate && (
+          <CreateIssueDialog projectId={projectId} sprints={sprints} />
+        )}
+        {canOpenSettings && (
+          <Link href={ROUTES.PROJECT_SETTINGS(workspaceId, projectId)}>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="text-muted-foreground"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );

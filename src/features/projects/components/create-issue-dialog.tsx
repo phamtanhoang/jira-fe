@@ -21,13 +21,18 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { useCreateIssue } from "../hooks";
+import { useCreateIssue, useIssues } from "../hooks";
 import type {
   CreateIssuePayload,
   Issue,
   Sprint,
 } from "../types";
 import { CustomFieldInput } from "./custom-field-input";
+
+// Types that may parent a SUBTASK. EPIC is intentionally excluded —
+// epics get child issues via `epicId`, not `parentId`. SUBTASK can't
+// parent another SUBTASK (no two-level nesting).
+const PARENTABLE_TYPES: Issue["type"][] = ["STORY", "BUG", "TASK"];
 
 // Radix Select rejects empty-string values, so we use a sentinel for
 // "no sprint" / "no column" and translate on submit.
@@ -44,7 +49,12 @@ export type CreateIssueModalProps = {
   defaultSprintId?: string;
   /** Pre-selected epic (parent for Story/Task). Hidden from the form. */
   defaultEpicId?: string;
-  /** Pre-fill + optionally lock the Type. Used by Epic-only flow. */
+  /** Pre-selected parent issue (for SUBTASK creation under a task). The
+   *  parentId is sent on the create payload and the type is locked to
+   *  SUBTASK when this is supplied via the subtask-list trigger. */
+  defaultParentId?: string;
+  /** Pre-fill + optionally lock the Type. Used by Epic-only flow + by
+   *  the subtask-list "+ Add subtask" trigger (lockType + SUBTASK). */
   defaultType?: Issue["type"];
   /** When true, hide the Type dropdown entirely (defaultType wins). */
   lockType?: boolean;
@@ -82,6 +92,7 @@ function CreateIssueForm({
   onOpenChange,
   defaultSprintId,
   defaultEpicId,
+  defaultParentId,
   defaultType,
   lockType,
   onCreated,
@@ -91,11 +102,11 @@ function CreateIssueForm({
   // Type options. EPIC is intentionally absent from the regular create
   // flow — Epics get their own create entry under the Epics tab, and
   // surfacing them here invited "I accidentally made a SUBTASK with
-  // type EPIC" confusion. The Epic flow funnels back through this
-  // modal with `lockType=true defaultType="EPIC"`, which surfaces the
-  // EPIC-only option set below.
+  // type EPIC" confusion. Locked-type flows (EPIC / SUBTASK triggers)
+  // collapse the option list to just that type so the dropdown isn't
+  // misleading even when it's hidden.
   const TYPE_OPTIONS = useMemo<Issue["type"][]>(() => {
-    if (lockType && defaultType === "EPIC") return ["EPIC"];
+    if (lockType && defaultType) return [defaultType];
     return ["STORY", "BUG", "TASK", "SUBTASK"];
   }, [lockType, defaultType]);
 
@@ -107,6 +118,11 @@ function CreateIssueForm({
   );
   const [priority, setPriority] = useState<Issue["priority"]>("MEDIUM");
   const [sprintId, setSprintId] = useState<string>(defaultSprintId ?? "");
+  // User-picked parent (only matters when type === SUBTASK AND the
+  // caller didn't pre-bind via defaultParentId). When defaultParentId is
+  // supplied — e.g. opened from "+ Add subtask" on an issue detail page
+  // — we skip the picker entirely.
+  const [parentIdDraft, setParentIdDraft] = useState<string>("");
   const [storyPoints, setStoryPoints] = useState("");
   const [customFieldValues, setCustomFieldValues] = useState<
     Record<string, unknown>
@@ -116,6 +132,19 @@ function CreateIssueForm({
   const { mutate: create, isPending } = useCreateIssue();
   const { data: templates } = useIssueTemplates(projectId);
   const { data: customFields } = useCustomFields(projectId);
+  // Parent candidates — fetched only when the user might need to pick
+  // one (SUBTASK + no pre-bound parent). Skipping the network call in
+  // the common cases keeps the modal mount fast.
+  const needsParentPicker = type === "SUBTASK" && !defaultParentId;
+  // `useIssues` is gated on its `enabled: !!projectId` flag. We pass an
+  // empty string when the picker isn't needed so the query stays idle.
+  const { data: allIssues } = useIssues(needsParentPicker ? projectId : "");
+  const parentCandidates = useMemo(() => {
+    if (!allIssues) return [];
+    return allIssues
+      .filter((i) => PARENTABLE_TYPES.includes(i.type))
+      .slice(0, 200); // safety cap — selects with thousands of items are unusable anyway
+  }, [allIssues]);
 
   function applyTemplate(id: string) {
     setTemplateId(id);
@@ -154,6 +183,17 @@ function CreateIssueForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!summary.trim()) return;
+
+    // Resolve the parent: caller-supplied wins (subtask-list trigger),
+    // otherwise fall back to the in-form picker. SUBTASK without
+    // EITHER is rejected here so the BE doesn't have to handle a
+    // dangling subtask (and the user gets a clearer error).
+    const effectiveParentId = defaultParentId || parentIdDraft || undefined;
+    if (type === "SUBTASK" && !effectiveParentId) {
+      setError(t("issue.subtaskNeedsParent"));
+      return;
+    }
+
     const missing = findMissingRequired();
     if (missing) {
       setError(missing);
@@ -167,6 +207,7 @@ function CreateIssueForm({
       priority,
       sprintId: sprintId || undefined,
       epicId: defaultEpicId || undefined,
+      parentId: effectiveParentId,
       storyPoints: storyPoints ? parseInt(storyPoints) : undefined,
       customFields:
         Object.keys(customFieldValues).length > 0
@@ -196,7 +237,9 @@ function CreateIssueForm({
         <DialogTitle>
           {lockType && defaultType === "EPIC"
             ? t("issue.createEpic")
-            : t("issue.createIssue")}
+            : lockType && defaultType === "SUBTASK"
+              ? t("issue.addSubtask")
+              : t("issue.createIssue")}
         </DialogTitle>
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -291,6 +334,52 @@ function CreateIssueForm({
               </Select>
             </div>
           </div>
+
+          {/* Parent picker — only shown when the user manually picked
+              SUBTASK as the type AND there's no `defaultParentId` from
+              the trigger (subtask-list trigger pre-binds and hides this).
+              Required: SUBTASK without a parent is rejected on submit. */}
+          {needsParentPicker && (
+            <div>
+              <label className="mb-1.5 block text-[13px] font-medium">
+                {t("issue.parent")}
+                <span className="ml-1 text-[10px] text-destructive">*</span>
+              </label>
+              <Select
+                value={parentIdDraft}
+                onValueChange={(v) => typeof v === "string" && setParentIdDraft(v)}
+              >
+                <SelectTrigger className="w-full">
+                  {parentIdDraft
+                    ? (() => {
+                        const p = parentCandidates.find((i) => i.id === parentIdDraft);
+                        return p ? `${p.key} — ${p.summary}` : parentIdDraft;
+                      })()
+                    : (
+                      <span className="text-muted-foreground">
+                        {t("issue.pickParent")}
+                      </span>
+                    )}
+                </SelectTrigger>
+                <SelectContent>
+                  {parentCandidates.length === 0 ? (
+                    <div className="px-2 py-1.5 text-[12px] text-muted-foreground">
+                      {t("issue.noParentCandidates")}
+                    </div>
+                  ) : (
+                    parentCandidates.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                          {p.key}
+                        </span>
+                        <span className="ml-2">{p.summary}</span>
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Summary */}
           <div>
@@ -400,7 +489,9 @@ function CreateIssueForm({
             ? t("common.creating")
             : lockType && defaultType === "EPIC"
               ? t("issue.createEpic")
-              : t("issue.createIssue")}
+              : lockType && defaultType === "SUBTASK"
+                ? t("issue.addSubtask")
+                : t("issue.createIssue")}
         </Button>
       </form>
     </>

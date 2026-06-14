@@ -7,7 +7,6 @@ import { formatDate } from "@/lib/utils";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { IssueWatchersBlock } from "./issue-watchers-block";
 import { WorklogSection } from "./worklog-section";
-import { IssueLinksSection } from "./issue-links-section";
 import { IssueLabelsSection } from "./issue-labels-section";
 import { IssueDetailFields } from "./issue-detail-fields";
 import { IssueCustomFieldsPanel } from "@/features/custom-fields/components/issue-custom-fields-panel";
@@ -91,10 +90,6 @@ export function IssueDetailSidebar({
             </CollapsibleSection>
           </>
         )}
-
-        <Separator />
-
-        <IssueLinksSection issue={issue} />
 
         <Separator />
 

@@ -131,6 +131,11 @@ export default function ProjectSettingsPage() {
         onValueChange={(v) => v && setTab(v as ProjectSettingsTab)}
       >
         <TabsList variant="line" className="mb-6">
+          {/* General + Members are visible to everyone (read-only for
+              DEVELOPER/VIEWER, editable for ADMIN+). The remaining
+              tabs are management-only — hiding them keeps the page
+              consistent with the "no permission, no action" rule the
+              user asked for instead of letting a click trip a 403 toast. */}
           <TabsTrigger value="general">
             <Settings className="mr-1.5 h-3.5 w-3.5" />
             {t("project.general")}
@@ -142,26 +147,30 @@ export default function ProjectSettingsPage() {
               <Badge variant="secondary" className="ml-1.5 px-1.5 text-[10px]">{members.length}</Badge>
             ) : null}
           </TabsTrigger>
-          <TabsTrigger value="templates">
-            <FileText className="mr-1.5 h-3.5 w-3.5" />
-            {t("templates.tab")}
-          </TabsTrigger>
-          <TabsTrigger value="labels">
-            <Tag className="mr-1.5 h-3.5 w-3.5" />
-            {t("label.tab")}
-          </TabsTrigger>
-          <TabsTrigger value="fields">
-            <Settings className="mr-1.5 h-3.5 w-3.5" />
-            {t("customFields.tab")}
-          </TabsTrigger>
-          <TabsTrigger value="columns">
-            <Settings className="mr-1.5 h-3.5 w-3.5" />
-            {t("project.columns.tab")}
-          </TabsTrigger>
-          <TabsTrigger value="recurring">
-            <Settings className="mr-1.5 h-3.5 w-3.5" />
-            {t("recurring.tab")}
-          </TabsTrigger>
+          {canManage && (
+            <>
+              <TabsTrigger value="templates">
+                <FileText className="mr-1.5 h-3.5 w-3.5" />
+                {t("templates.tab")}
+              </TabsTrigger>
+              <TabsTrigger value="labels">
+                <Tag className="mr-1.5 h-3.5 w-3.5" />
+                {t("label.tab")}
+              </TabsTrigger>
+              <TabsTrigger value="fields">
+                <Settings className="mr-1.5 h-3.5 w-3.5" />
+                {t("customFields.tab")}
+              </TabsTrigger>
+              <TabsTrigger value="columns">
+                <Settings className="mr-1.5 h-3.5 w-3.5" />
+                {t("project.columns.tab")}
+              </TabsTrigger>
+              <TabsTrigger value="recurring">
+                <Settings className="mr-1.5 h-3.5 w-3.5" />
+                {t("recurring.tab")}
+              </TabsTrigger>
+            </>
+          )}
         </TabsList>
 
         <TabsContent value="general">
@@ -172,25 +181,32 @@ export default function ProjectSettingsPage() {
           <TabMembers projectId={projectId} workspaceId={workspaceId} />
         </TabsContent>
 
-        <TabsContent value="templates">
-          <TabTemplates projectId={projectId} canManage={canManage} />
-        </TabsContent>
+        {/* Management-only tab contents. Mirror the trigger gating so a
+            URL like `?tab=fields` from a bookmarked link doesn't sneak
+            content past the hidden tab trigger. */}
+        {canManage && (
+          <>
+            <TabsContent value="templates">
+              <TabTemplates projectId={projectId} canManage={canManage} />
+            </TabsContent>
 
-        <TabsContent value="labels">
-          <TabLabels projectId={projectId} />
-        </TabsContent>
+            <TabsContent value="labels">
+              <TabLabels projectId={projectId} />
+            </TabsContent>
 
-        <TabsContent value="fields">
-          <TabFields projectId={projectId} />
-        </TabsContent>
+            <TabsContent value="fields">
+              <TabFields projectId={projectId} />
+            </TabsContent>
 
-        <TabsContent value="columns">
-          <TabColumns projectId={projectId} canManage={canManage} />
-        </TabsContent>
+            <TabsContent value="columns">
+              <TabColumns projectId={projectId} canManage={canManage} />
+            </TabsContent>
 
-        <TabsContent value="recurring">
-          <TabRecurring projectId={projectId} />
-        </TabsContent>
+            <TabsContent value="recurring">
+              <TabRecurring projectId={projectId} />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </div>
   );
