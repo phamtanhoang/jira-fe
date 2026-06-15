@@ -110,7 +110,12 @@
     "logout": "Đăng xuất",
     "newWorkspace": "Tạo không gian",
     "admin": "Quản trị",
-    "adminLogs": "Nhật ký request"
+    "adminLogs": "Nhật ký request",
+    "myWork": "Việc của tôi",
+    "myIssues": "Được giao",
+    "overdue": "Quá hạn",
+    "starred": "Đã đánh dấu",
+    "inbox": "Hộp thư"
   },
   "bottomNav": {
     "myIssues": "Issues của tôi",
@@ -871,6 +876,17 @@
     "manageMembers": "Quản lý quyền truy cập không gian",
     "manageDesc": "Quản lý dự án và thành viên",
     "settings": "Cài đặt",
+    "summary": "Tổng quan",
+    "totalProjects": "Dự án",
+    "totalMembers": "Thành viên",
+    "totalEntities": "Dự án + Thành viên",
+    "totalIssuesCreated": "Issue đã tạo",
+    "projectsOverview": "Danh sách dự án",
+    "mostActiveProjects": "Dự án sôi nổi nhất",
+    "recentMembers": "Thành viên mới",
+    "noActivityYet": "Chưa có hoạt động — tạo issue để bắt đầu.",
+    "noMembersYet": "Chưa có thành viên.",
+    "issuesLabel": "issue",
     "general": "Thông tin chung",
     "deleteWorkspace": "Xóa không gian",
     "deleteConfirm": "Bạn có chắc muốn xóa không gian này? Mọi dự án bên trong sẽ bị xóa vĩnh viễn.",
@@ -1156,6 +1172,9 @@
   "calendar": {
     "today": "Hôm nay",
     "dragHint": "Kéo issue sang ngày khác để dời deadline",
+    "scheduledThisMonth": "đã lên lịch",
+    "overdue": "quá hạn",
+    "more": "khác",
     "day": {
       "Mon": "T2",
       "Tue": "T3",

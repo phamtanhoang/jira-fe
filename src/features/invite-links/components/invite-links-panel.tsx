@@ -81,7 +81,7 @@ export function InviteLinksPanel({ workspaceId }: { workspaceId: string }) {
             value={role}
             onValueChange={(v) => v && setRole(v as typeof role)}
           >
-            <SelectTrigger className="h-8 text-[12px]">
+            <SelectTrigger className="h-8 w-full text-[12px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -104,7 +104,7 @@ export function InviteLinksPanel({ workspaceId }: { workspaceId: string }) {
               setExpiresInSec(v === NEVER_VALUE ? undefined : parseInt(v));
             }}
           >
-            <SelectTrigger className="h-8 text-[12px]">
+            <SelectTrigger className="h-8 w-full text-[12px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

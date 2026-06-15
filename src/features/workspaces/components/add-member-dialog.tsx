@@ -77,7 +77,7 @@ export function AddMemberDialog({ workspaceId }: { workspaceId: string }) {
                 v && setRole(v as AddWorkspaceMemberPayload["role"])
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

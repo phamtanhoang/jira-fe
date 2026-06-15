@@ -70,6 +70,26 @@ export function CalendarView({ issues, onClickIssue, onUpdateIssue }: Props) {
     { month: "long", year: "numeric" },
   );
 
+  // Issue counts visible in this month grid (cells include leading/trailing
+  // days from neighbouring months — keep stats scoped to the focal month).
+  const monthStats = useMemo(() => {
+    let total = 0;
+    let overdue = 0;
+    let inMonth = 0;
+    for (const issue of issues) {
+      const iso = isoOf(issue.dueDate);
+      if (!iso) continue;
+      total += 1;
+      const inFocus =
+        new Date(iso).getMonth() === cursor.month &&
+        new Date(iso).getFullYear() === cursor.year;
+      if (inFocus) inMonth += 1;
+      const done = issue.boardColumn?.category === "DONE";
+      if (!done && iso < todayIso) overdue += 1;
+    }
+    return { total, overdue, inMonth };
+  }, [issues, cursor.month, cursor.year, todayIso]);
+
   const goPrev = () =>
     setCursor((c) => {
       const m = c.month - 1;
@@ -113,6 +133,16 @@ export function CalendarView({ issues, onClickIssue, onUpdateIssue }: Props) {
           <h2 className="ml-2 text-base font-semibold capitalize tabular-nums">
             {monthLabel}
           </h2>
+          <div className="ml-2 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              {monthStats.inMonth} {t("calendar.scheduledThisMonth")}
+            </span>
+            {monthStats.overdue > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-0.5 text-[10px] font-medium text-rose-600 dark:text-rose-400">
+                {monthStats.overdue} {t("calendar.overdue")}
+              </span>
+            )}
+          </div>
         </div>
         <p className="text-[11px] text-muted-foreground">
           {t("calendar.dragHint")}
@@ -132,6 +162,8 @@ export function CalendarView({ issues, onClickIssue, onUpdateIssue }: Props) {
           const dayIssues = issuesByDay.get(cell.iso) ?? [];
           const isToday = cell.iso === todayIso;
           const isDragOver = dragOverIso === cell.iso;
+          const dow = (cell.date.getDay() + 6) % 7; // 0=Mon..6=Sun
+          const isWeekend = dow >= 5;
           return (
             <div
               key={cell.iso}
@@ -148,17 +180,22 @@ export function CalendarView({ issues, onClickIssue, onUpdateIssue }: Props) {
                 if (id) handleDrop(cell.iso, id);
               }}
               className={[
-                "min-h-[110px] border-r border-b p-1.5 transition-colors",
-                cell.inMonth ? "bg-background" : "bg-muted/30",
-                isDragOver ? "bg-primary/10" : "",
+                "group relative min-h-30 border-r border-b p-1.5 transition-colors",
+                !cell.inMonth
+                  ? "bg-muted/40"
+                  : isWeekend
+                    ? "bg-muted/15"
+                    : "bg-background",
+                isToday ? "ring-2 ring-inset ring-primary/40" : "",
+                isDragOver ? "bg-primary/10 ring-2 ring-inset ring-primary/60" : "",
               ].join(" ")}
             >
               <div className="mb-1 flex items-center justify-between">
                 <span
                   className={[
-                    "inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-medium",
+                    "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-medium tabular-nums",
                     isToday
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : cell.inMonth
                         ? "text-foreground"
                         : "text-muted-foreground",
@@ -166,6 +203,18 @@ export function CalendarView({ issues, onClickIssue, onUpdateIssue }: Props) {
                 >
                   {cell.date.getDate()}
                 </span>
+                {dayIssues.length > 0 && (
+                  <span
+                    className={[
+                      "inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-semibold tabular-nums",
+                      isToday
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground",
+                    ].join(" ")}
+                  >
+                    {dayIssues.length}
+                  </span>
+                )}
               </div>
               <div className="space-y-1">
                 {dayIssues.slice(0, 3).map((issue) => (
@@ -176,8 +225,8 @@ export function CalendarView({ issues, onClickIssue, onUpdateIssue }: Props) {
                   />
                 ))}
                 {dayIssues.length > 3 && (
-                  <p className="px-1.5 text-[10px] text-muted-foreground">
-                    +{dayIssues.length - 3} more
+                  <p className="px-1.5 text-[10px] font-medium text-muted-foreground">
+                    +{dayIssues.length - 3} {t("calendar.more")}
                   </p>
                 )}
               </div>

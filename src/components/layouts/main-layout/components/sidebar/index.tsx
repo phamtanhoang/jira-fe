@@ -9,12 +9,18 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   ShieldCheck,
+  Inbox,
+  Star,
+  Bell,
+  AlertTriangle,
 } from "lucide-react";
 import { cn, getInitials, getTileGradient } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
 import { useWorkspaces } from "@/features/workspaces/hooks";
+import { useMyDashboard } from "@/features/projects/hooks";
+import { useUnreadCount } from "@/features/notifications/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -35,6 +41,8 @@ export function Sidebar({
   const { name: appName, logoUrl, authorName, authorUrl, t } = useAppStore();
   const { data: workspaces } = useWorkspaces();
   const { user } = useCurrentUser();
+  const { data: dashboard } = useMyDashboard();
+  const { data: unread } = useUnreadCount();
 
   const navItems = [
     { href: ROUTES.DASHBOARD, label: t("nav.dashboard"), icon: LayoutDashboard },
@@ -42,6 +50,44 @@ export function Sidebar({
     ...(user?.role === "ADMIN"
       ? [{ href: ROUTES.ADMIN, label: t("nav.admin"), icon: ShieldCheck }]
       : []),
+  ];
+
+  // "My Work" rolls assigned / overdue / starred / inbox into one section.
+  // Each link routes to the existing destination so we don't have to
+  // introduce new pages — sidebar is purely a fast jump-off.
+  const myWorkItems: Array<{
+    href: string;
+    label: string;
+    icon: typeof Inbox;
+    count?: number;
+    tone?: "default" | "warning" | "primary";
+  }> = [
+    {
+      href: ROUTES.DASHBOARD,
+      label: t("nav.myIssues"),
+      icon: Inbox,
+      count: dashboard?.stats.total ?? undefined,
+    },
+    {
+      href: ROUTES.DASHBOARD,
+      label: t("nav.overdue"),
+      icon: AlertTriangle,
+      count: dashboard?.stats.overdue ?? undefined,
+      tone: "warning",
+    },
+    {
+      href: ROUTES.DASHBOARD,
+      label: t("nav.starred"),
+      icon: Star,
+      count: dashboard?.stats.starred ?? undefined,
+    },
+    {
+      href: ROUTES.NOTIFICATIONS,
+      label: t("nav.inbox"),
+      icon: Bell,
+      count: unread?.count ?? undefined,
+      tone: "primary",
+    },
   ];
 
   if (collapsed) {
@@ -168,6 +214,55 @@ export function Sidebar({
                 {item.label}
               </Link>
             ))}
+          </nav>
+        </div>
+
+        <div className="px-3 py-1">
+          <Separator />
+        </div>
+
+        {/* My Work — at-a-glance counters for the current user */}
+        <div className="px-3 py-1">
+          <div className="mb-1 px-2.5 text-[11px] font-medium text-muted-foreground">
+            {t("nav.myWork")}
+          </div>
+          <nav className="space-y-0.5">
+            {myWorkItems.map((item) => {
+              const isActive = pathname === item.href;
+              const showCount =
+                typeof item.count === "number" && item.count > 0;
+              const badgeTone =
+                item.tone === "warning"
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                  : item.tone === "primary"
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted text-muted-foreground";
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
+                    isActive
+                      ? "bg-primary/8 text-primary font-medium"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                  {showCount && (
+                    <span
+                      className={cn(
+                        "ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums",
+                        badgeTone,
+                      )}
+                    >
+                      {item.count! > 99 ? "99+" : item.count}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 

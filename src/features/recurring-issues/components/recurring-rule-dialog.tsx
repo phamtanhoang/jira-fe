@@ -167,7 +167,7 @@ function RuleFormBody({
                   setForm({ ...form, frequency: v as RecurringFrequency })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -219,7 +219,7 @@ function RuleFormBody({
                   setForm({ ...form, type: v as IssueType })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +241,7 @@ function RuleFormBody({
                   setForm({ ...form, priority: v as IssuePriority })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

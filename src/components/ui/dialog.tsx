@@ -53,7 +53,12 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-border/60 bg-popover p-6 text-sm text-popover-foreground shadow-xl dark:shadow-2xl dark:border-border duration-200 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          // Flex column with max viewport-height. When a child uses
+          // <DialogBody/> the popup goes overflow-hidden and the body slot
+          // becomes the only scroll region (sticky header + footer). When
+          // there's no DialogBody the popup falls back to scrolling its
+          // whole content — preserves behaviour for short legacy dialogs.
+          "fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] max-h-[calc(100vh-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-2xl border border-border/60 bg-popover p-6 text-sm text-popover-foreground shadow-xl dark:shadow-2xl dark:border-border duration-200 outline-none sm:max-w-md has-data-[slot=dialog-body]:overflow-hidden not-has-data-[slot=dialog-body]:overflow-y-auto data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
@@ -84,7 +89,25 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex shrink-0 flex-col gap-2", className)}
+      {...props}
+    />
+  )
+}
+
+/**
+ * Scrollable middle section of a Dialog. Pair with DialogHeader + DialogFooter
+ * to get sticky chrome and a scrolling body. Negative horizontal margins
+ * extend the scroll region to the dialog edges so the scrollbar sits flush.
+ */
+function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-body"
+      className={cn(
+        "-mx-6 min-h-0 flex-1 overflow-y-auto px-6",
+        className
+      )}
       {...props}
     />
   )
@@ -102,7 +125,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "-mx-6 -mb-6 flex shrink-0 flex-col-reverse gap-2 rounded-b-2xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
         className
       )}
       {...props}
@@ -148,6 +171,7 @@ function DialogDescription({
 
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,

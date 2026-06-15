@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -75,7 +77,7 @@ export function CreateIssueModal(props: CreateIssueModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg">
         {/* Mount the form only when the dialog is open. Unmount = automatic
             state reset between openings — no effect-driven setState needed,
             which keeps us clear of the react-hooks/set-state-in-effect lint
@@ -249,7 +251,11 @@ function CreateIssueForm({
               : t("issue.createIssue")}
         </DialogTitle>
       </DialogHeader>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="flex min-h-0 flex-1 flex-col gap-0"
+      >
+        <DialogBody className="space-y-4 py-2">
           {/* Template picker — only when templates exist + not in
               lock-type mode (Epic create skips templates entirely
               because Epic templates aren't a thing today). */}
@@ -461,6 +467,7 @@ function CreateIssueForm({
                 placeholder="—"
                 value={storyPoints}
                 onChange={(e) => setStoryPoints(e.target.value)}
+                className="w-full"
               />
             </div>
           </div>
@@ -486,20 +493,22 @@ function CreateIssueForm({
           )}
 
           {error && <p className="text-[12px] text-destructive">{error}</p>}
+        </DialogBody>
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isPending || !summary.trim()}
-        >
-          {isPending
-            ? t("common.creating")
-            : lockType && defaultType === "EPIC"
-              ? t("issue.createEpic")
-              : lockType && defaultType === "SUBTASK"
-                ? t("issue.addSubtask")
-                : t("issue.createIssue")}
-        </Button>
+        <DialogFooter>
+          <Button
+            type="submit"
+            disabled={isPending || !summary.trim()}
+          >
+            {isPending
+              ? t("common.creating")
+              : lockType && defaultType === "EPIC"
+                ? t("issue.createEpic")
+                : lockType && defaultType === "SUBTASK"
+                  ? t("issue.addSubtask")
+                  : t("issue.createIssue")}
+          </Button>
+        </DialogFooter>
       </form>
     </>
   );

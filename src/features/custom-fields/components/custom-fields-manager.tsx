@@ -256,7 +256,7 @@ function CreateFieldDialog({
               value={type}
               onValueChange={(v) => v && setType(v as CustomFieldType)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

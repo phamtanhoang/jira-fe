@@ -97,7 +97,7 @@ export default function ProjectSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-8 py-8">
+      <div className="px-8 py-8">
         <Skeleton className="mb-2 h-8 w-48" />
         <Skeleton className="mb-8 h-4 w-72" />
         <Skeleton className="h-64 rounded-lg" />
@@ -106,7 +106,7 @@ export default function ProjectSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-8 py-8">
+    <div className="px-8 py-8">
       {/* Breadcrumb */}
       <Breadcrumb
         className="mb-1"

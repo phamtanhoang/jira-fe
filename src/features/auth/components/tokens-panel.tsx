@@ -261,8 +261,13 @@ function CreateTokenDialog({
               {t("auth.tokens.copyWarning")}
             </div>
             <div className="flex items-center gap-2 rounded-md border bg-muted/30 p-2 font-mono text-[11px]">
-              <code className="flex-1 truncate">{rawToken}</code>
-              <Button size="xs" variant="outline" onClick={handleCopy}>
+              <code className="min-w-0 flex-1 truncate select-all">{rawToken}</code>
+              <Button
+                size="xs"
+                variant="outline"
+                onClick={handleCopy}
+                className="shrink-0"
+              >
                 {copied ? (
                   <>
                     <Check className="h-3 w-3" />

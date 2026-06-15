@@ -24,7 +24,7 @@ export function AdminSettingsClient() {
   const [tab, setTab] = useUrlTab<Tab>(TABS, "app-info");
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
+    <div className="w-full space-y-6 p-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">
           {t("admin.settings.title")}

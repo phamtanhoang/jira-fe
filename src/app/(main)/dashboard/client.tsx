@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const greeting = getGreeting(t);
 
   return (
-    <div className="mx-auto max-w-5xl px-8 py-8">
+    <div className="px-8 py-8">
       {/* Hero */}
       <div className="mb-10 rounded-xl bg-linear-to-r from-primary/8 via-primary/4 to-transparent p-8">
         <div className="flex items-start gap-4">

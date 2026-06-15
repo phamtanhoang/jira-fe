@@ -49,7 +49,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
+    <div className="px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-muted-foreground" />

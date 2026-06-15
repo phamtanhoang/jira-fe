@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { Input } from "@/components/ui/input";
 import {
@@ -84,27 +85,41 @@ export function CustomFieldInput({
         </div>
       );
 
-    case "SELECT":
+    case "SELECT": {
+      const hasValue = typeof value === "string" && value.length > 0;
       return (
         <div>
           {label}
-          <Select
-            value={typeof value === "string" ? value : ""}
-            onValueChange={(v) => onChange(v || undefined)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("common.select")} />
-            </SelectTrigger>
-            <SelectContent>
-              {def.options.map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {opt}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-1.5">
+            <Select
+              value={typeof value === "string" ? value : ""}
+              onValueChange={(v) => onChange(v || undefined)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("common.select")} />
+              </SelectTrigger>
+              <SelectContent>
+                {def.options.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hasValue && !def.required && (
+              <button
+                type="button"
+                onClick={() => onChange(undefined)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label={t("common.clear")}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       );
+    }
 
     case "MULTI_SELECT": {
       const selected = Array.isArray(value) ? (value as string[]) : [];

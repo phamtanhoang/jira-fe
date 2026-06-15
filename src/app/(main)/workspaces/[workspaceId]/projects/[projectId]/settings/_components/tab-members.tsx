@@ -207,7 +207,7 @@ export function TabMembers({
                     v && setMemberRole(v as typeof memberRole)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

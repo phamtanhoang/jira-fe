@@ -110,7 +110,12 @@
     "logout": "Logout",
     "newWorkspace": "New workspace",
     "admin": "Admin",
-    "adminLogs": "Request Logs"
+    "adminLogs": "Request Logs",
+    "myWork": "My Work",
+    "myIssues": "Assigned to me",
+    "overdue": "Overdue",
+    "starred": "Starred",
+    "inbox": "Inbox"
   },
   "bottomNav": {
     "myIssues": "My Issues",
@@ -871,6 +876,17 @@
     "manageMembers": "Manage who has access to this workspace",
     "manageDesc": "Manage projects and team members",
     "settings": "Settings",
+    "summary": "Summary",
+    "totalProjects": "Projects",
+    "totalMembers": "Members",
+    "totalEntities": "Projects + Members",
+    "totalIssuesCreated": "Issues created",
+    "projectsOverview": "Projects overview",
+    "mostActiveProjects": "Most active projects",
+    "recentMembers": "Recent members",
+    "noActivityYet": "No activity yet — create an issue to get started.",
+    "noMembersYet": "No members yet.",
+    "issuesLabel": "issues",
     "general": "General",
     "deleteWorkspace": "Delete workspace",
     "deleteConfirm": "Are you sure? Deleting a workspace permanently removes all its projects.",
@@ -1156,6 +1172,9 @@
   "calendar": {
     "today": "Today",
     "dragHint": "Drag an issue to another day to reschedule",
+    "scheduledThisMonth": "scheduled",
+    "overdue": "overdue",
+    "more": "more",
     "day": {
       "Mon": "Mon",
       "Tue": "Tue",

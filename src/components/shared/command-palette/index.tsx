@@ -153,18 +153,19 @@ export function CommandPalette() {
         </kbd>
       </button>
 
-      {/* Dialog overlay */}
+      {/* Dialog overlay — z-[200] so it sits above sticky headers, dropdowns,
+          and any other z-50 popovers in the app. */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
+        <div className="fixed inset-0 z-200 flex items-start justify-center pt-[15vh]">
           <div
-            className="fixed inset-0 bg-black/40 dark:bg-black/60 supports-backdrop-filter:backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 dark:bg-black/70 supports-backdrop-filter:backdrop-blur-sm"
             onClick={() => {
               setOpen(false);
               setQuery("");
             }}
           />
           <Command
-            className="relative w-full max-w-xl overflow-hidden rounded-2xl border bg-popover shadow-2xl dark:shadow-none"
+            className="relative z-10 mx-4 w-full max-w-xl overflow-hidden rounded-2xl border bg-popover shadow-2xl dark:shadow-none"
             shouldFilter={false}
           >
             {/* Input */}

@@ -303,14 +303,14 @@ function ColumnRow({
           if (dirty && name.trim().length > 0) onRename(name.trim());
           else if (!name.trim()) setName(col.name);
         }}
-        className="h-7 max-w-48 text-xs"
+        className="h-7 min-w-0 flex-1 text-xs"
       />
       <Select
         value={col.category}
         disabled={!canManage}
         onValueChange={(v) => v && onCategoryChange(v as Category)}
       >
-        <SelectTrigger className="h-7 w-36 text-xs">
+        <SelectTrigger className="h-7 w-40 shrink-0 text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -387,7 +387,7 @@ function CreateColumnDialog({
               value={category}
               onValueChange={(v) => v && setCategory(v as Category)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
