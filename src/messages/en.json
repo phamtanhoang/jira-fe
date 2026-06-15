@@ -115,7 +115,8 @@
     "myIssues": "Assigned to me",
     "overdue": "Overdue",
     "starred": "Starred",
-    "inbox": "Inbox"
+    "inbox": "Inbox",
+    "recent": "Recent"
   },
   "bottomNav": {
     "myIssues": "My Issues",

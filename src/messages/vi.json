@@ -115,7 +115,8 @@
     "myIssues": "Được giao",
     "overdue": "Quá hạn",
     "starred": "Đã đánh dấu",
-    "inbox": "Hộp thư"
+    "inbox": "Hộp thư",
+    "recent": "Vừa xem"
   },
   "bottomNav": {
     "myIssues": "Issues của tôi",
