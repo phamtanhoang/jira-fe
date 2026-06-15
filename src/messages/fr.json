@@ -1119,7 +1119,12 @@
     "emptyTitle": "Aucune épopée à placer sur la chronologie",
     "emptyDesc": "Créez des tickets de type EPIC avec une date de début ou d'échéance pour les voir ici.",
     "expandChildren": "Afficher les tickets enfants",
-    "collapseChildren": "Masquer les tickets enfants"
+    "collapseChildren": "Masquer les tickets enfants",
+    "density": "Densité",
+    "density_compact": "Trimestre",
+    "density_comfortable": "Mois",
+    "density_spacious": "Semaine",
+    "today": "Aujourd'hui"
   },
   "customFields": {
     "tab": "Champs personnalisés",

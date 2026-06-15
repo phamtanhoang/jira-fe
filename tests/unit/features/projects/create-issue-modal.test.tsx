@@ -365,11 +365,16 @@ describe("<CreateIssueModal />", () => {
       // EPIC option must NOT be present in the listbox.
       const options = await screen.findAllByRole("option");
       const labels = options.map((o) => o.textContent ?? "");
+      // EPIC and SUBTASK are intentionally absent from the regular
+      // create flow — they need a parent context (Epics tab trigger /
+      // "+ Add subtask" on an issue) and surfacing them here invited
+      // orphan-subtask workflows. The proper triggers pre-bind the
+      // parent and open this modal in lock-mode.
       expect(labels).not.toContain("issue.types.EPIC");
+      expect(labels).not.toContain("issue.types.SUBTASK");
       expect(labels).toContain("issue.types.STORY");
       expect(labels).toContain("issue.types.BUG");
       expect(labels).toContain("issue.types.TASK");
-      expect(labels).toContain("issue.types.SUBTASK");
     });
 
     it("renders no Type selector at all when lockType + defaultType=EPIC", () => {

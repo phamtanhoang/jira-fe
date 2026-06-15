@@ -1119,7 +1119,12 @@
     "emptyTitle": "タイムラインにプロットするエピックはありません",
     "emptyDesc": "startDate または dueDate が設定された EPIC タイプのイシューを作成するとここに表示されます。",
     "expandChildren": "子イシューを表示",
-    "collapseChildren": "子イシューを非表示"
+    "collapseChildren": "子イシューを非表示",
+    "density": "表示密度",
+    "density_compact": "四半期",
+    "density_comfortable": "月",
+    "density_spacious": "週",
+    "today": "今日"
   },
   "customFields": {
     "tab": "カスタムフィールド",

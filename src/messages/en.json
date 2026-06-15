@@ -1119,7 +1119,12 @@
     "emptyTitle": "No epics to plot on the timeline",
     "emptyDesc": "Create EPIC-type issues with a startDate or dueDate to see them here.",
     "expandChildren": "Show child issues",
-    "collapseChildren": "Hide child issues"
+    "collapseChildren": "Hide child issues",
+    "density": "Density",
+    "density_compact": "Quarter",
+    "density_comfortable": "Month",
+    "density_spacious": "Week",
+    "today": "Today"
   },
   "customFields": {
     "tab": "Custom fields",

@@ -1119,7 +1119,12 @@
     "emptyTitle": "时间线上暂无可绘制的史诗",
     "emptyDesc": "创建带有起始日期或截止日期的 EPIC 类型议题以便在此显示。",
     "expandChildren": "显示子议题",
-    "collapseChildren": "隐藏子议题"
+    "collapseChildren": "隐藏子议题",
+    "density": "显示密度",
+    "density_compact": "季度",
+    "density_comfortable": "月",
+    "density_spacious": "周",
+    "today": "今天"
   },
   "customFields": {
     "tab": "自定义字段",

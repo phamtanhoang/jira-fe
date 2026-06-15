@@ -1119,7 +1119,12 @@
     "emptyTitle": "타임라인에 표시할 에픽이 없습니다",
     "emptyDesc": "여기서 보려면 startDate 또는 dueDate가 있는 EPIC 유형 이슈를 만드세요.",
     "expandChildren": "하위 이슈 표시",
-    "collapseChildren": "하위 이슈 숨기기"
+    "collapseChildren": "하위 이슈 숨기기",
+    "density": "표시 밀도",
+    "density_compact": "분기",
+    "density_comfortable": "월",
+    "density_spacious": "주",
+    "today": "오늘"
   },
   "customFields": {
     "tab": "사용자 정의 필드",

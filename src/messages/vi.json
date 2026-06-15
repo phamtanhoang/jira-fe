@@ -1119,7 +1119,12 @@
     "emptyTitle": "Chưa có epic để hiển thị trên timeline",
     "emptyDesc": "Tạo issue type EPIC với startDate hoặc dueDate để chúng xuất hiện ở đây.",
     "expandChildren": "Hiện công việc con",
-    "collapseChildren": "Ẩn công việc con"
+    "collapseChildren": "Ẩn công việc con",
+    "density": "Mật độ",
+    "density_compact": "Quý",
+    "density_comfortable": "Tháng",
+    "density_spacious": "Tuần",
+    "today": "Hôm nay"
   },
   "customFields": {
     "tab": "Custom fields",

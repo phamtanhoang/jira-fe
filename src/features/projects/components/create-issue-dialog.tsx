@@ -99,15 +99,22 @@ function CreateIssueForm({
 }: CreateIssueModalProps) {
   const { t } = useAppStore();
 
-  // Type options. EPIC is intentionally absent from the regular create
-  // flow — Epics get their own create entry under the Epics tab, and
-  // surfacing them here invited "I accidentally made a SUBTASK with
-  // type EPIC" confusion. Locked-type flows (EPIC / SUBTASK triggers)
-  // collapse the option list to just that type so the dropdown isn't
-  // misleading even when it's hidden.
+  // Type options for the regular (un-locked) flow. EPIC and SUBTASK are
+  // intentionally absent — both are creation flows that NEED a parent
+  // context:
+  //   - EPIC: created from the Epics tab via its own trigger
+  //   - SUBTASK: created from a parent issue's "+ Add subtask" button
+  //     (which opens this modal in lock-mode with defaultParentId set)
+  // Surfacing SUBTASK in the global dropdown invited an orphan-subtask
+  // workflow where the user had to manually pick a parent — a step
+  // that the proper trigger pre-binds for free, and that nothing else
+  // in the UI prepared them for.
+  //
+  // Locked-type flows collapse the option list to just `defaultType`
+  // so the (hidden) dropdown doesn't accidentally surface anything else.
   const TYPE_OPTIONS = useMemo<Issue["type"][]>(() => {
     if (lockType && defaultType) return [defaultType];
-    return ["STORY", "BUG", "TASK", "SUBTASK"];
+    return ["STORY", "BUG", "TASK"];
   }, [lockType, defaultType]);
 
   const [templateId, setTemplateId] = useState<string>("");
