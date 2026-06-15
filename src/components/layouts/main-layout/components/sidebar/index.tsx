@@ -9,16 +9,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   ShieldCheck,
-  Clock,
-  LayoutGrid,
-  Bug,
-  BookOpen,
-  CheckSquare,
-  Layers,
-  Zap,
-  type LucideIcon,
 } from "lucide-react";
-import { cn, getInitials, getTileGradient, useRecents } from "@/lib/utils";
+import { cn, getInitials, getTileGradient } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useAppStore } from "@/lib/stores/use-app-store";
 import { useCurrentUser } from "@/features/auth/hooks";
@@ -32,16 +24,6 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 
-// Same map cmdk uses — issue-type icon for Recent rows. Defined here too so
-// Sidebar doesn't reach into a component's internals just to mirror the look.
-const ISSUE_ICONS: Record<string, LucideIcon> = {
-  EPIC: Zap,
-  STORY: BookOpen,
-  BUG: Bug,
-  TASK: CheckSquare,
-  SUBTASK: Layers,
-};
-
 export function Sidebar({
   collapsed,
   onToggle,
@@ -53,8 +35,6 @@ export function Sidebar({
   const { name: appName, logoUrl, authorName, authorUrl, t } = useAppStore();
   const { data: workspaces } = useWorkspaces();
   const { user } = useCurrentUser();
-  const recents = useRecents().slice(0, 5);
-
   const navItems = [
     { href: ROUTES.DASHBOARD, label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: ROUTES.WORKSPACES, label: t("nav.workspaces"), icon: FolderKanban },
@@ -189,55 +169,6 @@ export function Sidebar({
             ))}
           </nav>
         </div>
-
-        <div className="px-3 py-1">
-          <Separator />
-        </div>
-
-        {/* Recent — last 5 issues/projects the user opened. Reads from the
-            localStorage ring buffer that Cmd+K already populates, so no new
-            data source. Replaces the prior "My Work" section which just
-            duplicated filters already on /dashboard + the header bell. */}
-        {recents.length > 0 && (
-          <div className="px-3 py-1">
-            <div className="mb-1 flex items-center gap-1.5 px-2.5 text-[11px] font-medium text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              {t("nav.recent")}
-            </div>
-            <nav className="space-y-0.5">
-              {recents.map((item) => {
-                const href =
-                  item.type === "ISSUE"
-                    ? ROUTES.ISSUE(item.key)
-                    : ROUTES.BOARD(item.workspaceId, item.id);
-                const Icon: LucideIcon =
-                  item.type === "ISSUE"
-                    ? ISSUE_ICONS[item.issueType ?? ""] ?? CheckSquare
-                    : LayoutGrid;
-                const label = item.type === "ISSUE" ? item.summary : item.name;
-                const isActive = pathname === href;
-                return (
-                  <Link
-                    key={`${item.type}:${item.id}`}
-                    href={href}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
-                      isActive
-                        ? "bg-primary/8 text-primary font-medium"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="shrink-0 font-mono text-[10px] text-muted-foreground/70">
-                      {item.key}
-                    </span>
-                    <span className="truncate">{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        )}
 
         <div className="px-3 py-1">
           <Separator />

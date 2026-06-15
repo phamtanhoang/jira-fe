@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import {
@@ -153,12 +154,16 @@ export function CommandPalette() {
         </kbd>
       </button>
 
-      {/* Dialog overlay — z-[200] so it sits above sticky headers, dropdowns,
-          and any other z-50 popovers in the app. */}
-      {open && (
-        <div className="fixed inset-0 z-200 flex items-start justify-center pt-[15vh]">
+      {/* Portal into document.body so the modal escapes every parent
+          stacking context (sticky header, transformed parents, etc.). The
+          inline render approach was getting beaten by elements like the
+          page-level `bg-background/80 backdrop-blur-md` header. With the
+          portal the modal is a top-level sibling of <body>, so its z-index
+          competes only against root-level overlays. */}
+      {open && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-1000 flex items-start justify-center pt-[15vh]">
           <div
-            className="fixed inset-0 bg-black/50 dark:bg-black/70 supports-backdrop-filter:backdrop-blur-sm"
+            className="fixed inset-0 bg-black/70 dark:bg-black/85 supports-backdrop-filter:backdrop-blur-md"
             onClick={() => {
               setOpen(false);
               setQuery("");
@@ -399,7 +404,8 @@ export function CommandPalette() {
               </span>
             </div>
           </Command>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
