@@ -31,3 +31,7 @@ export const STALE_DOMAIN_DEFAULT = 60 * 1000; // 60s
 
 /** Dashboard-widget-level data — OK to be a little stale to avoid flicker. */
 export const STALE_DASHBOARD_WIDGET = 30 * 1000; // 30s
+
+/** Notification bell — unread count + user preferences. Same family as
+ *  identity data: rarely-changing, mounted on every layout via the bell. */
+export const STALE_NOTIFICATIONS = 5 * 60 * 1000; // 5 min

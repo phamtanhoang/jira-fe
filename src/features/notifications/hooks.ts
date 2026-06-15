@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleApiError, showMessage } from "@/lib/utils";
+import { STALE_NOTIFICATIONS } from "@/lib/constants/query-stale";
 import { notificationsApi } from "./api";
 
 const KEY = ["notifications"] as const;
@@ -19,7 +20,7 @@ export function useUnreadCount() {
   return useQuery({
     queryKey: UNREAD_KEY,
     queryFn: () => notificationsApi.unreadCount(),
-    staleTime: 5 * 60_000,
+    staleTime: STALE_NOTIFICATIONS,
     refetchInterval: UNREAD_REFETCH_MS,
     refetchOnWindowFocus: true,
   });
@@ -79,7 +80,7 @@ export function useNotificationPreferences() {
   return useQuery({
     queryKey: PREFERENCES_KEY,
     queryFn: () => notificationsApi.getPreferences(),
-    staleTime: 5 * 60_000,
+    staleTime: STALE_NOTIFICATIONS,
     refetchOnWindowFocus: false,
   });
 }
