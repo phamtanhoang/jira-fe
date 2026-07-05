@@ -73,6 +73,3 @@ docs: clarify component-patterns rule
 refactor(rich-editor): extract mention list
 ```
 
-## Reporting issues
-
-Open a GitHub issue with: reproduction steps, expected vs actual, browser + Next.js version, screenshot if visual. For security issues, see [SECURITY.md](./SECURITY.md) — do **not** open a public issue.

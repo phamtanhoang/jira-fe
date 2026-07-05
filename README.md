@@ -4,13 +4,10 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)](https://www.typescriptlang.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 A modern Next.js 16 (App Router) frontend for the [Jira Clone backend](../jira-be) — authentication, project boards (Kanban + Scrum), sprint planning, custom fields, real-time mentions, and PWA-ready mobile experience.
 
 🤝 **[CONTRIBUTING.md](./CONTRIBUTING.md)** — quick start + PR checklist + conventions.
-🔒 **[SECURITY.md](./SECURITY.md)** — responsible disclosure policy.
-📝 **[CHANGELOG.md](../CHANGELOG.md)** — recent changes grouped by phase.
 
 ## Tech Stack
 
@@ -102,6 +99,3 @@ Switch languages using the locale switcher component.
 
 Please follow the existing code style and structure when contributing.
 
-## License
-
-MIT
