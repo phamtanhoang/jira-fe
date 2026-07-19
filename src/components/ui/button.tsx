@@ -56,14 +56,19 @@ function Button({
     render?: ReactElement
   }) {
   if (render) {
-    return cloneElement(render, {
-      ...props,
+    // `render` can be any React element; TypeScript cannot statically
+    // know its props shape. Cast to `any` for the merge and preserve
+    // existing className on the provided element.
+    const merged = {
+      ...(props as any),
       className: cn(
         buttonVariants({ variant, size, className }),
-        render.props.className,
+        (render as any)?.props?.className,
       ),
       children,
-    })
+    }
+
+    return cloneElement(render as ReactElement<any>, merged as any)
   }
 
   const shouldRenderAsChild =
