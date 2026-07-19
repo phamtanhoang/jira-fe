@@ -56,19 +56,24 @@ function Button({
     render?: ReactElement
   }) {
   if (render) {
-    // `render` can be any React element; TypeScript cannot statically
-    // know its props shape. Cast to `any` for the merge and preserve
-    // existing className on the provided element.
+    // Use a narrow unknown-like shape instead of `any` so lint/type-check
+    // rules in CI don't complain about `any` usage. `UnknownProps` is a
+    // simple map of props which we can safely merge and pass to
+    // `cloneElement`.
+    type UnknownProps = Record<string, unknown>
+
+    const renderEl = render as ReactElement<UnknownProps>
+
     const merged = {
-      ...(props as any),
+      ...(props as UnknownProps),
       className: cn(
         buttonVariants({ variant, size, className }),
-        (render as any)?.props?.className,
+        renderEl?.props?.className as string | undefined,
       ),
       children,
-    }
+    } as UnknownProps
 
-    return cloneElement(render as ReactElement<any>, merged as any)
+    return cloneElement(renderEl, merged)
   }
 
   const shouldRenderAsChild =
