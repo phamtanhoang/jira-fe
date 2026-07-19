@@ -1,5 +1,7 @@
+import { Slot } from "@radix-ui/react-slot"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
+import { cloneElement, isValidElement, type ReactElement } from "react"
 
 import { cn } from "@/lib/utils/index"
 
@@ -44,14 +46,39 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  asChild = false,
+  children,
+  render,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+    render?: ReactElement
+  }) {
+  if (render) {
+    return cloneElement(render, {
+      ...props,
+      className: cn(
+        buttonVariants({ variant, size, className }),
+        render.props.className,
+      ),
+      children,
+    })
+  }
+
+  const shouldRenderAsChild =
+    asChild || (isValidElement(children) && children.type === "button")
+
+  const Component = shouldRenderAsChild ? Slot : ButtonPrimitive
+
   return (
-    <ButtonPrimitive
+    <Component
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {children}
+    </Component>
   )
 }
 
